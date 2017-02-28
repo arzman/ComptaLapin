@@ -6,8 +6,6 @@ import com.sun.javafx.application.LauncherImpl;
 
 import javafx.application.Application;
 import javafx.application.Preloader.PreloaderNotification;
-import javafx.application.Preloader.StateChangeNotification;
-import javafx.scene.Group;
 import javafx.stage.Stage;
 
 /**
@@ -30,10 +28,10 @@ public class ComptaLapin extends Application
     	
     	super.init();
     	
-    	Thread.sleep(2000);
+    	Thread.sleep(500);
     	notifyPreloader( new PreloaderNotification() {
 		});
-    	Thread.sleep(2000);
+    	Thread.sleep(500);
     	
     	
     }

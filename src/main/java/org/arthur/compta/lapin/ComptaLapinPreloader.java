@@ -8,11 +8,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.RowConstraints;
 import javafx.stage.Stage;
 
 public class ComptaLapinPreloader extends Preloader {
@@ -28,28 +26,35 @@ public class ComptaLapinPreloader extends Preloader {
 	public void start(Stage primaryStage) throws Exception {
 
 		this.preloaderStage = primaryStage;
+		primaryStage.setResizable(false);
 
-		GridPane loading = new GridPane();
+		GridPane gridPane = new GridPane();
+		ColumnConstraints colCons0 = new ColumnConstraints();
+		colCons0.setFillWidth(true);
+		colCons0.setHgrow(Priority.ALWAYS);
+		colCons0.setHalignment(HPos.CENTER);
+		colCons0.setPercentWidth(100);
+		gridPane.getColumnConstraints().add(colCons0);
 
 		//image du lapin
 		Image image = new Image("org/arthur/compta/lapin/presentation/resource/img/bunny.jpg");
 		ImageView imView = new ImageView(image);
-		loading.add(imView, 0, 0);
+		gridPane.add(imView, 0, 0);
 		
 		
 		//barre de progression
 		ProgressBar progressBar = new ProgressBar();
-		GridPane.setFillWidth(progressBar, Boolean.TRUE);
-		loading.add(progressBar, 0, 1);
+		progressBar.setMaxWidth(Double.MAX_VALUE);
+		gridPane.add(progressBar, 0, 1);
 		
 		
 
 		// un petit texte
 		loadingLdl = new Label("Chargement en cours...");
-		loading.add(loadingLdl, 0, 2);
+		gridPane.add(loadingLdl, 0, 2);
 
 		// création de la scene
-		Scene scene = new Scene(loading);
+		Scene scene = new Scene(gridPane);
 		primaryStage.setScene(scene);
 		primaryStage.show();
 

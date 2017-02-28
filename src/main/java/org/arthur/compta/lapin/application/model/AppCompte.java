@@ -2,6 +2,7 @@ package org.arthur.compta.lapin.application.model;
 
 import org.arthur.compta.lapin.model.Compte;
 
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 /**
@@ -22,6 +23,13 @@ public class AppCompte {
 	private SimpleStringProperty _nomProp;
 	
 	/**
+	 * Le solde du compte
+	 */
+	private SimpleDoubleProperty _soldeProp;
+	
+	
+	
+	/**
 	 * Constructeur
 	 * @param compte_ le compte métier relié
 	 */
@@ -29,12 +37,24 @@ public class AppCompte {
 		_compte = compte_;
 		
 		_nomProp = new SimpleStringProperty(_compte.getNom());
+		_soldeProp = new SimpleDoubleProperty(_compte.getSolde());
 		
 	}
 	
-	
+	/**
+	 * Retourne le nom du compte
+	 * @return le nom du compte
+	 */
 	public String getNomProp(){
 		return _nomProp.get();
+	}
+	
+	/**
+	 * Retourne le solde du compte
+	 * @return le solde du compte
+	 */
+	public double getSoldeProp(){
+		return _soldeProp.get();
 	}
 	
 	

@@ -2,6 +2,7 @@ package org.arthur.compta.lapin.presentation.compte.pane;
 
 import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.model.AppCompte;
+import org.arthur.compta.lapin.presentation.compte.cellfactory.SoldeCompteCellFactory;
 
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -39,9 +40,11 @@ public class ComptePane extends GridPane {
 		table.getColumns().add(colNom);
 		
 		//Colonne du montant
-		TableColumn<AppCompte,String> colMontant = new TableColumn<>("Solde");
+		TableColumn<AppCompte,Double> colMontant = new TableColumn<>("Solde");
 		colMontant.setResizable(true);
 		colMontant.setEditable(false);
+		colMontant.setCellValueFactory(new PropertyValueFactory<>("soldeProp"));
+		colMontant.setCellFactory(new SoldeCompteCellFactory());
 		table.getColumns().add(colMontant);
 		
 		//Colonne solde prevu a la fin du 1er mois

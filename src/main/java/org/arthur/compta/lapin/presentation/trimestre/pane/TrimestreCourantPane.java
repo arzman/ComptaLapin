@@ -20,9 +20,7 @@ public class TrimestreCourantPane extends GridPane {
 		//Création du contenu
 		Label txt = new Label("Panneau du trimestre courant");
 		add(txt, 0, 0);
-			
-		
-		
+
 	}
 
 }

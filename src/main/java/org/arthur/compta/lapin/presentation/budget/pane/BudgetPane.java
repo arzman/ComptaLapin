@@ -8,15 +8,14 @@ import javafx.scene.layout.GridPane;
  *
  */
 public class BudgetPane extends GridPane {
-	
-	
+
 	/**
 	 * Constructeur par défaut
 	 */
 	public BudgetPane() {
 		super();
-		
-		//Création du contenu
+
+		// Création du contenu
 		Label txt = new Label("Panneau des budgets");
 		add(txt, 0, 0);
 	}

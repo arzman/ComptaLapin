@@ -1,5 +1,7 @@
 package org.arthur.compta.lapin;
 
+import org.arthur.compta.lapin.dataaccess.db.DBManager;
+import org.arthur.compta.lapin.dataaccess.files.FilesManager;
 import org.arthur.compta.lapin.presentation.scene.MainScene;
 
 import com.sun.javafx.application.LauncherImpl;
@@ -29,6 +31,8 @@ public class ComptaLapin extends Application
     	super.init();
     	
     	Thread.sleep(500);
+    	FilesManager.getInstance();
+    	DBManager.getInstance();
     	notifyPreloader( new PreloaderNotification() {
 		});
     	Thread.sleep(500);

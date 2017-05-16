@@ -7,25 +7,22 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 
 import org.arthur.compta.lapin.dataaccess.files.FilesManager;
 
 /**
  * Gère l'accès à la base de donnée
- * 
- * @author ARDUFLOT
- *
- */
-/**
- * @author ARDUFLOT
- *
  */
 public class DBManager {
 
 	/** l'instance du singleton */
 	private static DBManager _instance;
+
+	private Connection connexionDB;
 
 	/**
 	 * Retourne l'instance unique du singleton
@@ -49,7 +46,7 @@ public class DBManager {
 
 		try {
 			// tentative de connexion à la base
-			Connection c = DriverManager.getConnection("jdbc:hsqldb:file:" + pathToDb + ";ifexists=true", "SA", "");
+			connexionDB = DriverManager.getConnection("jdbc:hsqldb:file:" + pathToDb + ";ifexists=true", "SA", "");
 
 		} catch (SQLException e) {
 			createDB(pathToDb);
@@ -67,10 +64,8 @@ public class DBManager {
 	 */
 	private void loadScript(Connection connexion, String script) {
 
-
 		try (InputStream input = getClass()
 				.getResourceAsStream("/org/arthur/compta/lapin/dataaccess/db/ressource/" + script);
-
 				InputStreamReader reader = new InputStreamReader(input);
 				BufferedReader bReader = new BufferedReader(reader);) {
 
@@ -86,7 +81,7 @@ public class DBManager {
 
 			stmt.executeUpdate(sb.toString());
 		} catch (Exception e) {
-			System.err.println("Impossible d'executer" + script + ". Erreur :" + e.getMessage());
+			e.printStackTrace();
 		}
 
 	}
@@ -101,16 +96,85 @@ public class DBManager {
 
 		// création de la base
 		try {
-			Connection c = DriverManager.getConnection("jdbc:hsqldb:file:" + pathToDb.toString() + ";ifexists=false",
+			connexionDB = DriverManager.getConnection("jdbc:hsqldb:file:" + pathToDb.toString() + ";ifexists=false",
 					"SA", "");
-			
-			loadScript(c, "create_db.sql");
+
+			loadScript(connexionDB, "create_db.sql");
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
+	}
+
+	/**
+	 * Ajout un compte dans la base de donnée
+	 * 
+	 * @param nom
+	 *            le nom du compte
+	 * @param solde
+	 *            le solde
+	 * @param livret
+	 *            est livret ?
+	 * @param budgetAllowed
+	 *            participe aux budgets ?
+	 * @return ID en base du compte
+	 * @throws SQLException
+	 *             Exception en cas de problème lors de l'insertion
+	 */
+	public String addCompte(String nom, double solde, boolean livret, boolean budgetAllowed) throws SQLException {
+
+		String id = "";
+
+		// insertion du compte en base
+		Statement stmt = connexionDB.createStatement();
+		ResultSet res = stmt.executeQuery("INSERT INTO COMPTE (nom,solde,is_livret,budget_allowed) VALUES (\'" + nom
+				+ "\'," + solde + "," + livret + "," + budgetAllowed + ");CALL IDENTITY();");
+
+		// récupération de l'id en base du compte créé
+		if (res.getMetaData().getColumnCount() == 1 && res.next()) {
+			id = res.getObject(1).toString().trim();
+		}
+		
+		//libération des ressources JDBC
+		stmt.close();
+		res.close();		
+
+		return id;
+	}
+
+	/**
+	 * Récupère toutes les informations comptes de la base de donnée
+	 * @return couple clé : identifiant et valeurs [nom,solde,livret,budget]
+	 * @throws SQLException Exception sur la récupération en base
+	 */
+	public HashMap<String, String[]> getAllCompte() throws SQLException {
+
+		HashMap<String, String[]> infos = new HashMap<String, String[]>();
+
+		// requête sur la table COMPTE
+		Statement stmt = connexionDB.createStatement();
+		ResultSet res = stmt.executeQuery("SELECT ID,nom,solde,is_livret,budget_allowed FROM COMPTE;");
+
+		if (res.getMetaData().getColumnCount() == 5) {
+
+			while (res.next()) {
+				//récupération des champs
+				String[] values = new String[4];
+				values[0] = res.getObject(2).toString().trim();
+				values[1] = res.getObject(3).toString().trim();
+				values[2] = res.getObject(4).toString().trim();
+				values[3] = res.getObject(5).toString().trim();
+
+				infos.put(res.getObject(1).toString().trim(), values);
+			}
+		}
+		
+		//libération des ressources JDBC
+		stmt.close();
+		res.close();
+		
+		return infos;
 	}
 
 }

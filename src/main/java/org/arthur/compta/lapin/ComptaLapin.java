@@ -30,12 +30,10 @@ public class ComptaLapin extends Application
     	
     	super.init();
     	
-    	Thread.sleep(500);
     	FilesManager.getInstance();
     	DBManager.getInstance();
     	notifyPreloader( new PreloaderNotification() {
 		});
-    	Thread.sleep(500);
     	
     	
     }

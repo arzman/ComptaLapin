@@ -2,11 +2,13 @@ package org.arthur.compta.lapin.presentation.scene;
 
 import org.arthur.compta.lapin.presentation.budget.pane.BudgetPane;
 import org.arthur.compta.lapin.presentation.compte.pane.ComptePane;
+import org.arthur.compta.lapin.presentation.menu.ComptaMenuBar;
 import org.arthur.compta.lapin.presentation.trimestre.pane.TrimestreCourantPane;
 
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.SplitPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 
 /**
@@ -22,12 +24,19 @@ public class MainScene extends Scene {
 	 */
 	public MainScene() {
 		// appel du constructeur parent
-		super(new StackPane());
+		super(new BorderPane());
 
+		//ajout de la barre de menu
+		((BorderPane) getRoot()).setTop(new ComptaMenuBar());
+
+		//panneau principal de l'appli
+		StackPane stack = new StackPane();
+		((BorderPane) getRoot()).setCenter(stack);
+		
 		// ajout d'une séparation gauche-droite de la fenêtre
 		SplitPane splitgaucheDroite = new SplitPane();
 		splitgaucheDroite.setOrientation(Orientation.HORIZONTAL);
-		((StackPane) getRoot()).getChildren().add(splitgaucheDroite);
+		stack.getChildren().add(splitgaucheDroite);
 
 		// Ajout à gauche de l'affichage du trimestre courant
 		splitgaucheDroite.getItems().add(new TrimestreCourantPane());
@@ -42,6 +51,8 @@ public class MainScene extends Scene {
 
 		// Ajout de l'affichage des comptes
 		splitHautBas.getItems().add(new ComptePane());
+
+		
 
 	}
 

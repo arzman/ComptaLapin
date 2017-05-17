@@ -72,5 +72,13 @@ public class AppCompte {
 		_appId = id;
 
 	}
+	
+	/**
+	 * Retourne l'identifiant application du compte
+	 * @return l'identifiant applicatif
+	 */
+	public String getAppId() {
+		return _appId;
+	}
 
 }

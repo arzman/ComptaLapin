@@ -3,6 +3,7 @@ package org.arthur.compta.lapin.presentation.compte.dialog;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.model.AppCompte;
+import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 
 import javafx.scene.Node;
 import javafx.scene.control.ButtonBar.ButtonData;
@@ -22,9 +23,7 @@ import javafx.scene.paint.Color;
 import javafx.util.Callback;
 
 /**
- * Fenêtre d'édition d'un
- * 
- * @author ARDUFLOT
+ * Fenêtre d'édition d'un compte
  *
  */
 public class EditCompteDialog extends Dialog<AppCompte> {
@@ -142,8 +141,8 @@ public class EditCompteDialog extends Dialog<AppCompte> {
 								_budgetCheck.isSelected());
 
 					} catch (ComptaException e) {
+						ExceptionDisplayService.showException(e);
 						zeReturn = null;
-						e.printStackTrace();
 					}
 
 				} else {

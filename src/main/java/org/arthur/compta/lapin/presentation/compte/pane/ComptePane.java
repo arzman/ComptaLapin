@@ -1,15 +1,21 @@
 package org.arthur.compta.lapin.presentation.compte.pane;
 
+import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.model.AppCompte;
-import org.arthur.compta.lapin.presentation.compte.action.AddCompteAction;
 import org.arthur.compta.lapin.presentation.compte.cellfactory.SoldeCompteCellFactory;
+import org.arthur.compta.lapin.presentation.compte.dialog.EditCompteDialog;
+import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 
+import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Tooltip;
@@ -64,8 +70,8 @@ public class ComptePane extends GridPane {
 			@Override
 			public void handle(ActionEvent event) {
 				
-				AddCompteAction act = new AddCompteAction();
-				act.execute();
+				EditCompteDialog dia = new EditCompteDialog();
+				dia.showAndWait();
 				
 			}
 		});
@@ -118,7 +124,45 @@ public class ComptePane extends GridPane {
 
 		// bind à la liste des comptes
 		table.setItems(CompteManager.getInstance().getCompteList());
+		
+		//ajout du menu contextuel
+		table.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+		createContextMenu(table);
 
+	}
+	/**
+	 * Création du menu contexuel sur le tableau des compte
+	 * @param table le tableau des comptes
+	 */
+	private void createContextMenu(TableView<AppCompte> table) {
+		
+		//le menu contextuel
+		final ContextMenu menu = new ContextMenu();
+		table.setContextMenu(menu);
+		
+		// action de suppression des comptes
+		final MenuItem removeCompte = new MenuItem("Supprimer");
+		removeCompte.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.DEL_IMG)));
+		removeCompte.setOnAction(new EventHandler<ActionEvent>() {
+		  @Override
+		  public void handle(ActionEvent event) {
+
+			 // récupération du compte applicatif
+		    AppCompte appC = table.getSelectionModel().getSelectedItems().get(0);
+		    // suppression
+		    try {
+				CompteManager.getInstance().removeCompte(appC);
+			} catch (ComptaException e) {
+				ExceptionDisplayService.showException(e);
+			}
+		  }
+		});
+		// on désactive le menu si la selection est vide
+		removeCompte.disableProperty().bind(Bindings.isEmpty(table.getSelectionModel().getSelectedItems()));
+		menu.getItems().add(removeCompte);
+		
+		
+		
 	}
 
 }

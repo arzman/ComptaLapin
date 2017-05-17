@@ -127,4 +127,28 @@ public class CompteManager {
 		return appC;
 	}
 
+	/**
+	 * Suppression d'un compte
+	 * @param appCompte le compte a supprimer 
+	 * @throws ComptaException La suppression a échouer
+	 */
+	public void removeCompte(AppCompte appCompte) throws ComptaException {
+		
+		if(appCompte !=null){
+			
+			
+			try {
+				//suppression en base
+				DBManager.getInstance().removeCompte(appCompte.getAppId());
+				//suppression de l'appli
+				_compteList.remove(appCompte);
+			} catch (Exception e) {
+				throw new ComptaException("Impossible de supprimer le compte",e);
+			}
+			
+			
+		}
+		
+	}
+
 }

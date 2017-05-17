@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -135,18 +136,20 @@ public class DBManager {
 		if (res.getMetaData().getColumnCount() == 1 && res.next()) {
 			id = res.getObject(1).toString().trim();
 		}
-		
-		//libération des ressources JDBC
+
+		// libération des ressources JDBC
 		stmt.close();
-		res.close();		
+		res.close();
 
 		return id;
 	}
 
 	/**
 	 * Récupère toutes les informations comptes de la base de donnée
+	 * 
 	 * @return couple clé : identifiant et valeurs [nom,solde,livret,budget]
-	 * @throws SQLException Exception sur la récupération en base
+	 * @throws SQLException
+	 *             Exception sur la récupération en base
 	 */
 	public HashMap<String, String[]> getAllCompte() throws SQLException {
 
@@ -159,7 +162,7 @@ public class DBManager {
 		if (res.getMetaData().getColumnCount() == 5) {
 
 			while (res.next()) {
-				//récupération des champs
+				// récupération des champs
 				String[] values = new String[4];
 				values[0] = res.getObject(2).toString().trim();
 				values[1] = res.getObject(3).toString().trim();
@@ -169,12 +172,30 @@ public class DBManager {
 				infos.put(res.getObject(1).toString().trim(), values);
 			}
 		}
-		
-		//libération des ressources JDBC
+
+		// libération des ressources JDBC
 		stmt.close();
 		res.close();
-		
+
 		return infos;
+	}
+
+	/**
+	 * Supprime le compte correspondant à l'identifiant applicatif passé en
+	 * paramètre
+	 * 
+	 * @param appId
+	 *            l'id
+	 * @throws SQLException
+	 */
+	public void removeCompte(String appId) throws SQLException {
+
+		// préparation de la requête de suppression
+		PreparedStatement stmt = connexionDB.prepareStatement("DELETE FROM COMPTE WHERE ID = ?");
+		stmt.setString(1, appId);
+		// execution
+		stmt.executeUpdate();
+
 	}
 
 }

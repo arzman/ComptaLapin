@@ -123,7 +123,8 @@ public class DBManager {
 	 * @throws SQLException
 	 *             Exception en cas de problème lors de l'insertion
 	 */
-	public String addCompte(String nom, double solde, boolean livret, boolean budgetAllowed) throws SQLException {
+	public synchronized String addCompte(String nom, double solde, boolean livret, boolean budgetAllowed)
+			throws SQLException {
 
 		String id = "";
 
@@ -151,7 +152,7 @@ public class DBManager {
 	 * @throws SQLException
 	 *             Exception sur la récupération en base
 	 */
-	public HashMap<String, String[]> getAllCompte() throws SQLException {
+	public synchronized HashMap<String, String[]> getAllCompte() throws SQLException {
 
 		HashMap<String, String[]> infos = new HashMap<String, String[]>();
 
@@ -174,8 +175,8 @@ public class DBManager {
 		}
 
 		// libération des ressources JDBC
-		stmt.close();
 		res.close();
+		stmt.close();
 
 		return infos;
 	}
@@ -186,9 +187,9 @@ public class DBManager {
 	 * 
 	 * @param appId
 	 *            l'id
-	 * @throws SQLException
+	 * @throws SQLException Exception si la requête en base échoue
 	 */
-	public void removeCompte(String appId) throws SQLException {
+	public synchronized void removeCompte(String appId) throws SQLException {
 
 		// préparation de la requête de suppression
 		PreparedStatement stmt = connexionDB.prepareStatement("DELETE FROM COMPTE WHERE ID = ?");
@@ -196,6 +197,29 @@ public class DBManager {
 		// execution
 		stmt.executeUpdate();
 
+	}
+
+	/**
+	 * Met à jour le compte en base
+	 * @param appId l'id du compte a mettre a jour
+	 * @param nom le nouveau nom
+	 * @param solde le nouveau solde
+	 * @param isLivret le nouveau flag islivret
+	 * @param isBudget le nouveau flag isBudget
+	 * @throws SQLException Exception si la requête en base échoue
+	 */
+	public synchronized void updateCompte(String appId, String nom, double solde, boolean isLivret, boolean isBudget) throws SQLException {
+		
+		// préparation de la requête
+		PreparedStatement stmt = connexionDB.prepareStatement("UPDATE COMPTE SET nom=?,solde=?,is_livret=?,budget_allowed=? WHERE ID = ?");
+		stmt.setString(1, nom);
+		stmt.setDouble(2, solde);
+		stmt.setBoolean(3, isLivret);
+		stmt.setBoolean(4, isBudget);
+		stmt.setString(5, appId);
+		// execution
+		stmt.executeUpdate();
+		
 	}
 
 }

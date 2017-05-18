@@ -14,18 +14,18 @@ import javafx.util.Callback;
  * tableau.
  *
  */
-public class SoldeCompteCellFactory implements Callback<TableColumn<AppCompte, Double>, TableCell<AppCompte, Double>> {
+public class SoldeCompteCellFactory implements Callback<TableColumn<AppCompte, Number>, TableCell<AppCompte, Number>> {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public TableCell<AppCompte, Double> call(TableColumn<AppCompte, Double> param) {
+	public TableCell<AppCompte, Number> call(TableColumn<AppCompte, Number> param) {
 
-		return new TableCell<AppCompte, Double>() {
+		return new TableCell<AppCompte, Number>() {
 
 			@Override
-			protected void updateItem(Double item, boolean empty) {
+			protected void updateItem(Number item, boolean empty) {
 				// surcharge de la mise à jour du text
 				super.updateItem(item, empty);
 				if (empty) {

@@ -50,15 +50,26 @@ public class EditCompteDialog extends Dialog<AppCompte> {
 	 */
 	private ButtonType _buttonTypeOk;
 
+	/**
+	 * Id application du compte a éditié ( vide si création)
+	 */
+	private AppCompte _appCompte;
+
 	private final Border BORDER_ERROR = new Border(
 			new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1)));
 
-	public EditCompteDialog() {
+	public EditCompteDialog(AppCompte appCompte) {
 
-		setTitle("Création d'un compte");
+		_appCompte = appCompte;
+
+		if (_appCompte == null) {
+			setTitle("Création d'un compte");
+		} else {
+			setTitle("Edition d'un compte");
+		}
 
 		// Création des champ de saisi
-		createContent();
+		createContent(appCompte);
 
 		// Création de la barre des boutons
 		createBoutonBar();
@@ -71,7 +82,7 @@ public class EditCompteDialog extends Dialog<AppCompte> {
 	/**
 	 * Création du contenu de la fenêtre
 	 */
-	private void createContent() {
+	private void createContent(AppCompte appCompte) {
 
 		GridPane grid = new GridPane();
 		getDialogPane().setContent(grid);
@@ -80,6 +91,10 @@ public class EditCompteDialog extends Dialog<AppCompte> {
 		Label nomLbl = new Label("Nom : ");
 		nomLbl.setTooltip(new Tooltip("le nom du compte. Caractère alphanumérique et espace"));
 		_nomTxt = new TextField();
+		// pré-remplissage pour l'édition
+		if (_appCompte != null) {
+			_nomTxt.setText(appCompte.getNom());
+		}
 		// Validation sur saisie
 		_nomTxt.textProperty().addListener((observable, oldValue, newValue) -> {
 			checkInput();
@@ -91,6 +106,10 @@ public class EditCompteDialog extends Dialog<AppCompte> {
 		// saisie du solde
 		Label soldeLbl = new Label("Solde : ");
 		_soldeTxt = new TextField();
+		// pré-remplissage pour l'édition
+		if (_appCompte != null) {
+			_soldeTxt.setText(String.valueOf(appCompte.getSolde()));
+		}
 		// Validation sur saisie
 		_soldeTxt.textProperty().addListener((observable, oldValue, newValue) -> {
 			checkInput();
@@ -101,12 +120,18 @@ public class EditCompteDialog extends Dialog<AppCompte> {
 		// saisie de estLivret
 		Label livretLbl = new Label("Est un livret : ");
 		_livretCheck = new CheckBox();
+		if (_appCompte != null) {
+			_livretCheck.setSelected(appCompte.getIsLivretProp());
+		}
 		grid.add(livretLbl, 0, 2);
 		grid.add(_livretCheck, 1, 2);
 
 		// saisie de estBudget
 		Label budgetLbl = new Label("Budget : ");
 		_budgetCheck = new CheckBox();
+		if (_appCompte != null) {
+			_budgetCheck.setSelected(appCompte.getIsBudget());
+		}
 		grid.add(budgetLbl, 0, 3);
 		grid.add(_budgetCheck, 1, 3);
 
@@ -131,22 +156,30 @@ public class EditCompteDialog extends Dialog<AppCompte> {
 			@Override
 			public AppCompte call(ButtonType param) {
 
-				AppCompte zeReturn;
+				AppCompte zeReturn = null;
 
 				if (param.getButtonData().equals(ButtonData.OK_DONE)) {
 
 					try {
-						zeReturn = CompteManager.getInstance().createCompte(_nomTxt.getText().trim(),
-								Double.parseDouble(_soldeTxt.getText().trim()), _livretCheck.isSelected(),
-								_budgetCheck.isSelected());
+
+						if (_appCompte != null) {
+							// édition
+							zeReturn = CompteManager.getInstance().updateCompte(_appCompte, _nomTxt.getText().trim(),
+									Double.parseDouble(_soldeTxt.getText().trim()), _livretCheck.isSelected(),
+									_budgetCheck.isSelected());
+
+						} else {
+							// création
+							zeReturn = CompteManager.getInstance().createCompte(_nomTxt.getText().trim(),
+									Double.parseDouble(_soldeTxt.getText().trim()), _livretCheck.isSelected(),
+									_budgetCheck.isSelected());
+						}
 
 					} catch (ComptaException e) {
 						ExceptionDisplayService.showException(e);
-						zeReturn = null;
+
 					}
 
-				} else {
-					zeReturn = null;
 				}
 
 				return zeReturn;

@@ -11,7 +11,7 @@ import javafx.beans.property.SimpleStringProperty;
  * couche de présentation et la persistance
  *
  */
-public class AppCompte {
+public class AppCompte extends AppObject{
 
 	/**
 	 * le compte métier
@@ -28,10 +28,6 @@ public class AppCompte {
 	 */
 	private SimpleDoubleProperty _solde;
 
-	/**
-	 * Identifiant applicatif du compte.
-	 */
-	private String _appId;
 
 	/**
 	 * Indique si le compte est un livret
@@ -112,26 +108,6 @@ public class AppCompte {
 		_compte.setSolde(soldes);
 		_solde.set(soldes);
 		
-	}
-
-	/**
-	 * Positionne l'identifiant applicatif du compte.
-	 * 
-	 * @param id
-	 *            l'identifiant
-	 */
-	public void setAppID(String id) {
-		_appId = id;
-
-	}
-
-	/**
-	 * Retourne l'identifiant application du compte
-	 * 
-	 * @return l'identifiant applicatif
-	 */
-	public String getAppId() {
-		return _appId;
 	}
 
 	/**

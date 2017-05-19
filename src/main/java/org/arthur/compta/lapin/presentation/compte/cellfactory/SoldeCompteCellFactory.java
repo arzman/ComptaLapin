@@ -1,9 +1,7 @@
 package org.arthur.compta.lapin.presentation.compte.cellfactory;
 
-import java.text.NumberFormat;
-import java.util.Locale;
-
 import org.arthur.compta.lapin.application.model.AppCompte;
+import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -32,7 +30,7 @@ public class SoldeCompteCellFactory implements Callback<TableColumn<AppCompte, N
 					setText(null);
 				} else {
 					// on format le texte comme une valeur monnaitaire
-					setText(NumberFormat.getCurrencyInstance(Locale.FRANCE).format(item));
+					setText(ApplicationFormatter.montantFormat.format(item));
 				}
 			}
 

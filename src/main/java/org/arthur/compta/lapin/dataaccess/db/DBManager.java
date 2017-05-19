@@ -14,6 +14,7 @@ import java.sql.Statement;
 import java.util.HashMap;
 
 import org.arthur.compta.lapin.dataaccess.files.FilesManager;
+import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
 /**
  * Gère l'accès à la base de donnée
@@ -47,9 +48,10 @@ public class DBManager {
 
 		try {
 			// tentative de connexion à la base
-			connexionDB = DriverManager.getConnection("jdbc:hsqldb:file:" + pathToDb + ";ifexists=true", "SA", "");
+			connexionDB = DriverManager.getConnection("jdbc:hsqldb:file:" + pathToDb + ";ifexists=true", "sa", "");
 
-		} catch (SQLException e) {
+		} catch (Exception e) {
+			System.out.println("Création de la base de donnée");
 			createDB(pathToDb);
 		}
 
@@ -73,12 +75,14 @@ public class DBManager {
 			StringBuffer sb = new StringBuffer();
 			String str = "";
 			while ((str = bReader.readLine()) != null) {
-				if (!str.startsWith("#")) {
+				if (!str.startsWith("#") && !str.trim().isEmpty()) {
 					sb.append(str + "\n ");
 				}
 			}
 
 			Statement stmt = connexion.createStatement();
+
+			System.out.println(sb.toString());
 
 			stmt.executeUpdate(sb.toString());
 		} catch (Exception e) {
@@ -98,7 +102,7 @@ public class DBManager {
 		// création de la base
 		try {
 			connexionDB = DriverManager.getConnection("jdbc:hsqldb:file:" + pathToDb.toString() + ";ifexists=false",
-					"SA", "");
+					"sa", "");
 
 			loadScript(connexionDB, "create_db.sql");
 
@@ -128,14 +132,20 @@ public class DBManager {
 
 		String id = "";
 
-		// insertion du compte en base
-		Statement stmt = connexionDB.createStatement();
-		ResultSet res = stmt.executeQuery("INSERT INTO COMPTE (nom,solde,is_livret,budget_allowed) VALUES (\'" + nom
-				+ "\'," + solde + "," + livret + "," + budgetAllowed + ");CALL IDENTITY();");
+		// préparation de la requête
+		String query = "INSERT INTO COMPTE (nom,solde,is_livret,budget_allowed) VALUES (?,?,?,?);";
+		PreparedStatement stmt = connexionDB.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+		stmt.setString(1, nom);
+		stmt.setDouble(2, solde);
+		stmt.setBoolean(3, livret);
+		stmt.setBoolean(4, budgetAllowed);
+		// execution
+		stmt.executeUpdate();
 
 		// récupération de l'id en base du compte créé
+		ResultSet res = stmt.getGeneratedKeys();
 		if (res.getMetaData().getColumnCount() == 1 && res.next()) {
-			id = res.getObject(1).toString().trim();
+			id = res.getString(1).trim();
 		}
 
 		// libération des ressources JDBC
@@ -165,12 +175,12 @@ public class DBManager {
 			while (res.next()) {
 				// récupération des champs
 				String[] values = new String[4];
-				values[0] = res.getObject(2).toString().trim();
-				values[1] = res.getObject(3).toString().trim();
-				values[2] = res.getObject(4).toString().trim();
-				values[3] = res.getObject(5).toString().trim();
+				values[0] = res.getString("nom").trim();
+				values[1] = String.valueOf(res.getDouble("solde")).trim();
+				values[2] = String.valueOf(res.getBoolean("is_livret")).trim();
+				values[3] = String.valueOf(res.getBoolean("budget_allowed")).trim();
 
-				infos.put(res.getObject(1).toString().trim(), values);
+				infos.put(String.valueOf(res.getInt("ID")).trim(), values);
 			}
 		}
 
@@ -187,7 +197,8 @@ public class DBManager {
 	 * 
 	 * @param appId
 	 *            l'id
-	 * @throws SQLException Exception si la requête en base échoue
+	 * @throws SQLException
+	 *             Exception si la requête en base échoue
 	 */
 	public synchronized void removeCompte(String appId) throws SQLException {
 
@@ -201,17 +212,26 @@ public class DBManager {
 
 	/**
 	 * Met à jour le compte en base
-	 * @param appId l'id du compte a mettre a jour
-	 * @param nom le nouveau nom
-	 * @param solde le nouveau solde
-	 * @param isLivret le nouveau flag islivret
-	 * @param isBudget le nouveau flag isBudget
-	 * @throws SQLException Exception si la requête en base échoue
+	 * 
+	 * @param appId
+	 *            l'id du compte a mettre a jour
+	 * @param nom
+	 *            le nouveau nom
+	 * @param solde
+	 *            le nouveau solde
+	 * @param isLivret
+	 *            le nouveau flag islivret
+	 * @param isBudget
+	 *            le nouveau flag isBudget
+	 * @throws SQLException
+	 *             Exception si la requête en base échoue
 	 */
-	public synchronized void updateCompte(String appId, String nom, double solde, boolean isLivret, boolean isBudget) throws SQLException {
-		
+	public synchronized void updateCompte(String appId, String nom, double solde, boolean isLivret, boolean isBudget)
+			throws SQLException {
+
 		// préparation de la requête
-		PreparedStatement stmt = connexionDB.prepareStatement("UPDATE COMPTE SET nom=?,solde=?,is_livret=?,budget_allowed=? WHERE ID = ?");
+		PreparedStatement stmt = connexionDB
+				.prepareStatement("UPDATE COMPTE SET nom=?,solde=?,is_livret=?,budget_allowed=? WHERE ID = ?");
 		stmt.setString(1, nom);
 		stmt.setDouble(2, solde);
 		stmt.setBoolean(3, isLivret);
@@ -219,7 +239,91 @@ public class DBManager {
 		stmt.setString(5, appId);
 		// execution
 		stmt.executeUpdate();
-		
+
+	}
+
+	/**
+	 * Récupère en base l'id du trimestre courant
+	 * 
+	 * @return les champ du compte courant
+	 * @throws SQLException
+	 *             Echec de la récupération
+	 */
+	public synchronized String[] getTrimestreCourantId() throws SQLException {
+
+		String[] res = new String[1];
+
+		// création de la requete
+		String query = "SELECT ID_TRIMESTRE FROM CONFIGURATION limit 1";
+		PreparedStatement stmt = connexionDB.prepareStatement(query);
+		// execution
+		ResultSet queryRes = stmt.executeQuery();
+		// parse du resultat
+		while (queryRes.next()) {
+
+			res[0] = String.valueOf(queryRes.getInt("ID_TRIMESTRE"));
+
+		}
+
+		return res;
+	}
+
+	/**
+	 * Récupère en base les champ d'un trimestre [ id trimestre, id 1er mois, id
+	 * 2eme mois, id 3 eme mois]
+	 * 
+	 * @return les champ du compte courant
+	 * @throws SQLException
+	 *             Echec de la récupération
+	 */
+	public String[] getTrimestreInfo(String appId) throws SQLException {
+
+		String[] res = new String[4];
+
+		// création de requete
+		String query = "SELECT ID_TRIMESTRE,premier_mois_id,deux_mois_id,trois_mois_id WHERE ID_TRIMESTRE=?";
+		PreparedStatement stmt = connexionDB.prepareStatement(query);
+		stmt.setInt(1, Integer.parseInt(appId));
+		ResultSet queryRes = stmt.executeQuery();
+
+		while (queryRes.next()) {
+
+			res[0] = queryRes.getString(1);
+
+		}
+
+		return res;
+	}
+
+	/**
+	 * Récupère les champ en base d'un exercice mensuel [ ID , date_debut ,
+	 * date_fin]
+	 * 
+	 * @param id
+	 *            l'id de l'exercice
+	 * @return les champs en base
+	 * @throws SQLException
+	 *             Echec de la récupération
+	 */
+	public String[] getExMensuelInfos(String id) throws SQLException {
+
+		String[] res = new String[3];
+		// création de la requete
+		String query = "SELECT ID ,date_debut,date_fin FROM EXERCICE_MENSUEL WHERE ID=?";
+		PreparedStatement stmt = connexionDB.prepareStatement(query);
+		stmt.setInt(1, Integer.parseInt(id));
+		// exécution
+		ResultSet queryRes = stmt.executeQuery();
+
+		while (queryRes.next()) {
+			// parsing du résultat
+			res[0] = queryRes.getString("ID");
+			res[1] = ApplicationFormatter.databaseDateFormat.format(queryRes.getDate("date_debut"));
+			res[0] = ApplicationFormatter.databaseDateFormat.format(queryRes.getDate("date_fin"));
+
+		}
+
+		return res;
 	}
 
 }

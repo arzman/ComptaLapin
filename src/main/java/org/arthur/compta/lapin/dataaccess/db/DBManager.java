@@ -291,6 +291,9 @@ public class DBManager {
 		while (queryRes.next()) {
 
 			res[0] = queryRes.getString(1);
+			res[1] = queryRes.getString(2);
+			res[2] = queryRes.getString(3);
+			res[3] = queryRes.getString(4);
 
 		}
 

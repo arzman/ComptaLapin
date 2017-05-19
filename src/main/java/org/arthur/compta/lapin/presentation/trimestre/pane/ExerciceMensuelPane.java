@@ -3,7 +3,6 @@ package org.arthur.compta.lapin.presentation.trimestre.pane;
 import org.arthur.compta.lapin.application.model.AppExerciceMensuel;
 import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
-import javafx.beans.property.ObjectProperty;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 
@@ -21,7 +20,7 @@ public class ExerciceMensuelPane extends GridPane {
 
 	public ExerciceMensuelPane() {
 
-		_text = new Label("Pas de mois");
+		_text = new Label("Aucun contenu");
 		add(_text, 0, 0);
 
 	}
@@ -29,15 +28,20 @@ public class ExerciceMensuelPane extends GridPane {
 	/**
 	 * Change l'affichage des mois
 	 * 
-	 * @param oldEMProp
+	 * @param oldEM
 	 *            l'ancien mois dans un propriété observable
-	 * @param newEMprop
+	 * @param newEM
 	 *            le nouveau mois dans un propriété observable
 	 */
-	public void changeBind(ObjectProperty<AppExerciceMensuel> oldEMProp, ObjectProperty<AppExerciceMensuel> newEMprop) {
+	public void changeBind(AppExerciceMensuel oldEM, AppExerciceMensuel newEM) {
 
-		//changement de l'affichage de la date
-		_text.setText(ApplicationFormatter.moiAnneedateFormat.format(newEMprop.get().getDateDebut()));
+		// changement de l'affichage de la date
+		if (newEM != null) {
+			_text.setText(ApplicationFormatter.moiAnneedateFormat.format(newEM.getDateDebut().getTime()));
+
+		}else{
+			_text.setText("Aucun contenu");
+		}
 
 	}
 

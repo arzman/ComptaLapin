@@ -1,8 +1,10 @@
 package org.arthur.compta.lapin.presentation.trimestre.pane;
 
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
+import org.arthur.compta.lapin.application.model.AppExerciceMensuel;
 import org.arthur.compta.lapin.application.model.AppTrimestre;
 
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
@@ -76,25 +78,44 @@ public class TrimestreCourantPane extends GridPane {
 			public void changed(ObservableValue<? extends AppTrimestre> observable, AppTrimestre oldValue,
 					AppTrimestre newValue) {
 
-				updateExerciceMensuelPane(oldValue,newValue);
+				updateExerciceMensuelPane(oldValue, newValue);
 
 			}
 
 		});
+
+		// chargement initial
+		updateExerciceMensuelPane(null, TrimestreManager.getInstance().trimestreCourantProperty().getValue());
 	}
 
 	/**
 	 * Mets à jour le contenu des IHM des excercices mensuels
+	 * 
 	 * @param oldValue
-	 * @param newValue2 
+	 *            L'ancien trimestre affiché
+	 * @param newValue
+	 *            Le nouveau trimestre affiché
 	 */
 	private void updateExerciceMensuelPane(AppTrimestre oldValue, AppTrimestre newValue) {
-		
-		
-		// Mise à jour du premier mois
-		_premMoisPane.changeBind(oldValue.premierMoisProperty(),newValue.premierMoisProperty());
-	
-		
+
+		// Initialisation
+		if (oldValue == null) {
+
+			// premier mois
+			_premMoisPane.changeBind(null, newValue.premierMoisProperty().get());
+			// premier mois
+			_deuxMoisPane.changeBind(null, newValue.deuxiemeMoisProperty().get());
+			// premier mois
+			_troisMoisPane.changeBind(null, newValue.troisiemeMoisProperty().get());
+
+		} else {
+			// premier mois
+			_premMoisPane.changeBind(oldValue.premierMoisProperty().get(), newValue.premierMoisProperty().get());
+			// premier mois
+			_deuxMoisPane.changeBind(oldValue.premierMoisProperty().get(), newValue.deuxiemeMoisProperty().get());
+			// premier mois
+			_troisMoisPane.changeBind(oldValue.premierMoisProperty().get(), newValue.troisiemeMoisProperty().get());
+		}
 
 	}
 

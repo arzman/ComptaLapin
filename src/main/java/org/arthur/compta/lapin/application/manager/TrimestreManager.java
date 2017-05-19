@@ -1,6 +1,8 @@
 package org.arthur.compta.lapin.application.manager;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.model.AppExerciceMensuel;
@@ -67,7 +69,7 @@ public class TrimestreManager {
 	 * @throws ComptaException
 	 *             Echec du chargement
 	 */
-	private void loadTrimestreCourant(String appId) throws ComptaException {
+	public void loadTrimestreCourant(String appId) throws ComptaException {
 
 		// recup des infos en base
 		String[] info;
@@ -90,9 +92,11 @@ public class TrimestreManager {
 				appTrimestre.troisiemeMoisProperty().set(loadExerciceMensuel(info[3]));
 
 				_trimestreCourant.set(appTrimestre);
+				DBManager.getInstance().setTrimestreCourant(appId);
+
 			}
 		} catch (Exception e) {
-			throw new ComptaException("Impossible de récupérer le trimestre courant",e);
+			throw new ComptaException("Impossible de charger le trimestre courant", e);
 		}
 
 	}
@@ -178,7 +182,7 @@ public class TrimestreManager {
 				fin.set(Calendar.MONTH, (i + numMoi) % 12);
 				fin.set(Calendar.YEAR, dateDeb.get(Calendar.YEAR) + ((i + numMoi) / 12));
 				em.setDateFin(fin);
-				
+
 				// insertion de l'exercice mensuel en base
 				String idEm = DBManager.getInstance().addExerciceMensuel(debut, fin);
 				// création de l'exercice applicatif
@@ -200,6 +204,38 @@ public class TrimestreManager {
 		}
 
 		return appTrim;
+	}
+
+	/**
+	 * Retourne une Map contenant un peu d'informations sur les trimestres en
+	 * base
+	 * 
+	 * @return une Map contenant clé:id Trimestre , value:dateDébut
+	 * @throws ComptaException Erreur lors de la récupération des infos
+	 */
+	public HashMap<String, Calendar> getAllTrimestreShortList() throws ComptaException {
+
+		HashMap<String, Calendar> res = new HashMap<>();
+
+		try{
+		
+		ArrayList<String> ids = DBManager.getInstance().getAllTrimestreId();
+
+		for (String id : ids) {
+
+			//récupération de la date de début
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(ApplicationFormatter.databaseDateFormat
+					.parse(DBManager.getInstance().getDateDebutFromTrimestre(id)));
+
+			res.put(id, cal);
+
+		}
+		}catch (Exception e) {
+			throw new ComptaException("Impossible de récupérer la liste des trimestres",e);
+		}
+
+		return res;
 	}
 
 }

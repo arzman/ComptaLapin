@@ -1,10 +1,8 @@
 package org.arthur.compta.lapin.presentation.trimestre.pane;
 
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
-import org.arthur.compta.lapin.application.model.AppExerciceMensuel;
 import org.arthur.compta.lapin.application.model.AppTrimestre;
 
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
@@ -98,17 +96,31 @@ public class TrimestreCourantPane extends GridPane {
 	 */
 	private void updateExerciceMensuelPane(AppTrimestre oldValue, AppTrimestre newValue) {
 
-		// Initialisation
 		if (oldValue == null) {
 
-			// premier mois
-			_premMoisPane.changeBind(null, newValue.premierMoisProperty().get());
-			// premier mois
-			_deuxMoisPane.changeBind(null, newValue.deuxiemeMoisProperty().get());
-			// premier mois
-			_troisMoisPane.changeBind(null, newValue.troisiemeMoisProperty().get());
+			if (newValue != null) {
+				// chargement de l'appli avec un trimestre courant en place
+
+				// premier mois
+				_premMoisPane.changeBind(null, newValue.premierMoisProperty().get());
+				// premier mois
+				_deuxMoisPane.changeBind(null, newValue.deuxiemeMoisProperty().get());
+				// premier mois
+				_troisMoisPane.changeBind(null, newValue.troisiemeMoisProperty().get());
+			} else {
+				// chargement de l'appli from scratch
+				// premier mois
+				_premMoisPane.changeBind(null, null);
+				// premier mois
+				_deuxMoisPane.changeBind(null, null);
+				// premier mois
+				_troisMoisPane.changeBind(null, null);
+			}
 
 		} else {
+
+			// changement de trimestre courant
+
 			// premier mois
 			_premMoisPane.changeBind(oldValue.premierMoisProperty().get(), newValue.premierMoisProperty().get());
 			// premier mois

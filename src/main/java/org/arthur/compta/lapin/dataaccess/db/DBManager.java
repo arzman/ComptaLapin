@@ -12,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 
@@ -377,7 +378,8 @@ public class DBManager {
 	 * @param idMois3
 	 *            identifiant applicatif du troisieme mois
 	 * @return
-	 * @throws SQLException Echec de l'insertion
+	 * @throws SQLException
+	 *             Echec de l'insertion
 	 */
 	public String addTrimestre(String idMois1, String idMois2, String idMois3) throws SQLException {
 
@@ -403,6 +405,87 @@ public class DBManager {
 		res.close();
 
 		return id;
+	}
+
+	/**
+	 * Sauvegarde l'id du trimestre courant en base
+	 * 
+	 * @param appId
+	 *            le nouvel id
+	 * @throws SQLException
+	 *             Echec de l'insertion
+	 */
+	public void setTrimestreCourant(String appId) throws SQLException {
+
+		// préparation de la requête
+		String query = "UPDATE CONFIGURATION SET ID_TRIMESTRE=?;";
+		PreparedStatement stmt = connexionDB.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+		stmt.setInt(1, Integer.parseInt(appId));
+		stmt.executeUpdate();
+
+		if (stmt.getUpdateCount() == 0) {
+			// pas d'update, on insert
+			String query2 = "INSERT INTO CONFIGURATION (date_verif,ID_TRIMESTRE) VALUES (?,?);";
+			PreparedStatement stmt2 = connexionDB.prepareStatement(query2);
+			stmt2.setDate(1, new Date(Calendar.getInstance().getTime().getTime()));
+			stmt2.setInt(2, Integer.parseInt(appId));
+			stmt2.executeUpdate();
+
+			stmt2.close();
+		}
+
+		stmt.close();
+
+	}
+
+	/**
+	 * Retourne une liste avec tout les identifiants des trimestres en base
+	 * 
+	 * @return
+	 * @throws SQLException
+	 *             Echec de la récupération
+	 */
+	public ArrayList<String> getAllTrimestreId() throws SQLException {
+
+		ArrayList<String> res = new ArrayList<>();
+
+		String query = "SELECT ID FROM TRIMESTRE;";
+		PreparedStatement stmt = connexionDB.prepareStatement(query);
+
+		ResultSet queryRes = stmt.executeQuery();
+
+		while (queryRes.next()) {
+			// parsing du résultat
+			res.add(queryRes.getString("ID"));
+
+		}
+
+		return res;
+	}
+
+	/**
+	 * Récupération de la date de début d'un trimestre
+	 * @param id l'id du trimestre
+	 * @return
+	 * @throws SQLException Echec de la récupération
+	 */
+	public String getDateDebutFromTrimestre(String id) throws SQLException {
+		String res = null;
+
+		//TODO To be continued....
+		
+		String query = "SELECT ID,date_debut FROM EXERCICE_MENSUEL WHERE ;";
+		PreparedStatement stmt = connexionDB.prepareStatement(query);
+
+		ResultSet queryRes = stmt.executeQuery();
+
+		while (queryRes.next()) {
+			// parsing du résultat
+			res = queryRes.getString("date_debut");
+
+		}
+
+		return res;
 	}
 
 }

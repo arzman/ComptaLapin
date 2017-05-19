@@ -1,8 +1,14 @@
 package org.arthur.compta.lapin.presentation.menu;
 
+import java.util.Optional;
+
+import org.arthur.compta.lapin.application.exception.ComptaException;
+import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.presentation.compte.dialog.EditCompteDialog;
+import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import org.arthur.compta.lapin.presentation.trimestre.dialog.CreateTrimestreDialog;
+import org.arthur.compta.lapin.presentation.trimestre.dialog.SelectTrimestreDialog;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -31,8 +37,10 @@ public class ComptaMenuBar extends MenuBar {
 	 */
 	private void createTrimestreMenu() {
 
+		// création du menu Trimestre
 		Menu trimMenu = new Menu("Trimestre");
 
+		// ajout de l'action créé trimestre
 		MenuItem addItem = new MenuItem("Créer un trimestre");
 		addItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.ADD_IMG)));
 		addItem.setOnAction(new EventHandler<ActionEvent>() {
@@ -47,6 +55,32 @@ public class ComptaMenuBar extends MenuBar {
 		});
 
 		trimMenu.getItems().add(addItem);
+
+		// ajout de l'action de sélection du trimestre courant
+		MenuItem selectItem = new MenuItem("Sélectionner trimestre");
+		addItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.SELECT_TRIM_IMG)));
+		addItem.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				// ouverture de la fenêtre de saisie
+				SelectTrimestreDialog dia = new SelectTrimestreDialog();
+				Optional<String> id = dia.showAndWait();
+
+				if (id.isPresent() && !id.get().isEmpty()) {
+					try {
+						// si un trimestre est choisi on ordonne le changement
+						TrimestreManager.getInstance().loadTrimestreCourant(id.get());
+					} catch (ComptaException e) {
+						ExceptionDisplayService.showException(e);
+					}
+				}
+
+			}
+		});
+
+		trimMenu.getItems().add(selectItem);
+
 		getMenus().add(trimMenu);
 	}
 

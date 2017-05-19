@@ -116,6 +116,27 @@ public class CreateTrimestreDialog extends Dialog<AppTrimestre> {
 					}
 
 				}
+				
+				// appuie sur Ok : on crée le trimestre
+				if (param.getButtonData().equals(ButtonData.APPLY)) {
+
+					try {
+						// recup de la date de début
+						Calendar deb = Calendar.getInstance();
+						deb.setTime(Date.valueOf(_dpick.getValue()));
+						// création
+						zeReturn = TrimestreManager.getInstance().createTrimestre(deb);
+						
+						//changement de trimestre courant
+						TrimestreManager.getInstance().loadTrimestreCourant(zeReturn.getAppId());
+						
+
+					} catch (ComptaException e) {
+						ExceptionDisplayService.showException(e);
+
+					}
+
+				}
 
 				return zeReturn;
 			}

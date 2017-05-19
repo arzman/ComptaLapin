@@ -14,6 +14,8 @@ public class ImageLoader {
 	public static final String DEL_IMG = "remove_icon.gif";
 	// un crayon
 	public static final String EDIT_IMG = "edit_icon.jpg";
+	// selection du trimestre
+	public static final String SELECT_TRIM_IMG = "select_icon.gif";
 	
 	
 	/**

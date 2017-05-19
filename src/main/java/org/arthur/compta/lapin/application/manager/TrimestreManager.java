@@ -92,7 +92,7 @@ public class TrimestreManager {
 				_trimestreCourant.set(appTrimestre);
 			}
 		} catch (Exception e) {
-			throw new ComptaException("Impossible de récupérer le trimestre courant");
+			throw new ComptaException("Impossible de récupérer le trimestre courant",e);
 		}
 
 	}
@@ -103,32 +103,32 @@ public class TrimestreManager {
 	 * @param id
 	 *            l'id de l'exercice mensuel
 	 * @return l'exercice mensuel
-	 * @throws ComptaException 
+	 * @throws ComptaException
 	 */
 	private AppExerciceMensuel loadExerciceMensuel(String id) throws ComptaException {
 
 		AppExerciceMensuel appEm = null;
 
-		try{
-		
-		if (id != null && !id.isEmpty()) {
-			
-			//récupération en base des donnée de l'exercice
-			String[] infos = DBManager.getInstance().getExMensuelInfos(id);
-			ExerciceMensuel em = new ExerciceMensuel();
-			
-			//date de début
-			Calendar deb = Calendar.getInstance();
-			deb.setTime(ApplicationFormatter.databaseDateFormat.parse(infos[1]));
-			em.setDateDebut(deb);
-			
-			appEm = new AppExerciceMensuel(em);
-			appEm.setAppID(infos[0]);
+		try {
 
-		}
-		
-		}catch(Exception e){
-			throw new ComptaException("Impossible de charger l'exercice mensuel",e);
+			if (id != null && !id.isEmpty()) {
+
+				// récupération en base des donnée de l'exercice
+				String[] infos = DBManager.getInstance().getExMensuelInfos(id);
+				ExerciceMensuel em = new ExerciceMensuel();
+
+				// date de début
+				Calendar deb = Calendar.getInstance();
+				deb.setTime(ApplicationFormatter.databaseDateFormat.parse(infos[1]));
+				em.setDateDebut(deb);
+
+				appEm = new AppExerciceMensuel(em);
+				appEm.setAppID(infos[0]);
+
+			}
+
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de charger l'exercice mensuel", e);
 		}
 
 		return appEm;
@@ -142,6 +142,64 @@ public class TrimestreManager {
 	public ObjectProperty<AppTrimestre> trimestreCourantProperty() {
 		return _trimestreCourant;
 
+	}
+
+	/**
+	 * Crée un trimestre applicatif
+	 * 
+	 * @param dateDeb
+	 * @return
+	 * @throws ComptaException
+	 */
+	public AppTrimestre createTrimestre(Calendar dateDeb) throws ComptaException {
+
+		AppTrimestre appTrim = null;
+
+		try {
+
+			Trimestre trim = new Trimestre();
+			appTrim = new AppTrimestre(trim);
+
+			final int numMoi = dateDeb.get(Calendar.MONTH);
+
+			// création des exercice mensuel du trimestre
+			for (int i = 0; i < 3; i++) {
+
+				final ExerciceMensuel em = new ExerciceMensuel();
+				// date de debut
+				final Calendar debut = Calendar.getInstance();
+				debut.set(Calendar.DAY_OF_MONTH, 1);
+				debut.set(Calendar.MONTH, (i + numMoi) % 12);
+				debut.set(Calendar.YEAR, dateDeb.get(Calendar.YEAR) + ((i + numMoi) / 12));
+				em.setDateDebut(debut);
+				// date de fin
+				final Calendar fin = Calendar.getInstance();
+				fin.set(Calendar.DAY_OF_MONTH, debut.getActualMaximum(Calendar.DAY_OF_MONTH));
+				fin.set(Calendar.MONTH, (i + numMoi) % 12);
+				fin.set(Calendar.YEAR, dateDeb.get(Calendar.YEAR) + ((i + numMoi) / 12));
+				em.setDateFin(fin);
+				
+				// insertion de l'exercice mensuel en base
+				String idEm = DBManager.getInstance().addExerciceMensuel(debut, fin);
+				// création de l'exercice applicatif
+				AppExerciceMensuel appEm = new AppExerciceMensuel(em);
+				appEm.setAppID(idEm);
+
+				appTrim.setAppExerciceMensuel(i, appEm);
+
+			}
+
+			// insertion du trimestre en base
+			String idTrim = DBManager.getInstance().addTrimestre(appTrim.premierMoisProperty().get().getAppId(),
+					appTrim.deuxiemeMoisProperty().get().getAppId(), appTrim.troisiemeMoisProperty().get().getAppId());
+
+			appTrim.setAppID(idTrim);
+
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de créer le trimestre", e);
+		}
+
+		return appTrim;
 	}
 
 }

@@ -6,11 +6,13 @@ import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Calendar;
 import java.util.HashMap;
 
 import org.arthur.compta.lapin.dataaccess.files.FilesManager;
@@ -281,7 +283,7 @@ public class DBManager {
 		String[] res = new String[4];
 
 		// création de requete
-		String query = "SELECT ID_TRIMESTRE,premier_mois_id,deux_mois_id,trois_mois_id WHERE ID_TRIMESTRE=?";
+		String query = "SELECT ID,premier_mois_id,deux_mois_id,trois_mois_id FROM TRIMESTRE WHERE ID=?";
 		PreparedStatement stmt = connexionDB.prepareStatement(query);
 		stmt.setInt(1, Integer.parseInt(appId));
 		ResultSet queryRes = stmt.executeQuery();
@@ -324,6 +326,80 @@ public class DBManager {
 		}
 
 		return res;
+	}
+
+	/**
+	 * Ajoute un exercice mensuel en base de donnée
+	 * 
+	 * @param debut
+	 *            date de début
+	 * @param fin
+	 *            date de fin
+	 * @return l'identifiant de l'exercice inséré
+	 * @throws SQLException
+	 *             Echec de l'insertion
+	 */
+	public String addExerciceMensuel(Calendar debut, Calendar fin) throws SQLException {
+		String id = "";
+
+		// préparation de la requête
+		String query = "INSERT INTO EXERCICE_MENSUEL (date_debut,date_fin) VALUES (?,?);";
+		PreparedStatement stmt = connexionDB.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+		stmt.setDate(1, new Date(debut.getTime().getTime()));
+		stmt.setDate(2, new Date(fin.getTime().getTime()));
+
+		// execution
+		stmt.executeUpdate();
+
+		// récupération de l'id en base du compte créé
+		ResultSet res = stmt.getGeneratedKeys();
+		if (res.getMetaData().getColumnCount() == 1 && res.next()) {
+			id = res.getString(1).trim();
+		}
+
+		// libération des ressources JDBC
+		stmt.close();
+		res.close();
+
+		return id;
+	}
+
+	/**
+	 * Ajoute un trimestre en base
+	 * 
+	 * @param idMois1
+	 *            identifiant applicatif du premier mois
+	 * @param idMois2
+	 *            identifiant applicatif du deuxieme mois
+	 * @param idMois3
+	 *            identifiant applicatif du troisieme mois
+	 * @return
+	 * @throws SQLException Echec de l'insertion
+	 */
+	public String addTrimestre(String idMois1, String idMois2, String idMois3) throws SQLException {
+
+		String id = null;
+		// préparation de la requête
+		String query = "INSERT INTO TRIMESTRE (premier_mois_id,deux_mois_id,trois_mois_id) VALUES (?,?,?);";
+		PreparedStatement stmt = connexionDB.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+		stmt.setString(1, idMois1);
+		stmt.setString(2, idMois2);
+		stmt.setString(3, idMois3);
+
+		// execution
+		stmt.executeUpdate();
+
+		// récupération de l'id en base du compte créé
+		ResultSet res = stmt.getGeneratedKeys();
+		if (res.getMetaData().getColumnCount() == 1 && res.next()) {
+			id = res.getString(1).trim();
+		}
+
+		// libération des ressources JDBC
+		stmt.close();
+		res.close();
+
+		return id;
 	}
 
 }

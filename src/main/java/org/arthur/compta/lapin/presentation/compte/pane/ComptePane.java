@@ -12,13 +12,11 @@ import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -40,41 +38,11 @@ public class ComptePane extends GridPane {
 		setVgap(2);
 		setPadding(new Insets(2, 2, 2, 2));
 
-		// Création de la barre des boutons
-		createButtonBar();
-
 		// Création du tableau de compte
 		createCompteTable();
 
 	}
 
-	/**
-	 * Création de la barre des boutons
-	 */
-	private void createButtonBar() {
-
-		GridPane buttonBar = new GridPane();
-		buttonBar.setHgap(4);
-		add(buttonBar, 0, 0);
-
-		// Bouton d'ajout de Compte
-		Button addButton = new Button("");
-		addButton.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.ADD_IMG)));
-		addButton.setTooltip(new Tooltip("AJouter un compte"));
-
-		buttonBar.add(addButton, 0, 0);
-		addButton.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent event) {
-
-				EditCompteDialog dia = new EditCompteDialog(null);
-				dia.showAndWait();
-
-			}
-		});
-
-	}
 
 	/**
 	 * Création du tableau des comptes
@@ -84,7 +52,7 @@ public class ComptePane extends GridPane {
 		// Création de la table des comptes
 		TableView<AppCompte> table = new TableView<>();
 		table.setMaxWidth(Double.MAX_VALUE);
-		add(table, 0, 1);
+		add(table, 0, 0);
 
 		// Colonne du nom
 		TableColumn<AppCompte, String> colNom = new TableColumn<>("Nom");

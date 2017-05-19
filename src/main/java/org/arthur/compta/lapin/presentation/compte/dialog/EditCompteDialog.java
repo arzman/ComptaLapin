@@ -55,6 +55,9 @@ public class EditCompteDialog extends Dialog<AppCompte> {
 	 */
 	private AppCompte _appCompte;
 
+	/**
+	 * La bordure rouge en cas d'erreur de saisi
+	 */
 	private final Border BORDER_ERROR = new Border(
 			new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1)));
 

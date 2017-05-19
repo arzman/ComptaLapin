@@ -131,4 +131,32 @@ public class AppTrimestre extends AppObject {
 		return _trimeste.getDateDebut();
 	}
 
+	/**
+	 * Positionne un exercice mensuel applicatif par sa position. 0 = premier
+	 * mois , 1 = deuxieme mois , 2 = troisieme mois
+	 * 
+	 * @param i
+	 *            position
+	 * @param appEm
+	 *            l'exercice applicatif
+	 */
+	public void setAppExerciceMensuel(int i, AppExerciceMensuel appEm) {
+
+		switch (i) {
+
+		case 0:
+			_premierMois.set(appEm);
+			break;
+		case 1:
+			_deuxiemeMois.set(appEm);
+			break;
+		case 2:
+			_troisiemeMois.set(appEm);
+			break;
+		default:
+			break;
+		}
+
+	}
+
 }

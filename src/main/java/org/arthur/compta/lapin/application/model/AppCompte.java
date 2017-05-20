@@ -2,6 +2,7 @@ package org.arthur.compta.lapin.application.model;
 
 import org.arthur.compta.lapin.model.Compte;
 
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 
@@ -10,7 +11,7 @@ import javafx.beans.property.SimpleStringProperty;
  * couche de présentation et la persistance
  *
  */
-public class AppCompte {
+public class AppCompte extends AppObject{
 
 	/**
 	 * le compte métier
@@ -20,17 +21,23 @@ public class AppCompte {
 	/**
 	 * Le nom du compte
 	 */
-	private SimpleStringProperty _nomProp;
+	private SimpleStringProperty _nom;
 
 	/**
 	 * Le solde du compte
 	 */
-	private SimpleDoubleProperty _soldeProp;
+	private SimpleDoubleProperty _solde;
+
 
 	/**
-	 * Identifiant applicatif du compte.
+	 * Indique si le compte est un livret
 	 */
-	private String _appId;
+	private SimpleBooleanProperty _isLivretProp;
+
+	/**
+	 * Indique si le compte est concerné par les budgets
+	 */
+	private SimpleBooleanProperty _isBudgetProp;
 
 	/**
 	 * Constructeur
@@ -41,8 +48,11 @@ public class AppCompte {
 	public AppCompte(Compte compte_) {
 		_compte = compte_;
 
-		_nomProp = new SimpleStringProperty(_compte.getNom());
-		_soldeProp = new SimpleDoubleProperty(_compte.getSolde());
+		// encapsulation des attributs du compte
+		_nom = new SimpleStringProperty(_compte.getNom());
+		_solde = new SimpleDoubleProperty(_compte.getSolde());
+		_isLivretProp = new SimpleBooleanProperty(_compte.isLivret());
+		_isBudgetProp = new SimpleBooleanProperty(_compte.isBudgetAllowed());
 
 	}
 
@@ -51,34 +61,93 @@ public class AppCompte {
 	 * 
 	 * @return le nom du compte
 	 */
-	public String getNomProp() {
-		return _nomProp.get();
+	public String getNom() {
+		return _nom.get();
 	}
 
+	/**
+	 * Retourne la propriété observable du nom
+	 * @return
+	 */
+	public SimpleStringProperty nomProperty() {
+		return _nom;
+	}
+	
+	/**
+	 * Positionne le nom du compte
+	 * @param nom
+	 */
+	public void setNom(String nom) {
+		_compte.setNom(nom);
+		_nom.set(nom);
+		
+	}
+	
 	/**
 	 * Retourne le solde du compte
 	 * 
 	 * @return le solde du compte
 	 */
-	public double getSoldeProp() {
-		return _soldeProp.get();
-	}
-
-	/**
-	 * Positionne l'identifiant applicatif du compte.
-	 * @param id l'identifiant
-	 */
-	public void setAppID(String id) {
-		_appId = id;
-
+	public double getSolde() {
+		return _solde.get();
 	}
 	
 	/**
-	 * Retourne l'identifiant application du compte
-	 * @return l'identifiant applicatif
+	 * Retourne la propriété observable du solde
+	 * @return
 	 */
-	public String getAppId() {
-		return _appId;
+	public SimpleDoubleProperty soldeProperty(){
+		return _solde;
 	}
+	
+	/**
+	 * Positionne le solde du compte
+	 * @param solde
+	 */
+	public void setSolde(double soldes) {
+		_compte.setSolde(soldes);
+		_solde.set(soldes);
+		
+	}
+
+	/**
+	 * Retourne vrai si le compte est livret
+	 * 
+	 * @return vrai si le compte est livret
+	 */
+	public boolean getIsLivretProp() {
+		return _isLivretProp.get();
+	}
+
+	/**
+	 * Retourne vrai si le compte est concerné par les budgets
+	 * 
+	 * @return vrai si le compte est concerné par les budgets
+	 */
+	public boolean getIsBudget() {
+
+		return _isBudgetProp.get();
+	}
+
+	/**
+	 * Positionne le flag isLivret
+	 * @param isLivret le flag isLivret
+	 */
+	public void setIsLivret(boolean isLivret) {
+		_isLivretProp.set(isLivret);
+		_compte.setLivret(isLivret);
+		
+	}
+
+	/**
+	 * Posiotionne le flag isBudget
+	 * @param isBudget
+	 */
+	public void setIsBudget(boolean isBudget) {
+		_isBudgetProp.set(isBudget);
+		_compte.setBudgetAllowed(isBudget);
+		
+	}
+	
 
 }

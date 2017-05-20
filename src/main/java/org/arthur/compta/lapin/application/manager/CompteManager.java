@@ -32,10 +32,11 @@ public class CompteManager {
 	 */
 	private CompteManager() {
 
+		// liste observable de compte, le contenu est observé également
 		_compteList = FXCollections.observableArrayList();
 
 		try {
-			//récupération en base des métadonnée des comptes
+			// récupération en base des métadonnée des comptes
 			HashMap<String, String[]> fromPersistancy = DBManager.getInstance().getAllCompte();
 
 			for (String id : fromPersistancy.keySet()) {
@@ -105,7 +106,7 @@ public class CompteManager {
 			// ajout en base
 			String id = DBManager.getInstance().addCompte(nom, solde, livret, budgetAllowed);
 
-			//vérification naive du retour
+			// vérification naive du retour
 			if (id.trim().isEmpty()) {
 				throw new ComptaException("Impossible de créer le compte : id applicatif vide");
 			}
@@ -129,26 +130,66 @@ public class CompteManager {
 
 	/**
 	 * Suppression d'un compte
-	 * @param appCompte le compte a supprimer 
-	 * @throws ComptaException La suppression a échouer
+	 * 
+	 * @param appCompte
+	 *            le compte a supprimer
+	 * @throws ComptaException
+	 *             La suppression a échouer
 	 */
 	public void removeCompte(AppCompte appCompte) throws ComptaException {
-		
-		if(appCompte !=null){
-			
-			
+
+		if (appCompte != null) {
+
 			try {
-				//suppression en base
+				// suppression en base
 				DBManager.getInstance().removeCompte(appCompte.getAppId());
-				//suppression de l'appli
+				// suppression de l'appli
 				_compteList.remove(appCompte);
 			} catch (Exception e) {
-				throw new ComptaException("Impossible de supprimer le compte",e);
+				throw new ComptaException("Impossible de supprimer le compte", e);
 			}
-			
-			
+
 		}
-		
+
+	}
+
+	/**
+	 * Met à jour le compte
+	 * 
+	 * @param appCompte
+	 *            le compte application associé
+	 * @param nom
+	 *            le nouveau nom
+	 * @param solde
+	 *            le nouveau solde
+	 * @param isLivret
+	 *            le nouveau flag isLivret
+	 * @param isBudget
+	 *            le nouveau floag isBudget
+	 * @return le compte applicatif mis à jour
+	 * @throws ComptaException
+	 *             La mise à jour a échouée
+	 */
+	public AppCompte updateCompte(AppCompte appCompte, String nom, double solde, boolean isLivret, boolean isBudget)
+			throws ComptaException {
+
+		if (appCompte != null) {
+
+			try {
+				DBManager.getInstance().updateCompte(appCompte.getAppId(), nom, solde, isLivret, isBudget);
+
+				appCompte.setNom(nom);
+				appCompte.setSolde(solde);
+				appCompte.setIsLivret(isLivret);
+				appCompte.setIsBudget(isBudget);
+
+
+			} catch (Exception e) {
+				throw new ComptaException("Impossible de mettre à jour le compte", e);
+			}
+		}
+
+		return appCompte;
 	}
 
 }

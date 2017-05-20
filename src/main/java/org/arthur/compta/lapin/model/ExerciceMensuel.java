@@ -13,8 +13,6 @@ import org.arthur.compta.lapin.model.operation.TransfertOperation;
  * 
  * Exercice comptable sur 1 mois. Regroupe toute les opérations sur un mois.
  * 
- * @author Arthur
- * 
  */
 public class ExerciceMensuel implements Comparable<ExerciceMensuel> {
 

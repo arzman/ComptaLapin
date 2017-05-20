@@ -225,8 +225,8 @@ public class TrimestreManager {
 
 			//récupération de la date de début
 			Calendar cal = Calendar.getInstance();
-			cal.setTime(ApplicationFormatter.databaseDateFormat
-					.parse(DBManager.getInstance().getDateDebutFromTrimestre(id)));
+			cal.setTime(
+					DBManager.getInstance().getDateDebutFromTrimestre(id));
 
 			res.put(id, cal);
 

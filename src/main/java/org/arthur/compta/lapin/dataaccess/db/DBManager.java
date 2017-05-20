@@ -469,20 +469,19 @@ public class DBManager {
 	 * @return
 	 * @throws SQLException Echec de la récupération
 	 */
-	public String getDateDebutFromTrimestre(String id) throws SQLException {
-		String res = null;
-
-		//TODO To be continued....
+	public Date getDateDebutFromTrimestre(String id) throws SQLException {
 		
-		String query = "SELECT ID,date_debut FROM EXERCICE_MENSUEL WHERE ;";
+		Date res = null;
+		// récupération de la date de début du premier exercice mensuel
+		String query = "SELECT date_debut FROM EXERCICE_MENSUEL E INNER JOIN TRIMESTRE T ON E.ID=T.premier_mois_id WHERE T.ID=? ;";
 		PreparedStatement stmt = connexionDB.prepareStatement(query);
-
+		stmt.setInt(1, Integer.parseInt(id));
+		
 		ResultSet queryRes = stmt.executeQuery();
 
 		while (queryRes.next()) {
 			// parsing du résultat
-			res = queryRes.getString("date_debut");
-
+			res = queryRes.getDate("date_debut");
 		}
 
 		return res;

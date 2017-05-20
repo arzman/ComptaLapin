@@ -58,8 +58,8 @@ public class ComptaMenuBar extends MenuBar {
 
 		// ajout de l'action de sélection du trimestre courant
 		MenuItem selectItem = new MenuItem("Sélectionner trimestre");
-		addItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.SELECT_TRIM_IMG)));
-		addItem.setOnAction(new EventHandler<ActionEvent>() {
+		selectItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.SELECT_TRIM_IMG)));
+		selectItem.setOnAction(new EventHandler<ActionEvent>() {
 
 			@Override
 			public void handle(ActionEvent event) {

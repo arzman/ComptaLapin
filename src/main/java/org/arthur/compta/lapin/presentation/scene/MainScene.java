@@ -1,5 +1,6 @@
 package org.arthur.compta.lapin.presentation.scene;
 
+import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.presentation.budget.pane.BudgetPane;
 import org.arthur.compta.lapin.presentation.compte.pane.ComptePane;
 import org.arthur.compta.lapin.presentation.menu.ComptaMenuBar;
@@ -35,6 +36,7 @@ public class MainScene extends Scene {
 		
 		// ajout d'une séparation gauche-droite de la fenêtre
 		SplitPane splitgaucheDroite = new SplitPane();
+		splitgaucheDroite.setDividerPosition(0, ConfigurationManager.getInstance().getgdPosition());
 		splitgaucheDroite.setOrientation(Orientation.HORIZONTAL);
 		stack.getChildren().add(splitgaucheDroite);
 
@@ -44,6 +46,7 @@ public class MainScene extends Scene {
 		// séparation haut-bas de la partie droite
 		SplitPane splitHautBas = new SplitPane();
 		splitHautBas.setOrientation(Orientation.VERTICAL);
+		splitHautBas.setDividerPosition(0, ConfigurationManager.getInstance().gethbPosition());
 		splitgaucheDroite.getItems().add(splitHautBas);
 
 		// Ajout de l'affichage des budgets
@@ -51,9 +54,18 @@ public class MainScene extends Scene {
 
 		// Ajout de l'affichage des comptes
 		splitHautBas.getItems().add(new ComptePane());
-
 		
-
+		
+		// enregistrement de la position
+		splitgaucheDroite.getDividers().get(0).positionProperty().addListener( (observable, oldValue, newValue) -> ConfigurationManager.getInstance().setgdPosition(newValue));
+		splitHautBas.getDividers().get(0).positionProperty().addListener( (observable, oldValue, newValue) -> ConfigurationManager.getInstance().sethbPosition(newValue));
+		
 	}
+	
+	
+	
+	
+	
+	
 
 }

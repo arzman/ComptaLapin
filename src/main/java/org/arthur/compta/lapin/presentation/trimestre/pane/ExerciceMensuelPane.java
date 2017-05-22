@@ -37,13 +37,18 @@ public class ExerciceMensuelPane extends GridPane {
 	 * Tableau des transferts
 	 */
 	private TransfertTableView _transfertTable;
+	
+	/**
+	 * 
+	 */
+	private static final String NO_CONTENT_DATE_STR = "######";
 
 	/**
 	 * Constructeur
 	 */
 	public ExerciceMensuelPane() {
 
-		_title = new Label("Aucun contenu");
+		_title = new Label(NO_CONTENT_DATE_STR);
 		add(_title, 0, 0);
 
 		ColumnConstraints colCons = new ColumnConstraints();
@@ -93,7 +98,7 @@ public class ExerciceMensuelPane extends GridPane {
 			_title.setText(ApplicationFormatter.moiAnneedateFormat.format(newEM.getDateDebut().getTime()));
 
 		} else {
-			_title.setText("Aucun contenu");
+			_title.setText(NO_CONTENT_DATE_STR);
 		}
 
 	}

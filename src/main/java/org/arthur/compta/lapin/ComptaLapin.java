@@ -1,5 +1,6 @@
 package org.arthur.compta.lapin;
 
+import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.dataaccess.db.DBManager;
 import org.arthur.compta.lapin.dataaccess.files.FilesManager;
 import org.arthur.compta.lapin.presentation.scene.MainScene;
@@ -8,7 +9,9 @@ import com.sun.javafx.application.LauncherImpl;
 
 import javafx.application.Application;
 import javafx.application.Preloader.PreloaderNotification;
+import javafx.event.EventHandler;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 /**
  * Classe principale de l'application.
@@ -43,6 +46,16 @@ public class ComptaLapin extends Application {
 		primaryStage.setScene(new MainScene());
 		// on prend toute la place
 		primaryStage.setMaximized(true);
+		
+		//sauvegarde des etats des IHM
+		primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+			
+			@Override
+			public void handle(WindowEvent event) {
+				ConfigurationManager.getInstance().save();
+				
+			}
+		});
 		// ouverture de la fenetre
 		primaryStage.show();
 

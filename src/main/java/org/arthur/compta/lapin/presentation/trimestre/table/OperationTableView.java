@@ -11,6 +11,7 @@ public class OperationTableView<T extends AppOperation<? extends Operation>> ext
 
 	public OperationTableView() {
 
+		//les colonnes prennent toutes la place
 		setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
 		// Colonne du nom

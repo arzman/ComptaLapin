@@ -16,24 +16,32 @@ public class FilesManager {
 	private static FilesManager _instance;
 
 	/** répertoire racine de l'application ( ie là ou est situé le jar) */
-	private String _rootFolder;
-
+	private Path _rootFolder;
+	/**
+	 * Répertoire de la base
+	 */
 	private Path _dbFolderPath;
+	/**
+	 * Répertoire de la confiuration
+	 */
+	private Path _confFolderPath;
 
 	/** Le constructeur par défaut */
 	private FilesManager() {
 
-		_rootFolder = System.getProperty("user.dir");
-
 		try {
-			//création du répertoire de configuration
+			_rootFolder = Paths.get(System.getProperty("user.dir"), "context");
+			if (!Files.exists(_rootFolder, new LinkOption[] {})) {
+
+				Files.createDirectories(_rootFolder);
+			}
+
+			// création du répertoire de configuration
 			createConfFolder();
-			
-			//création du répertoire de la base de donnée
+			// création du répertoire de la base de donnée
 			createDBFolder();
-			
+
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -62,15 +70,15 @@ public class FilesManager {
 	private void createConfFolder() throws IOException {
 
 		// création du répertoire de conf
-		Path confFolderPath = Paths.get(_rootFolder,"conf");
+		_confFolderPath = Paths.get(_rootFolder.toString(), "config");
 
-		if (!Files.exists(confFolderPath, new LinkOption[] {})) {
+		if (!Files.exists(_confFolderPath, new LinkOption[] {})) {
 
-			Files.createDirectories(confFolderPath);
+			Files.createDirectories(_confFolderPath);
 		}
 
 	}
-	
+
 	/**
 	 * Vérifie et crée les répertoires/fichiers de configuration de
 	 * l'application
@@ -80,7 +88,7 @@ public class FilesManager {
 	private void createDBFolder() throws IOException {
 
 		// création du répertoire de conf
-		_dbFolderPath = Paths.get(_rootFolder,"db");
+		_dbFolderPath = Paths.get(_rootFolder.toString(), "db");
 
 		if (!Files.exists(_dbFolderPath, new LinkOption[] {})) {
 
@@ -91,11 +99,22 @@ public class FilesManager {
 
 	/**
 	 * Retourne le chemin vers le dossier dédié à la base de donnée
+	 * 
 	 * @return
 	 */
 	public Path getDBFolder() {
 
 		return _dbFolderPath;
+	}
+
+	/**
+	 * Retourne le chemin vers le dossier de configuration
+	 * 
+	 * @return
+	 */
+	public Path getConfFolder() {
+		return _confFolderPath;
+
 	}
 
 }

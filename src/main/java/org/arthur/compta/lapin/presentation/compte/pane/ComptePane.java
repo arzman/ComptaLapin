@@ -52,6 +52,7 @@ public class ComptePane extends GridPane {
 		// Création de la table des comptes
 		TableView<AppCompte> table = new TableView<>();
 		table.setMaxWidth(Double.MAX_VALUE);
+		table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		add(table, 0, 0);
 
 		// Colonne du nom

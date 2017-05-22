@@ -5,14 +5,19 @@ import org.arthur.compta.lapin.application.model.AppOperation;
 import org.arthur.compta.lapin.model.operation.Operation;
 import org.arthur.compta.lapin.presentation.trimestre.table.OperationTableView;
 import org.arthur.compta.lapin.presentation.trimestre.table.TransfertTableView;
-import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
-import javafx.scene.control.Label;
+import javafx.geometry.Insets;
 import javafx.scene.control.TitledPane;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.paint.Color;
 
 /**
  * Panneau de présentation d'un exercice mensuel : tableau des dépenses ,
@@ -24,7 +29,7 @@ public class ExerciceMensuelPane extends GridPane {
 	/**
 	 * Libellé de la date
 	 */
-	private Label _title;
+	private ExerciceHeaderPane _title;
 	/**
 	 * Tableau des dépenses
 	 */
@@ -37,18 +42,13 @@ public class ExerciceMensuelPane extends GridPane {
 	 * Tableau des transferts
 	 */
 	private TransfertTableView _transfertTable;
-	
-	/**
-	 * 
-	 */
-	private static final String NO_CONTENT_DATE_STR = "######";
 
 	/**
 	 * Constructeur
 	 */
 	public ExerciceMensuelPane() {
 
-		_title = new Label(NO_CONTENT_DATE_STR);
+		_title = new ExerciceHeaderPane();
 		add(_title, 0, 0);
 
 		ColumnConstraints colCons = new ColumnConstraints();
@@ -56,9 +56,8 @@ public class ExerciceMensuelPane extends GridPane {
 		colCons.setFillWidth(true);
 		getColumnConstraints().add(colCons);
 		
-		RowConstraints rowCons = new RowConstraints();
-		rowCons.setVgrow(Priority.ALWAYS);
-		rowCons.setFillHeight(true);
+		setVgap(5);
+
 
 		// tableau des dépenses
 		_depenseTable = new OperationTableView<AppOperation<Operation>>();
@@ -80,7 +79,12 @@ public class ExerciceMensuelPane extends GridPane {
 		_transfertTable.setMaxHeight(Double.MAX_VALUE);
 		TitledPane transPane = new TitledPane("Transfert", _transfertTable);
 		add(transPane, 0, 3);
-
+		
+		//ajout d'une borduer
+		Border bord = new Border(new BorderStroke(Color.LIGHTBLUE,BorderStrokeStyle.SOLID,new CornerRadii(5),new BorderWidths(1),new Insets(2,2,2,2) ));
+		setBorder(bord);
+		
+		
 	}
 
 	/**
@@ -95,10 +99,12 @@ public class ExerciceMensuelPane extends GridPane {
 
 		// changement de l'affichage de la date
 		if (newEM != null) {
-			_title.setText(ApplicationFormatter.moiAnneedateFormat.format(newEM.getDateDebut().getTime()));
+			_title.setMois(newEM.getDateDebut().getTime());
+			_title.setResutlat(newEM.getResultat());
 
 		} else {
-			_title.setText(NO_CONTENT_DATE_STR);
+			_title.setMois(null);
+			_title.setResutlat(0);
 		}
 
 	}

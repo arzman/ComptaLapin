@@ -1,6 +1,7 @@
 package org.arthur.compta.lapin.application.model;
 
 import java.util.Calendar;
+import java.util.Random;
 
 import org.arthur.compta.lapin.model.ExerciceMensuel;
 
@@ -32,6 +33,13 @@ public class AppExerciceMensuel extends AppObject {
 	 */
 	public ExerciceMensuel getExcerciceMensuel() {
 		return _exMensuel;
+	}
+
+	public double getResultat() {
+		
+		Random r = new Random(); 
+		double i = (-0.5 + r.nextDouble())*1000; 
+		return i;
 	}
 
 }

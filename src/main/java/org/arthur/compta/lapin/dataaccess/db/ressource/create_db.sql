@@ -28,10 +28,10 @@ CREATE TABLE EXERCICE_MENSUEL(
 #  Table: TRIMESTRE
 #***************************************************************
 CREATE TABLE TRIMESTRE(
-	ID  IDENTITY NOT NULL ,
-	premier_mois_id  INTEGER   ,
-	deux_mois_id  INTEGER   ,
-	trois_mois_id  INTEGER   ,
+	ID  				IDENTITY NOT NULL ,
+	premier_mois_id  	INTEGER   ,
+	deux_mois_id  		INTEGER   ,
+	trois_mois_id  		INTEGER   ,
 	CONSTRAINT TRIMESTRE_Pk PRIMARY KEY (ID),
 	CONSTRAINT premier_mois_id_fk FOREIGN KEY (premier_mois_id) REFERENCES EXERCICE_MENSUEL(ID),
 	CONSTRAINT deux_mois_id_fk FOREIGN KEY (deux_mois_id) REFERENCES EXERCICE_MENSUEL(ID),
@@ -46,6 +46,24 @@ CREATE TABLE CONFIGURATION(
 	date_verif    DATE  ,
 	ID_TRIMESTRE  INTEGER   ,
 	CONSTRAINT CONFIGURATION_Pk PRIMARY KEY (ID)
+);
+
+
+#***************************************************************
+#   Table: TEMPLATE
+#***************************************************************
+CREATE TABLE TEMPLATE(
+	ID  				IDENTITY NOT NULL ,
+	nom					VARCHAR (25) NOT NULL,
+	montant     		FLOAT  NOT NULL,
+	type  				INTEGER   ,
+	frequence  			INTEGER   ,
+	occurence  			INTEGER   ,
+	compte_source_id	INTEGER,
+	compte_cible_id		INTEGER,
+	CONSTRAINT TEMPLATE_Pk PRIMARY KEY (ID),
+	CONSTRAINT compte_source_id_fk FOREIGN KEY (compte_source_id) REFERENCES COMPTE(ID),
+	CONSTRAINT compte_cible_id_fk FOREIGN KEY (compte_cible_id) REFERENCES COMPTE(ID)
 );
 
 

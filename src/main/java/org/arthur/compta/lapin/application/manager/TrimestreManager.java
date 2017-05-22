@@ -7,6 +7,7 @@ import java.util.HashMap;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.model.AppExerciceMensuel;
 import org.arthur.compta.lapin.application.model.AppTrimestre;
+import org.arthur.compta.lapin.application.template.TrimestreTemplate;
 import org.arthur.compta.lapin.dataaccess.db.DBManager;
 import org.arthur.compta.lapin.model.ExerciceMensuel;
 import org.arthur.compta.lapin.model.Trimestre;
@@ -28,19 +29,25 @@ public class TrimestreManager {
 
 	private SimpleObjectProperty<AppTrimestre> _trimestreCourant;
 
+	/** Le template de trimestre */
+	private SimpleObjectProperty<TrimestreTemplate> _template;
+
 	/**
 	 * Le constructeur
 	 */
 	private TrimestreManager() {
 
 		_trimestreCourant = new SimpleObjectProperty<AppTrimestre>();
+		_template = new SimpleObjectProperty<>();
 
-		String[] info;
 		try {
-			info = DBManager.getInstance().getTrimestreCourantId();
+			String[] info = DBManager.getInstance().getTrimestreCourantId();
 			if (info != null && info.length == 1 && info[0] != null && !info[0].isEmpty()) {
 				loadTrimestreCourant(info[0]);
 			}
+
+			loadTrimestreTemplate();
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -253,6 +260,18 @@ public class TrimestreManager {
 
 			DBManager.getInstance().removeTrimestre(idTrimestre);
 		}
+
+	}
+
+	/**
+	 * Charge le template de trimestre
+	 * 
+	 * @throws ComptaException
+	 *             Echec du chargement
+	 */
+	private void loadTrimestreTemplate() throws ComptaException {
+
+		HashMap<String, String[]> tmpInfo = DBManager.getInstance().loadTemplateInfo();
 
 	}
 

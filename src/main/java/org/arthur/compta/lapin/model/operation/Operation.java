@@ -4,7 +4,7 @@ import org.arthur.compta.lapin.model.Compte;
 
 /**
  * Modélise une opération sur un compte. Une opération possède un état (
- * comptabilisé ou non) et un montant. Afin de distinguer une opértion, on lui
+ * comptabilisé ou non) et un montant. Afin de distinguer une opération, on lui
  * attribut un nom
  */
 public class Operation {
@@ -122,6 +122,17 @@ public class Operation {
 	 */
 	public void setNom(String nom) {
 		_nom = nom;
+	}
+	
+	/**
+	 * Duplique l'opération
+	 * @return
+	 */
+	public Operation duplicate(){
+		
+		Operation ope = new Operation(_type, _compte, _nom, _montant, _etat);
+		return ope;
+		
 	}
 
 }

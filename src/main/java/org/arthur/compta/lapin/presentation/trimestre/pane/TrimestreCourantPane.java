@@ -53,6 +53,7 @@ public class TrimestreCourantPane extends GridPane {
 		getRowConstraints().add(rowCons);
 
 		setVgap(2);
+		setHgap(2);
 		setPadding(new Insets(2, 2, 2, 2));
 
 		// Création du contenu

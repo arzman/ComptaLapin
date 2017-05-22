@@ -14,47 +14,38 @@ import javafx.stage.Stage;
  * Classe principale de l'application.
  *
  */
-public class ComptaLapin extends Application
-{
-    public static void main( String[] args )
-    {
-       
-    	//lancement de l'ihm
-    	LauncherImpl.launchApplication(ComptaLapin.class, ComptaLapinPreloader.class,args);
-    	
-    }
+public class ComptaLapin extends Application {
+	public static void main(String[] args) {
 
-    
-    @Override
-    public void init() throws Exception {
-    	
-    	super.init();
-    	
-    	FilesManager.getInstance();
-    	DBManager.getInstance();
-    	notifyPreloader( new PreloaderNotification() {
+		// lancement de l'ihm
+		LauncherImpl.launchApplication(ComptaLapin.class, ComptaLapinPreloader.class, args);
+
+	}
+
+	@Override
+	public void init() throws Exception {
+
+		super.init();
+
+		FilesManager.getInstance();
+		DBManager.getInstance();
+		notifyPreloader(new PreloaderNotification() {
 		});
-    	
-    	
-    }
-    
-    
+
+	}
+
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		
-		
-		//mise en place du titre de la fenêtre
+
+		// mise en place du titre de la fenêtre
 		primaryStage.setTitle("Compta Du Lapin 2.0");
-		
-		//remplissage de la fenetre
-        primaryStage.setScene(new MainScene());
-		
-		//ouverture de la fenetre
+		// remplissage de la fenetre
+		primaryStage.setScene(new MainScene());
+		// on prend toute la place
+		primaryStage.setMaximized(true);
+		// ouverture de la fenetre
 		primaryStage.show();
-		
+
 	}
-	
-	
-	
-	
+
 }

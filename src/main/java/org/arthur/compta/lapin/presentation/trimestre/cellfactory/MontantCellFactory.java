@@ -1,11 +1,11 @@
-package org.arthur.compta.lapin.presentation.compte.cellfactory;
+package org.arthur.compta.lapin.presentation.trimestre.cellfactory;
 
-import org.arthur.compta.lapin.application.model.AppCompte;
+import org.arthur.compta.lapin.application.model.AppOperation;
+import org.arthur.compta.lapin.model.operation.Operation;
 import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.paint.Color;
 import javafx.util.Callback;
 
 /**
@@ -13,15 +13,16 @@ import javafx.util.Callback;
  * tableau.
  *
  */
-public class SoldeCompteCellFactory implements Callback<TableColumn<AppCompte, Number>, TableCell<AppCompte, Number>> {
+public class MontantCellFactory<T extends AppOperation<? extends Operation>>
+		implements Callback<TableColumn<T, Number>, TableCell<T, Number>> {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public TableCell<AppCompte, Number> call(TableColumn<AppCompte, Number> param) {
+	public TableCell<T, Number> call(TableColumn<T, Number> param) {
 
-		return new TableCell<AppCompte, Number>() {
+		return new TableCell<T, Number>() {
 
 			@Override
 			protected void updateItem(Number item, boolean empty) {
@@ -31,13 +32,6 @@ public class SoldeCompteCellFactory implements Callback<TableColumn<AppCompte, N
 					setText(null);
 				} else {
 					// on format le texte comme une valeur monnaitaire
-
-					if (item.doubleValue() < 0) {
-						setTextFill(Color.RED);
-					} else {
-						setTextFill(Color.BLUE);
-					}
-
 					setText(ApplicationFormatter.montantFormat.format(item));
 				}
 			}

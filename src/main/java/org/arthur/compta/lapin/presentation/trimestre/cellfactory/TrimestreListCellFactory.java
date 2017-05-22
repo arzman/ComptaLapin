@@ -57,10 +57,13 @@ public class TrimestreListCellFactory implements Callback<ListView<String>, List
 					text.append(" à ");
 					Calendar fin = Calendar.getInstance();
 					fin.setTime(new Date(deb.getTime().getTime()));
-					fin.add(Calendar.MONTH, 3);
+					fin.add(Calendar.MONTH, 2);
 					text.append(ApplicationFormatter.moiAnneedateFormat.format(fin.getTime()));
 					setText(text.toString());
 
+				}else{
+					// pas de donnée = pas de texte
+					setText("");
 				}
 
 			}

@@ -8,7 +8,7 @@ import org.arthur.compta.lapin.presentation.compte.dialog.EditCompteDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import org.arthur.compta.lapin.presentation.trimestre.dialog.CreateTrimestreDialog;
-import org.arthur.compta.lapin.presentation.trimestre.dialog.SelectTrimestreDialog;
+import org.arthur.compta.lapin.presentation.trimestre.dialog.ManageTrimestreCourantDialog;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -64,7 +64,7 @@ public class ComptaMenuBar extends MenuBar {
 			@Override
 			public void handle(ActionEvent event) {
 				// ouverture de la fenêtre de saisie
-				SelectTrimestreDialog dia = new SelectTrimestreDialog();
+				ManageTrimestreCourantDialog dia = new ManageTrimestreCourantDialog();
 				Optional<String> id = dia.showAndWait();
 
 				if (id.isPresent() && !id.get().isEmpty()) {

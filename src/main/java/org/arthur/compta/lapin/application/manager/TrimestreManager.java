@@ -211,31 +211,49 @@ public class TrimestreManager {
 	 * base
 	 * 
 	 * @return une Map contenant clé:id Trimestre , value:dateDébut
-	 * @throws ComptaException Erreur lors de la récupération des infos
+	 * @throws ComptaException
+	 *             Erreur lors de la récupération des infos
 	 */
 	public HashMap<String, Calendar> getAllTrimestreShortList() throws ComptaException {
 
 		HashMap<String, Calendar> res = new HashMap<>();
 
-		try{
-		
-		ArrayList<String> ids = DBManager.getInstance().getAllTrimestreId();
+		try {
 
-		for (String id : ids) {
+			ArrayList<String> ids = DBManager.getInstance().getAllTrimestreId();
 
-			//récupération de la date de début
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(
-					DBManager.getInstance().getDateDebutFromTrimestre(id));
+			for (String id : ids) {
 
-			res.put(id, cal);
+				// récupération de la date de début
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(DBManager.getInstance().getDateDebutFromTrimestre(id));
 
-		}
-		}catch (Exception e) {
-			throw new ComptaException("Impossible de récupérer la liste des trimestres",e);
+				res.put(id, cal);
+
+			}
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de récupérer la liste des trimestres", e);
 		}
 
 		return res;
+	}
+
+	/**
+	 * Supprime un trimestre. La suppression est ignorée si le trimestre à
+	 * supprimer est le trimestre courant
+	 * 
+	 * @param idTrimestre
+	 *            l'id du trimestre a supprimer
+	 * @throws ComptaException
+	 *             Impossible de supprimer le trimestre
+	 */
+	public void removeTrimestre(String idTrimestre) throws ComptaException {
+
+		if (_trimestreCourant.get() != null && !idTrimestre.equals(_trimestreCourant.get().getAppId())) {
+
+			DBManager.getInstance().removeTrimestre(idTrimestre);
+		}
+
 	}
 
 }

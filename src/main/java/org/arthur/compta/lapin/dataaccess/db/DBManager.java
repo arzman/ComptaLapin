@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 
+import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.dataaccess.files.FilesManager;
 import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
@@ -378,31 +379,30 @@ public class DBManager {
 	 * @param idMois3
 	 *            identifiant applicatif du troisieme mois
 	 * @return
-	 * @throws SQLException
+	 * @throws ComptaException
 	 *             Echec de l'insertion
 	 */
-	public String addTrimestre(String idMois1, String idMois2, String idMois3) throws SQLException {
+	public String addTrimestre(String idMois1, String idMois2, String idMois3) throws ComptaException {
 
 		String id = null;
 		// préparation de la requête
 		String query = "INSERT INTO TRIMESTRE (premier_mois_id,deux_mois_id,trois_mois_id) VALUES (?,?,?);";
-		PreparedStatement stmt = connexionDB.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-		stmt.setString(1, idMois1);
-		stmt.setString(2, idMois2);
-		stmt.setString(3, idMois3);
+		try (PreparedStatement stmt = connexionDB.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+			stmt.setString(1, idMois1);
+			stmt.setString(2, idMois2);
+			stmt.setString(3, idMois3);
 
-		// execution
-		stmt.executeUpdate();
+			// execution
+			stmt.executeUpdate();
 
-		// récupération de l'id en base du compte créé
-		ResultSet res = stmt.getGeneratedKeys();
-		if (res.getMetaData().getColumnCount() == 1 && res.next()) {
-			id = res.getString(1).trim();
+			// récupération de l'id en base du compte créé
+			ResultSet res = stmt.getGeneratedKeys();
+			if (res.getMetaData().getColumnCount() == 1 && res.next()) {
+				id = res.getString(1).trim();
+			}
+		} catch (Exception e) {
+			throw new ComptaException("Impossible d'ajouter un trimestre", e);
 		}
-
-		// libération des ressources JDBC
-		stmt.close();
-		res.close();
 
 		return id;
 	}
@@ -412,29 +412,33 @@ public class DBManager {
 	 * 
 	 * @param appId
 	 *            le nouvel id
-	 * @throws SQLException
+	 * @throws ComptaException
 	 *             Echec de l'insertion
 	 */
-	public void setTrimestreCourant(String appId) throws SQLException {
+	public void setTrimestreCourant(String appId) throws ComptaException {
 
 		// préparation de la requête
 		String query = "UPDATE CONFIGURATION SET ID_TRIMESTRE=?;";
-		PreparedStatement stmt = connexionDB.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-		stmt.setInt(1, Integer.parseInt(appId));
-		stmt.executeUpdate();
+		try (PreparedStatement stmt = connexionDB.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
-		if (stmt.getUpdateCount() == 0) {
-			// pas d'update, on insert
-			String query2 = "INSERT INTO CONFIGURATION (date_verif,ID_TRIMESTRE) VALUES (?,?);";
-			PreparedStatement stmt2 = connexionDB.prepareStatement(query2);
-			stmt2.setDate(1, new Date(Calendar.getInstance().getTime().getTime()));
-			stmt2.setInt(2, Integer.parseInt(appId));
-			stmt2.executeUpdate();
+			stmt.setInt(1, Integer.parseInt(appId));
+			stmt.executeUpdate();
 
-			stmt2.close();
+			if (stmt.getUpdateCount() == 0) {
+				// pas d'update, on insert
+				String query2 = "INSERT INTO CONFIGURATION (date_verif,ID_TRIMESTRE) VALUES (?,?);";
+				try (PreparedStatement stmt2 = connexionDB.prepareStatement(query2)) {
+					stmt2.setDate(1, new Date(Calendar.getInstance().getTime().getTime()));
+					stmt2.setInt(2, Integer.parseInt(appId));
+					stmt2.executeUpdate();
+				} catch (Exception e) {
+					throw new ComptaException("Impossible d'insérer la nouvelle configuration en base", e);
+				}
+			}
+
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de mettre à jour la nouvelle configuration en base", e);
 		}
-
-		stmt.close();
 
 	}
 
@@ -442,22 +446,23 @@ public class DBManager {
 	 * Retourne une liste avec tout les identifiants des trimestres en base
 	 * 
 	 * @return
-	 * @throws SQLException
+	 * @throws ComptaException
 	 *             Echec de la récupération
 	 */
-	public ArrayList<String> getAllTrimestreId() throws SQLException {
+	public ArrayList<String> getAllTrimestreId() throws ComptaException {
 
 		ArrayList<String> res = new ArrayList<>();
 
 		String query = "SELECT ID FROM TRIMESTRE;";
-		PreparedStatement stmt = connexionDB.prepareStatement(query);
+		try (PreparedStatement stmt = connexionDB.prepareStatement(query);) {
+			ResultSet queryRes = stmt.executeQuery();
+			while (queryRes.next()) {
+				// parsing du résultat
+				res.add(queryRes.getString("ID"));
 
-		ResultSet queryRes = stmt.executeQuery();
-
-		while (queryRes.next()) {
-			// parsing du résultat
-			res.add(queryRes.getString("ID"));
-
+			}
+		} catch (Exception e) {
+			throw new ComptaException("La récupération en base a échouée", e);
 		}
 
 		return res;
@@ -465,26 +470,97 @@ public class DBManager {
 
 	/**
 	 * Récupération de la date de début d'un trimestre
-	 * @param id l'id du trimestre
+	 * 
+	 * @param id
+	 *            l'id du trimestre
 	 * @return
-	 * @throws SQLException Echec de la récupération
+	 * @throws ComptaException
+	 *             Echec de la récupération
 	 */
-	public Date getDateDebutFromTrimestre(String id) throws SQLException {
-		
+	public Date getDateDebutFromTrimestre(String id) throws ComptaException {
+
 		Date res = null;
 		// récupération de la date de début du premier exercice mensuel
 		String query = "SELECT date_debut FROM EXERCICE_MENSUEL E INNER JOIN TRIMESTRE T ON E.ID=T.premier_mois_id WHERE T.ID=? ;";
-		PreparedStatement stmt = connexionDB.prepareStatement(query);
-		stmt.setInt(1, Integer.parseInt(id));
-		
-		ResultSet queryRes = stmt.executeQuery();
 
-		while (queryRes.next()) {
-			// parsing du résultat
-			res = queryRes.getDate("date_debut");
+		try (PreparedStatement stmt = connexionDB.prepareStatement(query);) {
+
+			stmt.setInt(1, Integer.parseInt(id));
+			ResultSet queryRes = stmt.executeQuery();
+
+			while (queryRes.next()) {
+				// parsing du résultat
+				res = queryRes.getDate("date_debut");
+			}
+
+		} catch (Exception e) {
+			throw new ComptaException("La récupération en base a échouée", e);
 		}
 
 		return res;
+	}
+
+	/**
+	 * Supprime un trimestre de la base de donnée
+	 * 
+	 * @param idTrimestrel'id
+	 *            du trimestre
+	 * @throws SQLException
+	 *             Echec de la suppression
+	 */
+	public void removeTrimestre(String idTrimestre) throws ComptaException {
+
+		// suppression des excercices mensuels
+		String queryEM = "SELECT premier_mois_id,deux_mois_id,trois_mois_id FROM TRIMESTRE WHERE ID=?;";
+		try (PreparedStatement stmtEM = connexionDB.prepareStatement(queryEM)) {
+
+			stmtEM.setInt(1, Integer.valueOf(idTrimestre));
+			ResultSet queryRes = stmtEM.executeQuery();
+
+			// suppression du trimestre
+			String query = "DELETE FROM TRIMESTRE WHERE ID=? ;";
+			try (PreparedStatement stmt = connexionDB.prepareStatement(query)) {
+
+				stmt.setInt(1, Integer.parseInt(idTrimestre));
+				stmt.executeUpdate();
+			} catch (Exception e) {
+				throw new ComptaException("Impossible de supprimer le trimestre", e);
+			}
+
+			while (queryRes.next()) {
+				// suppression des exercice mensuel
+				String idPremierMois = String.valueOf(queryRes.getInt("premier_mois_id"));
+				removeExcerciceMensuel(idPremierMois);
+				String idDeuxMois = String.valueOf(queryRes.getInt("deux_mois_id"));
+				removeExcerciceMensuel(idDeuxMois);
+				String idTroisMois = String.valueOf(queryRes.getInt("trois_mois_id"));
+				removeExcerciceMensuel(idTroisMois);
+			}
+
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de récupérer le trimestre", e);
+		}
+
+	}
+
+	/**
+	 * Supprime un exercice mensuel de la base
+	 * 
+	 * @param idMois
+	 *            l'id de l'exercice mensuel à supprimer
+	 * @throws ComptaException
+	 *             Echec de la suppression
+	 */
+	private void removeExcerciceMensuel(String idMois) throws ComptaException {
+		// suppression de l'exercie
+		String query = "DELETE FROM EXERCICE_MENSUEL WHERE ID=? ;";
+		try (PreparedStatement stmt = connexionDB.prepareStatement(query)) {
+			stmt.setInt(1, Integer.parseInt(idMois));
+			stmt.executeUpdate();
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de supprimer l'exercice mensuel", e);
+		}
+
 	}
 
 }

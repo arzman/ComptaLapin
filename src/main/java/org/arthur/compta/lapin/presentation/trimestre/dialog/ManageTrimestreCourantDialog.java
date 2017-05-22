@@ -6,15 +6,21 @@ import java.util.HashMap;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
+import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import org.arthur.compta.lapin.presentation.trimestre.cellfactory.TrimestreListCellFactory;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
 
@@ -23,18 +29,18 @@ import javafx.util.Callback;
  * trimestre
  *
  */
-public class SelectTrimestreDialog extends Dialog<String> {
+public class ManageTrimestreCourantDialog extends Dialog<String> {
 
 	/**
 	 * Les id des trimestre à afficher ainsi que leur date de début.
 	 */
-	private HashMap<String, Calendar> _resumeTrimestre;
+	private ObservableList<String> _trimDdList;
 	/**
 	 * Affichage de la liste des trimestres
 	 */
 	private ListView<String> _listV;
 
-	public SelectTrimestreDialog() {
+	public ManageTrimestreCourantDialog() {
 
 		setTitle("Sélection du trimestre courant");
 
@@ -45,11 +51,11 @@ public class SelectTrimestreDialog extends Dialog<String> {
 		try {
 			// récupération des trimestres de l'application ainsi que leur date
 			// de début
-			_resumeTrimestre = TrimestreManager.getInstance().getAllTrimestreShortList();
+			HashMap<String, Calendar> _resumeTrimestre = TrimestreManager.getInstance().getAllTrimestreShortList();
 
 			// Création de la liste des trimestres à afficher
-			ObservableList<String> trimidlist = FXCollections.observableArrayList();
-			trimidlist.addAll(_resumeTrimestre.keySet());
+			_trimDdList = FXCollections.observableArrayList();
+			_trimDdList.addAll(_resumeTrimestre.keySet());
 
 			// affichage de la liste
 			_listV = new ListView<>();
@@ -57,15 +63,52 @@ public class SelectTrimestreDialog extends Dialog<String> {
 			// callback permettant de customiser l'affichage
 			_listV.setCellFactory(new TrimestreListCellFactory(_resumeTrimestre));
 
-			_listV.setItems(trimidlist);
+			_listV.setItems(_trimDdList);
 			content.add(_listV, 0, 0);
 
 		} catch (ComptaException e) {
 			ExceptionDisplayService.showException(e);
 		}
 
+		// Création du menu contextuel
+		createContextMenu();
+
 		// création des boutons
 		createBoutonBar();
+
+	}
+
+	/**
+	 * Ajoute un menu contextuel
+	 */
+	private void createContextMenu() {
+
+		ContextMenu menuCtx = new ContextMenu();
+		_listV.setContextMenu(menuCtx);
+
+		// action de suppression du trimestre
+		MenuItem delAction = new MenuItem("Supprimer");
+		delAction.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.DEL_IMG)));
+		delAction.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+
+				String idToDel = _listV.getSelectionModel().getSelectedItem();
+				if (idToDel != null && !idToDel.isEmpty()) {
+
+					try {
+						TrimestreManager.getInstance().removeTrimestre(idToDel);
+						_trimDdList.remove(idToDel);
+					} catch (ComptaException e) {
+						ExceptionDisplayService.showException(e);
+					}
+
+				}
+
+			}
+		});
+		menuCtx.getItems().add(delAction);
 
 	}
 

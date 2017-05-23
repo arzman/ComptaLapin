@@ -7,6 +7,7 @@ import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.presentation.compte.dialog.EditCompteDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
+import org.arthur.compta.lapin.presentation.trimestre.dialog.ConfigureTemplateDialog;
 import org.arthur.compta.lapin.presentation.trimestre.dialog.CreateTrimestreDialog;
 import org.arthur.compta.lapin.presentation.trimestre.dialog.ManageTrimestreCourantDialog;
 
@@ -53,7 +54,6 @@ public class ComptaMenuBar extends MenuBar {
 
 			}
 		});
-
 		trimMenu.getItems().add(addItem);
 
 		// ajout de l'action de sélection du trimestre courant
@@ -78,8 +78,23 @@ public class ComptaMenuBar extends MenuBar {
 
 			}
 		});
-
 		trimMenu.getItems().add(selectItem);
+		
+		// ajout de l'action de configuration du template de trimestre
+		MenuItem configItem = new MenuItem("Configurer modèle");
+		configItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.CONFIG_TMP_IMG)));
+		configItem.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				// ouverture de la fenêtre de saisie
+				ConfigureTemplateDialog dia = new ConfigureTemplateDialog();
+				dia.showAndWait();
+
+
+			}
+		});
+		trimMenu.getItems().add(configItem);
 
 		getMenus().add(trimMenu);
 	}

@@ -11,7 +11,7 @@ import javafx.beans.property.SimpleStringProperty;
  * couche de présentation et la persistance
  *
  */
-public class AppCompte extends AppObject{
+public class AppCompte extends AppObject  {
 
 	/**
 	 * le compte métier

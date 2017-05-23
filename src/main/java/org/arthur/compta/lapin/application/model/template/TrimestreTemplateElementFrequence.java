@@ -1,4 +1,4 @@
-package org.arthur.compta.lapin.application.template;
+package org.arthur.compta.lapin.application.model.template;
 
 public enum TrimestreTemplateElementFrequence {
 

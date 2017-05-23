@@ -576,7 +576,7 @@ public class DBManager {
 
 		HashMap<String, String[]> infos = new HashMap<>();
 
-		String query = "SELECT ID,nom,montant,type,frequence,occurence,compte_source_id,compte_cible_id FROM TEMPLATE;";
+		String query = "SELECT ID,nom,montant,type_ope,frequence,occurence,compte_source_id,compte_cible_id FROM TEMPLATE;";
 		try (PreparedStatement stmt = connexionDB.prepareStatement(query)) {
 
 			ResultSet queryRes = stmt.executeQuery();
@@ -587,7 +587,7 @@ public class DBManager {
 
 				elt[0] = queryRes.getString("nom");
 				elt[1] = String.valueOf(queryRes.getString("montant"));
-				elt[2] = String.valueOf(queryRes.getDouble("type"));
+				elt[2] = String.valueOf(queryRes.getDouble("type_ope"));
 				elt[3] = String.valueOf(queryRes.getString("frequence"));
 				elt[4] = String.valueOf(queryRes.getString("occurence"));
 				elt[5] = String.valueOf(queryRes.getString("compte_source_id"));

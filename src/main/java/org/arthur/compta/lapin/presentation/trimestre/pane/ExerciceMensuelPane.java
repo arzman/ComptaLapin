@@ -1,11 +1,14 @@
 package org.arthur.compta.lapin.presentation.trimestre.pane;
 
+import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.application.model.AppExerciceMensuel;
 import org.arthur.compta.lapin.application.model.AppOperation;
 import org.arthur.compta.lapin.model.operation.Operation;
 import org.arthur.compta.lapin.presentation.trimestre.table.OperationTableView;
 import org.arthur.compta.lapin.presentation.trimestre.table.TransfertTableView;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.Border;
@@ -16,7 +19,6 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.RowConstraints;
 import javafx.scene.paint.Color;
 
 /**
@@ -45,9 +47,12 @@ public class ExerciceMensuelPane extends GridPane {
 
 	/**
 	 * Constructeur
+	 * @param id l'id
 	 */
-	public ExerciceMensuelPane() {
+	public ExerciceMensuelPane(String id) {
 
+		setId(id);
+		
 		_title = new ExerciceHeaderPane();
 		add(_title, 0, 0);
 
@@ -55,36 +60,79 @@ public class ExerciceMensuelPane extends GridPane {
 		colCons.setHgrow(Priority.ALWAYS);
 		colCons.setFillWidth(true);
 		getColumnConstraints().add(colCons);
-		
-		setVgap(5);
 
+		setVgap(5);
 
 		// tableau des dépenses
 		_depenseTable = new OperationTableView<AppOperation<Operation>>();
 		_depenseTable.setMaxWidth(Double.MAX_VALUE);
 		_depenseTable.setMaxHeight(Double.MAX_VALUE);
+		_depenseTable.setId("depTable");
 		TitledPane depPane = new TitledPane("Dépenses", _depenseTable);
 		depPane.setMaxHeight(Double.MAX_VALUE);
 		depPane.setMaxWidth(Double.MAX_VALUE);
+		depPane.setId("depPane");
 		add(depPane, 0, 1);
 		// tableau des ressources
 		_ressourceTable = new OperationTableView<AppOperation<Operation>>();
 		_ressourceTable.setMaxWidth(Double.MAX_VALUE);
 		_ressourceTable.setMaxHeight(Double.MAX_VALUE);
+		_ressourceTable.setId("resTable");
 		TitledPane resPane = new TitledPane("Ressources", _ressourceTable);
+		resPane.setId("resPane");
 		add(resPane, 0, 2);
 		// tableau des transferts
 		_transfertTable = new TransfertTableView();
 		_transfertTable.setMaxWidth(Double.MAX_VALUE);
 		_transfertTable.setMaxHeight(Double.MAX_VALUE);
+		_transfertTable.setId("transTable");
 		TitledPane transPane = new TitledPane("Transfert", _transfertTable);
+		transPane.setId("transPane");
 		add(transPane, 0, 3);
-		
-		//ajout d'une borduer
-		Border bord = new Border(new BorderStroke(Color.LIGHTBLUE,BorderStrokeStyle.SOLID,new CornerRadii(5),new BorderWidths(1),new Insets(2,2,2,2) ));
+
+		// ajout d'une borduer
+		Border bord = new Border(new BorderStroke(Color.LIGHTBLUE, BorderStrokeStyle.SOLID, new CornerRadii(5),
+				new BorderWidths(1), new Insets(2, 2, 2, 2)));
 		setBorder(bord);
-		
-		
+
+		// restauration de l'état
+		depPane.setExpanded(Boolean.parseBoolean(ConfigurationManager.getInstance().getProp(
+				"ExerciceMensuelPane." + getId() + "." + depPane.getId() + ".exp", Boolean.toString(true))));
+		depPane.expandedProperty().addListener(new ChangeListener<Boolean>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+
+				ConfigurationManager.getInstance().setProp(
+						"ExerciceMensuelPane." + getId() + "." + depPane.getId() + ".exp",
+						Boolean.toString(depPane.isExpanded()));
+			}
+		});
+		resPane.setExpanded(Boolean.parseBoolean(ConfigurationManager.getInstance().getProp(
+				"ExerciceMensuelPane." + getId() + "." + resPane.getId() + ".exp", Boolean.toString(true))));
+		resPane.expandedProperty().addListener(new ChangeListener<Boolean>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+
+				ConfigurationManager.getInstance().setProp(
+						"ExerciceMensuelPane." + getId() + "." + resPane.getId() + ".exp",
+						Boolean.toString(resPane.isExpanded()));
+			}
+		});
+		transPane.setExpanded(Boolean.parseBoolean(ConfigurationManager.getInstance().getProp(
+				"ExerciceMensuelPane." + getId() + "." + transPane.getId() + ".exp", Boolean.toString(true))));
+		transPane.expandedProperty().addListener(new ChangeListener<Boolean>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+
+				ConfigurationManager.getInstance().setProp(
+						"ExerciceMensuelPane." + getId() + "." + transPane.getId() + ".exp",
+						Boolean.toString(transPane.isExpanded()));
+			}
+		});
+
 	}
 
 	/**

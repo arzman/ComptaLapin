@@ -7,7 +7,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Properties;
+import java.util.TreeSet;
 
 import org.arthur.compta.lapin.dataaccess.files.FilesManager;
 
@@ -29,7 +32,16 @@ public class ConfigurationManager {
 	private ConfigurationManager() {
 
 		// chargement de la configuration
-		_config = new Properties();
+		_config = new Properties() {
+			/**generated */
+			private static final long serialVersionUID = 3700533144616449180L;
+
+			@Override
+
+			public synchronized Enumeration<Object> keys() {
+				return Collections.enumeration(new TreeSet<Object>(super.keySet()));
+			}
+		};
 
 		InputStream is;
 		try {
@@ -79,58 +91,25 @@ public class ConfigurationManager {
 	}
 
 	/**
-	 * Retourne la position du diviseur gauche-droite de la fenetre principale
+	 * Sauve la propriété
 	 * 
+	 * @param key
+	 * @param value
+	 */
+	public void setProp(String key, String value) {
+		_config.setProperty(key, value);
+
+	}
+
+	/**
+	 * Retourne la propriété
+	 * 
+	 * @param key
+	 * @param defaultValue
 	 * @return
 	 */
-	public double getgdPosition() {
-
-		double pos = 0.5;
-		String res = _config.getProperty("mainscene.splitgaucheDroite.position", "0.5");
-
-		try {
-			pos = Double.parseDouble(res);
-		} catch (NumberFormatException e) {
-			// rien
-		}
-
-		return pos;
-	}
-
-	/**
-	 * Sauve la position du diviseur gauche-droite de la fenetre principale
-	 * 
-	 * @param newValue
-	 */
-	public void setgdPosition(Number newValue) {
-		_config.setProperty("mainscene.splitgaucheDroite.position", String.valueOf(newValue));
-	}
-
-	/**
-	 * Retourne la position du diviseur haut-bas de la fenetre principale
-	 * 
-	 * @return
-	 */
-	public double gethbPosition() {
-		double pos = 0.5;
-		String res = _config.getProperty("mainscene.splitHautBas.position", "0.5");
-
-		try {
-			pos = Double.parseDouble(res);
-		} catch (NumberFormatException e) {
-			// rien
-		}
-
-		return pos;
-	}
-
-	/**
-	 * Sauve la position du diviseur haut-bas de la fenetre principale
-	 * 
-	 * @param newValue
-	 */
-	public void sethbPosition(Number newValue) {
-		_config.setProperty("mainscene.splitHautBas.position", String.valueOf(newValue));
+	public String getProp(String key, String defaultValue) {
+		return _config.getProperty(key, defaultValue);
 	}
 
 }

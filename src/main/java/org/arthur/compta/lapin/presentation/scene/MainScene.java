@@ -27,16 +27,16 @@ public class MainScene extends Scene {
 		// appel du constructeur parent
 		super(new BorderPane());
 
-		//ajout de la barre de menu
+		// ajout de la barre de menu
 		((BorderPane) getRoot()).setTop(new ComptaMenuBar());
 
-		//panneau principal de l'appli
+		// panneau principal de l'appli
 		StackPane stack = new StackPane();
 		((BorderPane) getRoot()).setCenter(stack);
-		
+
 		// ajout d'une séparation gauche-droite de la fenêtre
 		SplitPane splitgaucheDroite = new SplitPane();
-		splitgaucheDroite.setDividerPosition(0, ConfigurationManager.getInstance().getgdPosition());
+		splitgaucheDroite.setDividerPosition(0, Double.parseDouble(ConfigurationManager.getInstance().getProp("MainScene.splitgaucheDroite.pos", "0.5")));
 		splitgaucheDroite.setOrientation(Orientation.HORIZONTAL);
 		stack.getChildren().add(splitgaucheDroite);
 
@@ -46,7 +46,7 @@ public class MainScene extends Scene {
 		// séparation haut-bas de la partie droite
 		SplitPane splitHautBas = new SplitPane();
 		splitHautBas.setOrientation(Orientation.VERTICAL);
-		splitHautBas.setDividerPosition(0, ConfigurationManager.getInstance().gethbPosition());
+		splitHautBas.setDividerPosition(0, Double.parseDouble(ConfigurationManager.getInstance().getProp("MainScene.splitHautBas.pos", "0.5")));
 		splitgaucheDroite.getItems().add(splitHautBas);
 
 		// Ajout de l'affichage des budgets
@@ -54,18 +54,12 @@ public class MainScene extends Scene {
 
 		// Ajout de l'affichage des comptes
 		splitHautBas.getItems().add(new ComptePane());
-		
-		
+
 		// enregistrement de la position
-		splitgaucheDroite.getDividers().get(0).positionProperty().addListener( (observable, oldValue, newValue) -> ConfigurationManager.getInstance().setgdPosition(newValue));
-		splitHautBas.getDividers().get(0).positionProperty().addListener( (observable, oldValue, newValue) -> ConfigurationManager.getInstance().sethbPosition(newValue));
-		
+		splitgaucheDroite.getDividers().get(0).positionProperty().addListener(
+				(observable, oldValue, newValue) -> ConfigurationManager.getInstance().setProp("MainScene.splitgaucheDroite.pos", String.valueOf(newValue)));
+		splitHautBas.getDividers().get(0).positionProperty().addListener(
+				(observable, oldValue, newValue) -> ConfigurationManager.getInstance().setProp("MainScene.splitHautBas.pos", String.valueOf(newValue)));
 	}
-	
-	
-	
-	
-	
-	
 
 }

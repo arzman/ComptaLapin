@@ -7,10 +7,13 @@ import java.util.HashMap;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.model.AppExerciceMensuel;
 import org.arthur.compta.lapin.application.model.AppTrimestre;
-import org.arthur.compta.lapin.application.template.TrimestreTemplate;
+import org.arthur.compta.lapin.application.model.template.TrimestreTemplate;
+import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElement;
+import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElementFrequence;
 import org.arthur.compta.lapin.dataaccess.db.DBManager;
 import org.arthur.compta.lapin.model.ExerciceMensuel;
 import org.arthur.compta.lapin.model.Trimestre;
+import org.arthur.compta.lapin.model.operation.OperationType;
 import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
 import javafx.beans.property.ObjectProperty;
@@ -29,8 +32,6 @@ public class TrimestreManager {
 
 	private SimpleObjectProperty<AppTrimestre> _trimestreCourant;
 
-	/** Le template de trimestre */
-	private SimpleObjectProperty<TrimestreTemplate> _template;
 
 	/**
 	 * Le constructeur
@@ -38,15 +39,12 @@ public class TrimestreManager {
 	private TrimestreManager() {
 
 		_trimestreCourant = new SimpleObjectProperty<AppTrimestre>();
-		_template = new SimpleObjectProperty<>();
 
 		try {
 			String[] info = DBManager.getInstance().getTrimestreCourantId();
 			if (info != null && info.length == 1 && info[0] != null && !info[0].isEmpty()) {
 				loadTrimestreCourant(info[0]);
-			}
-
-			loadTrimestreTemplate();
+			}	
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -262,17 +260,44 @@ public class TrimestreManager {
 		}
 
 	}
-
+	
 	/**
-	 * Charge le template de trimestre
-	 * 
-	 * @throws ComptaException
-	 *             Echec du chargement
+	 * Retourne le template de trimestre
+	 * @return
 	 */
-	private void loadTrimestreTemplate() throws ComptaException {
-
-		HashMap<String, String[]> tmpInfo = DBManager.getInstance().loadTemplateInfo();
-
+	public TrimestreTemplate getTrimestreTemplate(){
+		
+		
+		TrimestreTemplate tmp = new TrimestreTemplate();
+		try {
+			HashMap<String, String[]> tmpInfo = DBManager.getInstance().loadTemplateInfo();
+			
+			for(String key : tmpInfo.keySet()){
+				// récupération des infos
+				String[] info = tmpInfo.get(key);
+				
+				TrimestreTemplateElement elt = new TrimestreTemplateElement();
+				elt.setNom(info[0]);
+				elt.setMontant( Double.parseDouble(info[1]));
+				elt.setType(OperationType.valueOf(info[2]));
+				elt.setFreq(TrimestreTemplateElementFrequence.valueOf(info[3]));
+				elt.setOccurence(Integer.parseInt(info[4]));
+				elt.setCompteSource(CompteManager.getInstance().getCompte(info[5]));
+				elt.setCompteCible(CompteManager.getInstance().getCompte(info[6]));
+				
+				tmp.addElement(elt);
+				
+			}
+			
+		} catch (ComptaException e) {
+			e.printStackTrace();
+			// Impossible de récupérer le template, on en génère un vide
+		}
+		
+		
+		return tmp;
 	}
+
+	
 
 }

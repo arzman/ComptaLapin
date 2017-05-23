@@ -1,4 +1,4 @@
-package org.arthur.compta.lapin.application.template;
+package org.arthur.compta.lapin.application.model.template;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -131,6 +131,24 @@ public class TrimestreTemplate {
 		}
 
 		return listToFill;
+	}
+
+	/**
+	 * Ajout un élément dans le template
+	 * @param elt
+	 */
+	public void addElement(TrimestreTemplateElement elt) {
+		_elementList.add(elt);
+		
+	}
+
+	/**
+	 * Retourne la liste des éléments du template
+	 * @return
+	 */
+	public ObservableList<TrimestreTemplateElement> getElements() {
+		
+		return _elementList;
 	}
 
 }

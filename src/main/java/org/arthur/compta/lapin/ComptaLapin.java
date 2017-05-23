@@ -46,16 +46,19 @@ public class ComptaLapin extends Application {
 		primaryStage.setScene(new MainScene());
 		// on prend toute la place
 		primaryStage.setMaximized(true);
-		
-		//sauvegarde des etats des IHM
+
+		// sauvegarde des etats des IHM
 		primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-			
+
 			@Override
 			public void handle(WindowEvent event) {
 				ConfigurationManager.getInstance().save();
-				
+
 			}
 		});
+
+		//positionnement de la feuille de style
+		setUserAgentStylesheet(STYLESHEET_MODENA);
 		// ouverture de la fenetre
 		primaryStage.show();
 

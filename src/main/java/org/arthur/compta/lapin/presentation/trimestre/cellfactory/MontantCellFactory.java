@@ -1,7 +1,5 @@
 package org.arthur.compta.lapin.presentation.trimestre.cellfactory;
 
-import org.arthur.compta.lapin.application.model.AppOperation;
-import org.arthur.compta.lapin.model.operation.Operation;
 import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
 import javafx.scene.control.TableCell;
@@ -13,16 +11,16 @@ import javafx.util.Callback;
  * tableau.
  *
  */
-public class MontantCellFactory<T extends AppOperation<? extends Operation>>
-		implements Callback<TableColumn<T, Number>, TableCell<T, Number>> {
+public class MontantCellFactory<IMontant>
+		implements Callback<TableColumn<IMontant, Number>, TableCell<IMontant, Number>> {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public TableCell<T, Number> call(TableColumn<T, Number> param) {
+	public TableCell<IMontant, Number> call(TableColumn<IMontant, Number> param) {
 
-		return new TableCell<T, Number>() {
+		return new TableCell<IMontant, Number>() {
 
 			@Override
 			protected void updateItem(Number item, boolean empty) {

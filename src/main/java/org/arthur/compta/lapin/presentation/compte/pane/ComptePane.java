@@ -2,6 +2,7 @@ package org.arthur.compta.lapin.presentation.compte.pane;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.CompteManager;
+import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.application.model.AppCompte;
 import org.arthur.compta.lapin.presentation.compte.cellfactory.SoldeCompteCellFactory;
 import org.arthur.compta.lapin.presentation.compte.dialog.EditCompteDialog;
@@ -9,6 +10,8 @@ import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -28,6 +31,9 @@ import javafx.scene.layout.Priority;
  */
 public class ComptePane extends GridPane {
 
+	/** Le tableau des comptes */
+	private TableView<AppCompte> _table;
+
 	public ComptePane() {
 
 		// paramétrage du layout
@@ -41,8 +47,21 @@ public class ComptePane extends GridPane {
 		// Création du tableau de compte
 		createCompteTable();
 
-	}
+		// restitution des largeur de colonnes
+		for(TableColumn<?, ?> col : _table.getColumns()){
+			
+			col.widthProperty().addListener(new ChangeListener<Number>() {
 
+				@Override
+				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+					ConfigurationManager.getInstance().setProp("ComptePane.table.col."+col.getId(), String.valueOf(newValue));
+					
+				}
+			});
+			col.setPrefWidth(Double.parseDouble(ConfigurationManager.getInstance().getProp("ComptePane.table.col."+col.getId(), "50")));
+		}
+
+	}
 
 	/**
 	 * Création du tableau des comptes
@@ -50,18 +69,18 @@ public class ComptePane extends GridPane {
 	private void createCompteTable() {
 
 		// Création de la table des comptes
-		TableView<AppCompte> table = new TableView<>();
-		table.setMaxWidth(Double.MAX_VALUE);
-		table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-		add(table, 0, 0);
+		_table = new TableView<>();
+		_table.setMaxWidth(Double.MAX_VALUE);
+		add(_table, 0, 0);
 
 		// Colonne du nom
 		TableColumn<AppCompte, String> colNom = new TableColumn<>("Nom");
 		colNom.setResizable(true);
 		colNom.setEditable(false);
-		//bind sur la nom
+		colNom.setId("nom");
+		// bind sur la nom
 		colNom.setCellValueFactory(cellData -> cellData.getValue().nomProperty());
-		table.getColumns().add(colNom);
+		_table.getColumns().add(colNom);
 
 		// Colonne du solde
 		TableColumn<AppCompte, Number> colMontant = new TableColumn<>("Solde");
@@ -69,32 +88,36 @@ public class ComptePane extends GridPane {
 		colMontant.setEditable(false);
 		colMontant.setCellValueFactory(cellData -> cellData.getValue().soldeProperty());
 		colMontant.setCellFactory(new SoldeCompteCellFactory());
-		table.getColumns().add(colMontant);
+		colMontant.setId("montant");
+		_table.getColumns().add(colMontant);
 
 		// Colonne solde prevu a la fin du 1er mois
 		TableColumn<AppCompte, String> colprev1 = new TableColumn<>("1er Mois");
 		colprev1.setResizable(true);
 		colprev1.setEditable(false);
-		table.getColumns().add(colprev1);
+		colprev1.setId("prev1");
+		_table.getColumns().add(colprev1);
 
 		// Colonne du solde prevu à la fin du 2eme mois
 		TableColumn<AppCompte, String> colprev2 = new TableColumn<>("2eme Mois");
 		colprev2.setResizable(true);
 		colprev2.setEditable(false);
-		table.getColumns().add(colprev2);
+		colprev2.setId("prev2");
+		_table.getColumns().add(colprev2);
 
 		// Colonne du solde prévu à la fin du 3eme mois
 		TableColumn<AppCompte, String> colprev3 = new TableColumn<>("3eme Mois");
 		colprev3.setResizable(true);
 		colprev3.setEditable(false);
-		table.getColumns().add(colprev3);
+		colprev3.setId("prev3");
+		_table.getColumns().add(colprev3);
 
 		// bind à la liste des comptes
-		table.setItems(CompteManager.getInstance().getCompteList());
+		_table.setItems(CompteManager.getInstance().getCompteList());
 
 		// ajout du menu contextuel
-		table.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-		createContextMenu(table);
+		_table.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+		createContextMenu(_table);
 
 	}
 

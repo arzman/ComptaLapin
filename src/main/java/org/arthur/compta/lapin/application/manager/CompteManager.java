@@ -183,13 +183,36 @@ public class CompteManager {
 				appCompte.setIsLivret(isLivret);
 				appCompte.setIsBudget(isBudget);
 
-
 			} catch (Exception e) {
 				throw new ComptaException("Impossible de mettre à jour le compte", e);
 			}
 		}
 
 		return appCompte;
+	}
+
+	/**
+	 * Retourne le compte correspondant à l'id
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public AppCompte getCompte(String id) {
+		
+		AppCompte res= null;
+		
+		boolean stop = false;
+		for(int i=0;i<_compteList.size() && !stop;i++){
+			
+			if(_compteList.get(i).getAppId().equals(id)){
+				res = _compteList.get(i);
+				stop = true;
+			}
+			
+		}
+		
+		
+		return res;
 	}
 
 }

@@ -59,15 +59,15 @@ public class TrimestreCourantPane extends GridPane {
 		// Création du contenu
 
 		// panneau du premier mois
-		_premMoisPane = new ExerciceMensuelPane();
+		_premMoisPane = new ExerciceMensuelPane("un");
 		add(_premMoisPane, 0, 0);
 
 		// panneau du deuxieme mois
-		_deuxMoisPane = new ExerciceMensuelPane();
+		_deuxMoisPane = new ExerciceMensuelPane("deux");
 		add(_deuxMoisPane, 1, 0);
 
 		// panneau du troisieme mois
-		_troisMoisPane = new ExerciceMensuelPane();
+		_troisMoisPane = new ExerciceMensuelPane("trois");
 		add(_troisMoisPane, 2, 0);
 
 		// écoute sur le changement du trimestre courant

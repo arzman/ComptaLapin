@@ -6,8 +6,11 @@ import org.arthur.compta.lapin.application.model.AppCompte;
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElement;
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElementFrequence;
 import org.arthur.compta.lapin.presentation.trimestre.cellfactory.CompteCellComboFactory;
+import org.arthur.compta.lapin.presentation.trimestre.cellfactory.OccurenceCellFactory;
 
 import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
@@ -45,7 +48,7 @@ public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 	/** saisie de la frequence */
 	private ComboBox<String> _freqCombo;
 	/** Saisie de l'occurence */
-	private TextField _occtxt;
+	private ComboBox<Integer> _occComb;
 	/** Saisie du compte source */
 	private ComboBox<AppCompte> _srcCombo;
 	/** Saisie du compte cible */
@@ -128,27 +131,48 @@ public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 		root.add(freqLbl, 0, 3);
 		_freqCombo = new ComboBox<String>();
 		_freqCombo.setItems(TrimestreManager.getInstance().getTemplateEltFreq());
+		_freqCombo.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+
+				checkInput();
+
+				if (newValue.equals("HEBDOMADAIRE")) {
+					_occComb.getItems().clear();
+					_occComb.getItems().addAll(2, 3, 4, 5, 6, 7, 1);
+				}
+				if (newValue.equals("TRIMESTRIEL")) {
+					_occComb.getItems().clear();
+					_occComb.getItems().addAll(0, 1, 2);
+				}
+
+			}
+
+		});
 		if (_templateElt != null) {
 			_freqCombo.getSelectionModel().select(String.valueOf(_templateElt.getType()));
 		} else {
 			_freqCombo.getSelectionModel().select(0);
 		}
-		_freqCombo.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
-		});
+
 		root.add(_freqCombo, 1, 3);
 
 		// saisie de l'occurence
 		Label occLbl = new Label("Occurence :");
 		root.add(occLbl, 0, 4);
-		_occtxt = new TextField();
+		_occComb = new ComboBox<Integer>();
 		if (_templateElt != null) {
-			_occtxt.setText(String.valueOf(_templateElt.getOccurence()));
+			_occComb.getSelectionModel().select(new Integer(_templateElt.getOccurence()));
+		} else {
+			_occComb.getSelectionModel().select(0);
 		}
-		_occtxt.textProperty().addListener((observable, oldValue, newValue) -> {
+		_occComb.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
 			checkInput();
 		});
-		root.add(_occtxt, 1, 4);
+		_occComb.setCellFactory(new OccurenceCellFactory(_freqCombo));
+		_occComb.getItems().addAll(2, 3, 4, 5, 6, 7, 1);
+		root.add(_occComb, 1, 4);
 
 		// saisie du compte source
 		Label srcLbl = new Label("Source :");
@@ -233,29 +257,13 @@ public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 		}
 
 		// Vérif de la frequence
-		_occtxt.setDisable(
-				_freqCombo.getSelectionModel().getSelectedItem().equals(TrimestreTemplateElementFrequence.MENSUEL.toString()));
-		
-		//Vérif de l'occurence
-		boolean occError = true;
-		if(!_occtxt.isDisable()){
-			try {
-				Integer.parseInt(_occtxt.getText().trim());
-				_occtxt.setBorder(null);
-				occError = false;
-			} catch (NumberFormatException e) {
-				_occtxt.setBorder(BORDER_ERROR);
-				occError = true;
-			}
-			
-			
-		}else{
-			_occtxt.setBorder(null);
-			occError = false;
+		if (_freqCombo.getSelectionModel().getSelectedItem() != null) {
+			_occComb.setDisable(_freqCombo.getSelectionModel().getSelectedItem()
+					.equals(TrimestreTemplateElementFrequence.MENSUEL.toString()));
 		}
 
 		Node OkButton = getDialogPane().lookupButton(_okButton);
-		OkButton.setDisable(nomError || soldeError || occError );
+		OkButton.setDisable(nomError || soldeError);
 	}
 
 }

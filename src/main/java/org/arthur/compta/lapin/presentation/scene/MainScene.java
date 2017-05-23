@@ -14,8 +14,6 @@ import javafx.scene.layout.StackPane;
 
 /**
  * Unique Scène de l'IHM, elle contiendra les éléments graphiques
- * 
- * @author Arthur
  *
  */
 public class MainScene extends Scene {
@@ -36,7 +34,7 @@ public class MainScene extends Scene {
 
 		// ajout d'une séparation gauche-droite de la fenêtre
 		SplitPane splitgaucheDroite = new SplitPane();
-		splitgaucheDroite.setDividerPosition(0, Double.parseDouble(ConfigurationManager.getInstance().getProp("MainScene.splitgaucheDroite.pos", "0.5")));
+		splitgaucheDroite.setDividerPosition(0, Integer.parseInt(ConfigurationManager.getInstance().getProp("MainScene.splitgaucheDroite.pos", "500"))/1000.0);
 		splitgaucheDroite.setOrientation(Orientation.HORIZONTAL);
 		stack.getChildren().add(splitgaucheDroite);
 
@@ -46,7 +44,7 @@ public class MainScene extends Scene {
 		// séparation haut-bas de la partie droite
 		SplitPane splitHautBas = new SplitPane();
 		splitHautBas.setOrientation(Orientation.VERTICAL);
-		splitHautBas.setDividerPosition(0, Double.parseDouble(ConfigurationManager.getInstance().getProp("MainScene.splitHautBas.pos", "0.5")));
+		splitHautBas.setDividerPosition(0, Integer.parseInt(ConfigurationManager.getInstance().getProp("MainScene.splitHautBas.pos", "500"))/1000.0);
 		splitgaucheDroite.getItems().add(splitHautBas);
 
 		// Ajout de l'affichage des budgets
@@ -55,11 +53,9 @@ public class MainScene extends Scene {
 		// Ajout de l'affichage des comptes
 		splitHautBas.getItems().add(new ComptePane());
 
-		// enregistrement de la position
-		splitgaucheDroite.getDividers().get(0).positionProperty().addListener(
-				(observable, oldValue, newValue) -> ConfigurationManager.getInstance().setProp("MainScene.splitgaucheDroite.pos", String.valueOf(newValue)));
-		splitHautBas.getDividers().get(0).positionProperty().addListener(
-				(observable, oldValue, newValue) -> ConfigurationManager.getInstance().setProp("MainScene.splitHautBas.pos", String.valueOf(newValue)));
+		
+			
+		
 	}
 
 }

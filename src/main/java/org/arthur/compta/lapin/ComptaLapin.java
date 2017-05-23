@@ -43,7 +43,8 @@ public class ComptaLapin extends Application {
 		// mise en place du titre de la fenêtre
 		primaryStage.setTitle("Compta Du Lapin 2.0");
 		// remplissage de la fenetre
-		primaryStage.setScene(new MainScene());
+		MainScene sc = new MainScene();
+		primaryStage.setScene(sc);
 		// on prend toute la place
 		primaryStage.setMaximized(true);
 
@@ -57,7 +58,7 @@ public class ComptaLapin extends Application {
 			}
 		});
 
-		//positionnement de la feuille de style
+		// positionnement de la feuille de style
 		setUserAgentStylesheet(STYLESHEET_MODENA);
 		// ouverture de la fenetre
 		primaryStage.show();

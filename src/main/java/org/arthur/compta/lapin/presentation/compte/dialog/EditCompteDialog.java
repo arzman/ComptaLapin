@@ -72,7 +72,7 @@ public class EditCompteDialog extends Dialog<AppCompte> {
 		}
 
 		// Création des champ de saisi
-		createContent(appCompte);
+		createContent();
 
 		// Création de la barre des boutons
 		createBoutonBar();
@@ -85,7 +85,7 @@ public class EditCompteDialog extends Dialog<AppCompte> {
 	/**
 	 * Création du contenu de la fenêtre
 	 */
-	private void createContent(AppCompte appCompte) {
+	private void createContent() {
 
 		GridPane grid = new GridPane();
 		getDialogPane().setContent(grid);
@@ -96,7 +96,7 @@ public class EditCompteDialog extends Dialog<AppCompte> {
 		_nomTxt = new TextField();
 		// pré-remplissage pour l'édition
 		if (_appCompte != null) {
-			_nomTxt.setText(appCompte.getNom());
+			_nomTxt.setText(_appCompte.getNom());
 		}
 		// Validation sur saisie
 		_nomTxt.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -111,7 +111,7 @@ public class EditCompteDialog extends Dialog<AppCompte> {
 		_soldeTxt = new TextField();
 		// pré-remplissage pour l'édition
 		if (_appCompte != null) {
-			_soldeTxt.setText(String.valueOf(appCompte.getSolde()));
+			_soldeTxt.setText(String.valueOf(_appCompte.getSolde()));
 		}
 		// Validation sur saisie
 		_soldeTxt.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -124,7 +124,7 @@ public class EditCompteDialog extends Dialog<AppCompte> {
 		Label livretLbl = new Label("Est un livret : ");
 		_livretCheck = new CheckBox();
 		if (_appCompte != null) {
-			_livretCheck.setSelected(appCompte.getIsLivretProp());
+			_livretCheck.setSelected(_appCompte.isLivret());
 		}
 		grid.add(livretLbl, 0, 2);
 		grid.add(_livretCheck, 1, 2);
@@ -133,7 +133,7 @@ public class EditCompteDialog extends Dialog<AppCompte> {
 		Label budgetLbl = new Label("Budget : ");
 		_budgetCheck = new CheckBox();
 		if (_appCompte != null) {
-			_budgetCheck.setSelected(appCompte.getIsBudget());
+			_budgetCheck.setSelected(_appCompte.isBudget());
 		}
 		grid.add(budgetLbl, 0, 3);
 		grid.add(_budgetCheck, 1, 3);

@@ -19,17 +19,16 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public class TrimestreTemplateElement implements IMontant {
 
-	/** La fréquence de l'opération */
-	private SimpleStringProperty _freqProp;
-
 	/** nom */
 	private SimpleStringProperty _nomProp;
-	/** l'occurence */
-	private SimpleIntegerProperty _occurenceProp;
 	/** montant de l'opération */
 	private SimpleDoubleProperty _montantProp;
 	/** type de l'opération */
 	private SimpleStringProperty _typeProp;
+	/** La fréquence de l'opération */
+	private SimpleStringProperty _freqProp;
+	/** l'occurence */
+	private SimpleIntegerProperty _occurenceProp;
 	/** compte source */
 	private SimpleObjectProperty<AppCompte> _compteSource;
 	/** id compte cible */
@@ -46,7 +45,7 @@ public class TrimestreTemplateElement implements IMontant {
 		_occurenceProp = new SimpleIntegerProperty();
 		_compteSource = new SimpleObjectProperty<AppCompte>();
 		_compteCible = new SimpleObjectProperty<AppCompte>();
-		
+
 	}
 
 	/**
@@ -194,6 +193,44 @@ public class TrimestreTemplateElement implements IMontant {
 
 	public SimpleIntegerProperty occurenceProperty() {
 		return _occurenceProp;
+	}
+
+	/**
+	 * Retourne le nom de l'éléments
+	 * 
+	 * @return
+	 */
+	public String getNom() {
+		return _nomProp.get();
+	}
+
+	/**
+	 * Retourne le montant associé à l'élément
+	 * 
+	 * @return
+	 */
+	public double getMontant() {
+		return _montantProp.get();
+	}
+
+	/**
+	 * Retourne le type
+	 * 
+	 * @return
+	 */
+	public String getType() {
+
+		return _typeProp.get();
+	}
+
+	/**
+	 * Retourne le compte source
+	 * 
+	 * @return
+	 */
+	public AppCompte getCompteSource() {
+
+		return _compteSource.get();
 	}
 
 }

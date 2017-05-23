@@ -1,21 +1,28 @@
 package org.arthur.compta.lapin.presentation.trimestre.dialog;
 
+
+import java.util.Optional;
+
 import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.application.model.AppCompte;
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElement;
+import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import org.arthur.compta.lapin.presentation.trimestre.cellfactory.CompteCellFactory;
 import org.arthur.compta.lapin.presentation.trimestre.cellfactory.MontantCellFactory;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogEvent;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -33,6 +40,8 @@ public class ConfigureTemplateDialog extends Dialog<String> {
 	private ObservableList<TrimestreTemplateElement> _elementList;
 	/** Le tableau des éléments */
 	private TableView<TrimestreTemplateElement> _table;
+	/** bouton d'ajout d'element */
+	private Button _addBut;
 
 	/**
 	 * Constructeur
@@ -48,22 +57,23 @@ public class ConfigureTemplateDialog extends Dialog<String> {
 		createContent();
 		// création des boutons
 		createButtonBar();
-		
-		
-		
+
 		setOnCloseRequest(new EventHandler<DialogEvent>() {
-			
+
 			@Override
 			public void handle(DialogEvent event) {
-				//sauvegarde de la taille de la fenetres
-				ConfigurationManager.getInstance().setProp("ConfigureTemplateDialog.dialog.width",String.valueOf(getWidth()));
-				ConfigurationManager.getInstance().setProp("ConfigureTemplateDialog.dialog.height",String.valueOf(getHeight()));
-				//sauvegarde de la taille des colonnes
-				for(TableColumn<?,?> col : _table.getColumns()){
+				// sauvegarde de la taille de la fenetres
+				ConfigurationManager.getInstance().setProp("ConfigureTemplateDialog.dialog.width",
+						String.valueOf(getWidth()));
+				ConfigurationManager.getInstance().setProp("ConfigureTemplateDialog.dialog.height",
+						String.valueOf(getHeight()));
+				// sauvegarde de la taille des colonnes
+				for (TableColumn<?, ?> col : _table.getColumns()) {
 
-					ConfigurationManager.getInstance().setProp("ConfigureTemplateDialog.col."+col.getId(),String.valueOf(col.getWidth()));
+					ConfigurationManager.getInstance().setProp("ConfigureTemplateDialog.col." + col.getId(),
+							String.valueOf(col.getWidth()));
 				}
-				
+
 			}
 		});
 
@@ -81,22 +91,56 @@ public class ConfigureTemplateDialog extends Dialog<String> {
 		getDialogPane().setContent(root);
 		root.getColumnConstraints().add(colConst);
 
+		// création des actions sur la liste
+		createControlButton();
+		root.add(_addBut,0,0);
+		
 		// Tableau des élements de modèle
-		createTable(root);
-		
-		
-		//restaure les tailles sauvegardées
-		//sauvegarde de la taille de la fenetres
-		setWidth(Double.parseDouble(ConfigurationManager.getInstance().getProp("ConfigureTemplateDialog.dialog.width","500")));
-		setHeight(Double.parseDouble(ConfigurationManager.getInstance().getProp("ConfigureTemplateDialog.dialog.height","500")));
-		//sauvegarde de la taille des colonnes
-		int i=0;
-		for(TableColumn<?,?> col : _table.getColumns()){
+		createTable();
+		root.add(_table,0,1);
 
-			col.setPrefWidth(Double.parseDouble(ConfigurationManager.getInstance().getProp("ConfigureTemplateDialog.col."+col.getId(),"50")));
-			i = i+1;
+		// restaure les tailles sauvegardées
+		// sauvegarde de la taille de la fenetres
+		setWidth(Double.parseDouble(
+				ConfigurationManager.getInstance().getProp("ConfigureTemplateDialog.dialog.width", "500")));
+		setHeight(Double.parseDouble(
+				ConfigurationManager.getInstance().getProp("ConfigureTemplateDialog.dialog.height", "500")));
+		// sauvegarde de la taille des colonnes
+		for (TableColumn<?, ?> col : _table.getColumns()) {
+
+			col.setPrefWidth(Double.parseDouble(
+					ConfigurationManager.getInstance().getProp("ConfigureTemplateDialog.col." + col.getId(), "50")));
 		}
 
+	}
+
+	/**
+	 * Création des boutons ajouter et supprimer des éléments de template
+	 */
+	private void createControlButton() {
+		
+		
+		_addBut = new Button("Ajouter");
+		_addBut.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.ADD_IMG)));
+		_addBut.setOnAction(new EventHandler<ActionEvent>() {
+			
+			public void handle(ActionEvent event) {
+				
+				//ouverture de la fenêtre de saisie
+				EditTemplateEltDialog diag = new EditTemplateEltDialog(null);
+				Optional<TrimestreTemplateElement> res = diag.showAndWait();
+				
+				if(res.isPresent()){
+					//TODO To be continued...
+				}
+				
+				
+				
+			};
+		});
+		
+		
+		
 	}
 
 	/**
@@ -105,7 +149,7 @@ public class ConfigureTemplateDialog extends Dialog<String> {
 	 * @param root
 	 *            Le noeud ou doit se placer le tableau
 	 */
-	private void createTable(GridPane root) {
+	private void createTable() {
 
 		_table = new TableView<>();
 		_table.setItems(_elementList);
@@ -117,7 +161,7 @@ public class ConfigureTemplateDialog extends Dialog<String> {
 		colNom.setId("nom");
 		colNom.setCellValueFactory(cellData -> cellData.getValue().nomProperty());
 		_table.getColumns().add(colNom);
-		
+
 		// colonne Montant
 		TableColumn<TrimestreTemplateElement, Number> colMontant = new TableColumn<>("Montant");
 		colMontant.setResizable(true);
@@ -126,7 +170,7 @@ public class ConfigureTemplateDialog extends Dialog<String> {
 		colMontant.setCellValueFactory(cellData -> cellData.getValue().montantProperty());
 		colMontant.setCellFactory(new MontantCellFactory<TrimestreTemplateElement>());
 		_table.getColumns().add(colMontant);
-		
+
 		// colonne Type
 		TableColumn<TrimestreTemplateElement, String> colType = new TableColumn<>("Type");
 		colType.setResizable(true);
@@ -142,7 +186,7 @@ public class ConfigureTemplateDialog extends Dialog<String> {
 		colFreq.setId("freq");
 		colFreq.setCellValueFactory(cellData -> cellData.getValue().frequenceProperty());
 		_table.getColumns().add(colFreq);
-		
+
 		// colonne occurence
 		TableColumn<TrimestreTemplateElement, Number> colOcc = new TableColumn<>("Occurence");
 		colOcc.setResizable(true);
@@ -150,7 +194,7 @@ public class ConfigureTemplateDialog extends Dialog<String> {
 		colOcc.setId("occ");
 		colOcc.setCellValueFactory(cellData -> cellData.getValue().occurenceProperty());
 		_table.getColumns().add(colOcc);
-		
+
 		// colonne Compte Source
 		TableColumn<TrimestreTemplateElement, AppCompte> colsource = new TableColumn<>("Source");
 		colsource.setResizable(true);
@@ -159,7 +203,7 @@ public class ConfigureTemplateDialog extends Dialog<String> {
 		colsource.setCellValueFactory(cellData -> cellData.getValue().compteSourceProperty());
 		colsource.setCellFactory(new CompteCellFactory<TrimestreTemplateElement>());
 		_table.getColumns().add(colsource);
-		
+
 		// colonne Compte Cible
 		TableColumn<TrimestreTemplateElement, AppCompte> colcible = new TableColumn<>("Cible");
 		colcible.setResizable(true);
@@ -168,9 +212,6 @@ public class ConfigureTemplateDialog extends Dialog<String> {
 		colcible.setCellValueFactory(cellData -> cellData.getValue().compteCibleProperty());
 		colcible.setCellFactory(new CompteCellFactory<TrimestreTemplateElement>());
 		_table.getColumns().add(colcible);
-		
-		root.add(_table, 0, 0);
-
 	}
 
 	/**

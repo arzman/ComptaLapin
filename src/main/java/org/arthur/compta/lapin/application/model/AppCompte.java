@@ -115,7 +115,7 @@ public class AppCompte extends AppObject  {
 	 * 
 	 * @return vrai si le compte est livret
 	 */
-	public boolean getIsLivretProp() {
+	public boolean isLivret() {
 		return _isLivretProp.get();
 	}
 
@@ -124,7 +124,7 @@ public class AppCompte extends AppObject  {
 	 * 
 	 * @return vrai si le compte est concerné par les budgets
 	 */
-	public boolean getIsBudget() {
+	public boolean isBudget() {
 
 		return _isBudgetProp.get();
 	}
@@ -147,6 +147,13 @@ public class AppCompte extends AppObject  {
 		_isBudgetProp.set(isBudget);
 		_compte.setBudgetAllowed(isBudget);
 		
+	}
+	
+	
+	@Override
+	public String toString() {
+
+		return _nom.get();
 	}
 	
 

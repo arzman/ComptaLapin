@@ -18,6 +18,8 @@ import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 /**
  * Gestionnaire des trimestres.
@@ -32,7 +34,6 @@ public class TrimestreManager {
 
 	private SimpleObjectProperty<AppTrimestre> _trimestreCourant;
 
-
 	/**
 	 * Le constructeur
 	 */
@@ -44,7 +45,7 @@ public class TrimestreManager {
 			String[] info = DBManager.getInstance().getTrimestreCourantId();
 			if (info != null && info.length == 1 && info[0] != null && !info[0].isEmpty()) {
 				loadTrimestreCourant(info[0]);
-			}	
+			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -260,44 +261,73 @@ public class TrimestreManager {
 		}
 
 	}
-	
+
 	/**
 	 * Retourne le template de trimestre
+	 * 
 	 * @return
 	 */
-	public TrimestreTemplate getTrimestreTemplate(){
-		
-		
+	public TrimestreTemplate getTrimestreTemplate() {
+
 		TrimestreTemplate tmp = new TrimestreTemplate();
 		try {
 			HashMap<String, String[]> tmpInfo = DBManager.getInstance().loadTemplateInfo();
-			
-			for(String key : tmpInfo.keySet()){
+
+			for (String key : tmpInfo.keySet()) {
 				// récupération des infos
 				String[] info = tmpInfo.get(key);
-				
+
 				TrimestreTemplateElement elt = new TrimestreTemplateElement();
 				elt.setNom(info[0]);
-				elt.setMontant( Double.parseDouble(info[1]));
+				elt.setMontant(Double.parseDouble(info[1]));
 				elt.setType(OperationType.valueOf(info[2]));
 				elt.setFreq(TrimestreTemplateElementFrequence.valueOf(info[3]));
 				elt.setOccurence(Integer.parseInt(info[4]));
 				elt.setCompteSource(CompteManager.getInstance().getCompte(info[5]));
 				elt.setCompteCible(CompteManager.getInstance().getCompte(info[6]));
-				
+
 				tmp.addElement(elt);
-				
+
 			}
-			
+
 		} catch (ComptaException e) {
 			e.printStackTrace();
 			// Impossible de récupérer le template, on en génère un vide
 		}
-		
-		
+
 		return tmp;
 	}
 
-	
+	/**
+	 * Retourne les types possibles pour un élément de template
+	 * 
+	 * @return
+	 */
+	public ObservableList<String> getTemplateEltType() {
+		// creation de la liste
+		ObservableList<String> res = FXCollections.observableArrayList();
+		// on récupère les valeurs de l'enum
+		for (OperationType opeType : OperationType.values()) {
+			res.add(opeType.toString());
+		}
+
+		return res;
+	}
+
+	/**
+	 * Retourne les fréquences possibles pour un élément de template
+	 * 
+	 * @return
+	 */
+	public ObservableList<String> getTemplateEltFreq() {
+		// creation de la liste
+		ObservableList<String> res = FXCollections.observableArrayList();
+		// on récupère les valeurs de l'enum
+		for (TrimestreTemplateElementFrequence freq : TrimestreTemplateElementFrequence.values()) {
+			res.add(freq.toString());
+		}
+
+		return res;
+	}
 
 }

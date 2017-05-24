@@ -8,10 +8,8 @@ import org.arthur.compta.lapin.application.model.template.TrimestreTemplateEleme
 import org.arthur.compta.lapin.presentation.trimestre.cellfactory.CompteCellComboFactory;
 import org.arthur.compta.lapin.presentation.trimestre.cellfactory.OccurenceCellFactory;
 
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
@@ -24,6 +22,7 @@ import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
+import javafx.util.Callback;
 
 /**
  * Fenêtre de saisie d'un élément de template de trimestre
@@ -31,11 +30,10 @@ import javafx.scene.paint.Color;
  */
 public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 
+	/** L'élément de template */
 	private TrimestreTemplateElement _templateElt;
 
-	/**
-	 * La bordure rouge en cas d'erreur de saisi
-	 */
+	/** La bordure rouge en cas d'erreur de saisi */
 	private final Border BORDER_ERROR = new Border(
 			new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1)));
 
@@ -74,9 +72,44 @@ public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 
 		// création des zones de saisie
 		createContent();
-
 		// création des bouton ok/cancel
 		createButtonBar();
+		// initialisation des valeurs
+		initValues();
+		// mise en place des listener sur les modifications
+		hookListeners();
+		// vérif initiale
+		checkInput();
+
+		// crée l'élement de template après appuis sur Ok
+		setResultConverter(new Callback<ButtonType, TrimestreTemplateElement>() {
+
+			@Override
+			public TrimestreTemplateElement call(ButtonType param) {
+
+				TrimestreTemplateElement elt = null;
+				// appuis sur ok
+				if (param.equals(_okButton)) {
+
+					elt = new TrimestreTemplateElement();
+					elt.setNom(_nomTxt.getText());
+					elt.setMontant(Double.parseDouble(_montantTxt.getText()));
+					elt.setType(_typeCombo.getSelectionModel().getSelectedItem());
+					elt.setFreq(TrimestreTemplateElementFrequence
+							.valueOf(_freqCombo.getSelectionModel().getSelectedItem()));
+					if (!_occComb.isDisable()) {
+						elt.setOccurence(_occComb.getSelectionModel().getSelectedItem());
+					}
+					elt.setCompteSource(_srcCombo.getSelectionModel().getSelectedItem());
+					if (!_cibleCombo.isDisable()) {
+						elt.setCompteSource(_cibleCombo.getSelectionModel().getSelectedItem());
+					}
+
+				}
+
+				return elt;
+			}
+		});
 	}
 
 	/**
@@ -91,24 +124,12 @@ public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 		Label nomLdl = new Label("Nom :");
 		root.add(nomLdl, 0, 0);
 		_nomTxt = new TextField();
-		_nomTxt.textProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
-		});
-		if (_templateElt != null) {
-			_nomTxt.setText(_templateElt.getNom());
-		}
 		root.add(_nomTxt, 1, 0);
 
 		// saisie du montant
 		Label montantLdl = new Label("Montant :");
 		root.add(montantLdl, 0, 1);
 		_montantTxt = new TextField();
-		_montantTxt.textProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
-		});
-		if (_templateElt != null) {
-			_montantTxt.setText(String.valueOf(_templateElt.getMontant()));
-		}
 		root.add(_montantTxt, 1, 1);
 
 		// saisie du type
@@ -116,14 +137,6 @@ public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 		root.add(typeLbl, 0, 2);
 		_typeCombo = new ComboBox<String>();
 		_typeCombo.setItems(TrimestreManager.getInstance().getTemplateEltType());
-		if (_templateElt != null) {
-			_typeCombo.getSelectionModel().select(String.valueOf(_templateElt.getType()));
-		} else {
-			_typeCombo.getSelectionModel().select(0);
-		}
-		_typeCombo.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
-		});
 		root.add(_typeCombo, 1, 2);
 
 		// saisie de la frequence
@@ -131,47 +144,13 @@ public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 		root.add(freqLbl, 0, 3);
 		_freqCombo = new ComboBox<String>();
 		_freqCombo.setItems(TrimestreManager.getInstance().getTemplateEltFreq());
-		_freqCombo.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-
-				checkInput();
-
-				if (newValue.equals("HEBDOMADAIRE")) {
-					_occComb.getItems().clear();
-					_occComb.getItems().addAll(2, 3, 4, 5, 6, 7, 1);
-				}
-				if (newValue.equals("TRIMESTRIEL")) {
-					_occComb.getItems().clear();
-					_occComb.getItems().addAll(0, 1, 2);
-				}
-
-			}
-
-		});
-		if (_templateElt != null) {
-			_freqCombo.getSelectionModel().select(String.valueOf(_templateElt.getType()));
-		} else {
-			_freqCombo.getSelectionModel().select(0);
-		}
-
 		root.add(_freqCombo, 1, 3);
 
-		// saisie de l'occurence
+		// saisie de l'occurence le contenu est positionné par checkInput()
 		Label occLbl = new Label("Occurence :");
 		root.add(occLbl, 0, 4);
 		_occComb = new ComboBox<Integer>();
-		if (_templateElt != null) {
-			_occComb.getSelectionModel().select(new Integer(_templateElt.getOccurence()));
-		} else {
-			_occComb.getSelectionModel().select(0);
-		}
-		_occComb.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
-		});
 		_occComb.setCellFactory(new OccurenceCellFactory(_freqCombo));
-		_occComb.getItems().addAll(2, 3, 4, 5, 6, 7, 1);
 		root.add(_occComb, 1, 4);
 
 		// saisie du compte source
@@ -180,15 +159,6 @@ public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 		_srcCombo = new ComboBox<AppCompte>();
 		_srcCombo.setItems(CompteManager.getInstance().getCompteList());
 		_srcCombo.setCellFactory(new CompteCellComboFactory());
-		if (_templateElt != null) {
-			_srcCombo.getSelectionModel().select(_templateElt.getCompteSource());
-		} else {
-			_srcCombo.getSelectionModel().select(0);
-		}
-		_srcCombo.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
-		});
-		_srcCombo.getSelectionModel().select(0);
 		root.add(_srcCombo, 1, 5);
 
 		// saisie du compte cible
@@ -197,16 +167,34 @@ public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 		_cibleCombo = new ComboBox<AppCompte>();
 		_cibleCombo.setItems(CompteManager.getInstance().getCompteList());
 		_cibleCombo.setCellFactory(new CompteCellComboFactory());
+		root.add(_cibleCombo, 1, 6);
+	}
+
+	/**
+	 * Positionne les valeurs de l'ihm à partir de l'élément de template
+	 */
+	private void initValues() {
+
 		if (_templateElt != null) {
+			// édition
+			_nomTxt.setText(_templateElt.getNom());
+			_montantTxt.setText(String.valueOf(_templateElt.getMontant()));
+			_typeCombo.getSelectionModel().select(String.valueOf(_templateElt.getType()));
+			_freqCombo.getSelectionModel().select(String.valueOf(_templateElt.getType()));
+			_occComb.getSelectionModel().select(new Integer(_templateElt.getOccurence()));
+			_srcCombo.getSelectionModel().select(_templateElt.getCompteSource());
 			_cibleCombo.getSelectionModel().select(_templateElt.getCompteSource());
+
 		} else {
+			// création
+			_nomTxt.setText("");
+			_montantTxt.setText("0");
+			_typeCombo.getSelectionModel().select(0);
+			_freqCombo.getSelectionModel().select(0);
+			_occComb.getSelectionModel().select(0);
+			_srcCombo.getSelectionModel().select(0);
 			_cibleCombo.getSelectionModel().select(0);
 		}
-		_cibleCombo.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
-		});
-		_cibleCombo.getSelectionModel().select(0);
-		root.add(_cibleCombo, 1, 6);
 
 	}
 
@@ -223,47 +211,85 @@ public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 	}
 
 	/**
+	 * Affecte des écouteurs de modification sur les champs de saisie. Ces
+	 * écouteurs déclenchent la vérification de la saisie
+	 */
+	private void hookListeners() {
+		// nom
+		_nomTxt.textProperty().addListener((observable, oldValue, newValue) -> {
+			checkInput();
+		});
+		// montant
+		_montantTxt.textProperty().addListener((observable, oldValue, newValue) -> {
+			checkInput();
+		});
+		// type
+		_typeCombo.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+			checkInput();
+		});
+		// frequence
+		_freqCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+			checkInput();
+		});
+		// compte source
+		_srcCombo.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+			checkInput();
+		});
+		// compte cible
+		_cibleCombo.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+			checkInput();
+		});
+
+	}
+
+	/**
 	 * Vérifie la validité de la saisie
 	 */
 	private void checkInput() {
 
 		// Vérif du nom
 		boolean nomError = true;
-		if (!_nomTxt.getText().trim().isEmpty()) {
 
-			if (_nomTxt.getText().matches("[a-zA-Z123456789 ]+")) {
-				_nomTxt.setBorder(null);
-				nomError = false;
-			} else {
-				_nomTxt.setBorder(BORDER_ERROR);
-				nomError = true;
-			}
-
+		if (!_nomTxt.getText().trim().isEmpty() && _nomTxt.getText().matches("[a-zA-Z123456789 ]+")) {
+			_nomTxt.setBorder(null);
+			nomError = false;
+		} else {
+			_nomTxt.setBorder(BORDER_ERROR);
+			nomError = true;
 		}
 
 		// Vérif du montant
 		boolean soldeError = true;
-		if (!_montantTxt.getText().trim().isEmpty()) {
-
-			try {
-				Double.parseDouble(_montantTxt.getText().trim());
-				_montantTxt.setBorder(null);
-				soldeError = false;
-			} catch (NumberFormatException e) {
-				_montantTxt.setBorder(BORDER_ERROR);
-				soldeError = true;
-			}
-
+		try {
+			Double.parseDouble(_montantTxt.getText().trim());
+			_montantTxt.setBorder(null);
+			soldeError = false;
+		} catch (NumberFormatException e) {
+			_montantTxt.setBorder(BORDER_ERROR);
+			soldeError = true;
 		}
+		//vérif du type
+		
+		_cibleCombo.setDisable(!TrimestreManager.getInstance().isTransfertType(_typeCombo.getSelectionModel().getSelectedItem()));
 
 		// Vérif de la frequence
 		if (_freqCombo.getSelectionModel().getSelectedItem() != null) {
 			_occComb.setDisable(_freqCombo.getSelectionModel().getSelectedItem()
 					.equals(TrimestreTemplateElementFrequence.MENSUEL.toString()));
+
+			if (!_occComb.isDisable()) {
+				_occComb.getItems().clear();
+				_occComb.getItems().addAll(TrimestreManager.getInstance()
+						.getOccurenceForFreq(_freqCombo.getSelectionModel().getSelectedItem()));
+				_occComb.getSelectionModel().select(0);
+			}
+
 		}
 
-		Node OkButton = getDialogPane().lookupButton(_okButton);
-		OkButton.setDisable(nomError || soldeError);
+		if (_okButton != null) {
+			Node OkButton = getDialogPane().lookupButton(_okButton);
+			OkButton.setDisable(nomError || soldeError);
+		}
 	}
 
 }

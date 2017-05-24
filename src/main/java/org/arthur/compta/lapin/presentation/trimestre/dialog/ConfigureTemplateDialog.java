@@ -131,7 +131,9 @@ public class ConfigureTemplateDialog extends Dialog<String> {
 				Optional<TrimestreTemplateElement> res = diag.showAndWait();
 				
 				if(res.isPresent()){
-					//TODO To be continued...
+					
+					_elementList.add(res.get());
+					
 				}
 				
 				

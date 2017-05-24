@@ -25,7 +25,7 @@ public class CompteCellFactory<T>
 			protected void updateItem(AppCompte item, boolean empty) {
 				// surcharge de la mise à jour du text
 				super.updateItem(item, empty);
-				if (empty) {
+				if (item==null || empty) {
 					setText(null);
 				} else {
 					// on affiche son nom

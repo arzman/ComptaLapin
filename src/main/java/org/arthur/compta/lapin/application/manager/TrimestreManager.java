@@ -280,7 +280,7 @@ public class TrimestreManager {
 				TrimestreTemplateElement elt = new TrimestreTemplateElement();
 				elt.setNom(info[0]);
 				elt.setMontant(Double.parseDouble(info[1]));
-				elt.setType(OperationType.valueOf(info[2]));
+				elt.setType(info[2]);
 				elt.setFreq(TrimestreTemplateElementFrequence.valueOf(info[3]));
 				elt.setOccurence(Integer.parseInt(info[4]));
 				elt.setCompteSource(CompteManager.getInstance().getCompte(info[5]));
@@ -328,6 +328,41 @@ public class TrimestreManager {
 		}
 
 		return res;
+	}
+
+	/**
+	 * Retourne les occurences possible en fonction de la fréquence choisie
+	 * 
+	 * @param freq
+	 * @return
+	 */
+	public Integer[] getOccurenceForFreq(String freq) {
+
+		Integer[] res = null;
+
+		if (freq.equals(TrimestreTemplateElementFrequence.HEBDOMADAIRE.toString())) {
+			res = new Integer[] { 2, 3, 4, 5, 6, 7, 1 };
+		}
+		if (freq.equals(TrimestreTemplateElementFrequence.TRIMESTRIEL.toString())) {
+			res = new Integer[] { 0, 1, 2 };
+		}
+		if (freq.equals(TrimestreTemplateElementFrequence.MENSUEL.toString())) {
+			res = new Integer[] {};
+		}
+
+		return res;
+	}
+
+	/**
+	 * Indique si la chaine de caractère correspond au type d'opération :
+	 * Transfert
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public boolean isTransfertType(String type) {
+
+		return OperationType.TRANSFERT.toString().equals(type);
 	}
 
 }

@@ -2,7 +2,6 @@ package org.arthur.compta.lapin.application.model.template;
 
 import org.arthur.compta.lapin.application.model.AppCompte;
 import org.arthur.compta.lapin.application.model.IMontant;
-import org.arthur.compta.lapin.model.operation.OperationType;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -108,8 +107,8 @@ public class TrimestreTemplateElement implements IMontant {
 	 * 
 	 * @param type
 	 */
-	public void setType(OperationType type) {
-		_typeProp.set(type.toString());
+	public void setType(String type) {
+		_typeProp.set(type);
 
 	}
 

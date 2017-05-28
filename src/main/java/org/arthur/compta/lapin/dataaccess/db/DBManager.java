@@ -12,12 +12,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
+import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElement;
 import org.arthur.compta.lapin.dataaccess.files.FilesManager;
+import org.arthur.compta.lapin.model.operation.Operation;
 import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
 /**
@@ -586,12 +590,12 @@ public class DBManager {
 				String[] elt = new String[7];
 
 				elt[0] = queryRes.getString("nom");
-				elt[1] = String.valueOf(queryRes.getString("montant"));
-				elt[2] = String.valueOf(queryRes.getDouble("type_ope"));
+				elt[1] = String.valueOf(queryRes.getDouble("montant"));
+				elt[2] = String.valueOf(queryRes.getString("type_ope"));
 				elt[3] = String.valueOf(queryRes.getString("frequence"));
-				elt[4] = String.valueOf(queryRes.getString("occurence"));
-				elt[5] = String.valueOf(queryRes.getString("compte_source_id"));
-				elt[6] = String.valueOf(queryRes.getString("compte_cible_id"));
+				elt[4] = String.valueOf(queryRes.getInt("occurence"));
+				elt[5] = String.valueOf(queryRes.getInt("compte_source_id"));
+				elt[6] = String.valueOf(queryRes.getInt("compte_cible_id"));
 
 				infos.put(queryRes.getString("ID"), elt);
 			}
@@ -601,6 +605,140 @@ public class DBManager {
 		}
 
 		return infos;
+	}
+
+	/**
+	 * Vide le modèle de trimestre
+	 * 
+	 * @throws ComptaException
+	 *             Echec de la suppression
+	 */
+	public void clearTrimTemplate() throws ComptaException {
+
+		String query = "DELETE FROM TEMPLATE;";
+		try (PreparedStatement stmt = connexionDB.prepareStatement(query)) {
+			stmt.executeUpdate();
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de vider les templates", e);
+		}
+
+	}
+
+	/**
+	 * AAjoute les éléments de template aau modèle de trimestre en base de
+	 * donnée
+	 * 
+	 * @param elements
+	 * @throws ComptaException
+	 */
+	public void addTrimstreTempElts(List<TrimestreTemplateElement> elements) throws ComptaException {
+
+		String query = "INSERT INTO TEMPLATE (nom,montant,type_ope,frequence,occurence,compte_source_id,compte_cible_id) VALUES (?,?,?,?,?,?,?);";
+		try (PreparedStatement stmt = connexionDB.prepareStatement(query)) {
+
+			for (TrimestreTemplateElement elt : elements) {
+
+				stmt.setString(1, elt.getNom());
+				stmt.setDouble(2, elt.getMontant());
+				stmt.setString(3, elt.getType());
+				stmt.setString(4, elt.getFreq().toString());
+				stmt.setInt(5, elt.getOccurence());
+				stmt.setInt(6, Integer.parseInt(elt.getCompteSource().getAppId()));
+				if (elt.getCompteCible() != null) {
+					stmt.setInt(7, Integer.parseInt(elt.getCompteCible().getAppId()));
+				} else {
+					stmt.setNull(7, Types.INTEGER);
+				}
+
+				stmt.addBatch();
+
+			}
+
+			stmt.executeBatch();
+
+		} catch (Exception e) {
+			throw new ComptaException("Impossible d'insérer l'element de le template", e);
+		}
+
+	}
+
+	/**
+	 * Ajoute une dépense en base de donnée
+	 * 
+	 * @param dep
+	 *            la dépense
+	 * @param compteSrcId
+	 *            l'id du compte
+	 * @param appId
+	 *            l'id de l'exercice mensuel
+	 * @return l'id de la depense
+	 * @throws ComptaException
+	 */
+	public String createDepense(Operation dep, String compteSrcId, String appId) throws ComptaException {
+
+		String id = null;
+
+		String query = "INSERT INTO DEPENSE (nom,montant,etat,compte_source_id,mois_id) VALUES (?,?,?,?,?);";
+		try (PreparedStatement stmt = connexionDB.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS)) {
+
+			stmt.setString(1, dep.getNom());
+			stmt.setDouble(2, dep.getMontant());
+			stmt.setString(3, dep.getEtat().toString());
+			stmt.setInt(4, Integer.parseInt(compteSrcId));
+			stmt.setInt(5, Integer.parseInt(appId));
+
+			stmt.executeUpdate();
+
+			// récupération de l'id en base du compte créé
+			ResultSet res = stmt.getGeneratedKeys();
+			if (res.getMetaData().getColumnCount() == 1 && res.next()) {
+				id = res.getString(1).trim();
+			}
+
+		} catch (Exception e) {
+			throw new ComptaException("Impossible d'insérer l'opération", e);
+		}
+
+		return id;
+	}
+
+	/**
+	 * Ajoute une ressource en base de donnée
+	 * 
+	 * @param res
+	 *            la ressource
+	 * @param compteId
+	 *            le compte a sourcer
+	 * @param appId
+	 *            l'id de l'exercice mensuel
+	 * @return l'id de la ressource
+	 * @throws ComptaException
+	 */
+	public String createRessource(Operation res, String compteId, String appId) throws ComptaException {
+		String id = null;
+
+		String query = "INSERT INTO RESSOURCE (nom,montant,etat,compte_source_id,mois_id) VALUES (?,?,?,?,?);";
+		try (PreparedStatement stmt = connexionDB.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS)) {
+
+			stmt.setString(1, res.getNom());
+			stmt.setDouble(2, res.getMontant());
+			stmt.setString(3, res.getEtat().toString());
+			stmt.setInt(4, Integer.parseInt(compteId));
+			stmt.setInt(5, Integer.parseInt(appId));
+
+			stmt.executeUpdate();
+
+			// récupération de l'id en base du compte créé
+			ResultSet resset = stmt.getGeneratedKeys();
+			if (resset.getMetaData().getColumnCount() == 1 && resset.next()) {
+				id = resset.getString(1).trim();
+			}
+
+		} catch (Exception e) {
+			throw new ComptaException("Impossible d'insérer l'opération", e);
+		}
+
+		return id;
 	}
 
 }

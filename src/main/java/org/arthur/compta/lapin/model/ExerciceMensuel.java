@@ -60,7 +60,7 @@ public class ExerciceMensuel implements Comparable<ExerciceMensuel> {
 	 *            le montant de la dépense
 	 * @return true si l'ajout a été effectué false sinon
 	 */
-	public boolean ajouterDepense(String nom, double montant, String categorie, Compte compte) {
+	public boolean ajouterDepense(String nom, double montant, Compte compte) {
 
 		return _depensesList.add(new Operation(OperationType.DEPENSE, compte, nom, montant, EtatOperation.PREVISION));
 

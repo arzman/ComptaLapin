@@ -3,10 +3,12 @@ package org.arthur.compta.lapin.presentation.trimestre.dialog;
 
 import java.util.Optional;
 
+import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.application.model.AppCompte;
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElement;
+import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import org.arthur.compta.lapin.presentation.trimestre.cellfactory.CompteCellFactory;
 import org.arthur.compta.lapin.presentation.trimestre.cellfactory.MontantCellFactory;
@@ -26,6 +28,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.util.Callback;
 
 /**
  * Fenêtre de configuration du modèle de trimestre. Il s'agit un tableau présent
@@ -135,14 +138,8 @@ public class ConfigureTemplateDialog extends Dialog<String> {
 					_elementList.add(res.get());
 					
 				}
-				
-				
-				
 			};
-		});
-		
-		
-		
+		});	
 	}
 
 	/**
@@ -226,6 +223,27 @@ public class ConfigureTemplateDialog extends Dialog<String> {
 		// bouton annuler
 		ButtonType cancelButton = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(cancelButton);
+		
+		setResultConverter(new Callback<ButtonType, String>() {
+			
+			@Override
+			public String call(ButtonType param) {
+				
+				
+				if(param.equals(okButton)){
+					
+					// on écrase le template en DB par le nouveau
+					try {
+						TrimestreManager.getInstance().updateTrimestreTemplate(_elementList);
+					} catch (ComptaException e) {
+						ExceptionDisplayService.showException(e);
+					}
+					
+				}
+				
+				return "lol";
+			}
+		});
 	}
 
 }

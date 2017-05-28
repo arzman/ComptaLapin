@@ -155,6 +155,10 @@ public class AppCompte extends AppObject  {
 
 		return _nom.get();
 	}
+
+	public Compte getCompte() {
+		return _compte;
+	}
 	
 
 }

@@ -3,6 +3,7 @@ package org.arthur.compta.lapin.application.manager;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.model.AppExerciceMensuel;
@@ -13,6 +14,8 @@ import org.arthur.compta.lapin.application.model.template.TrimestreTemplateEleme
 import org.arthur.compta.lapin.dataaccess.db.DBManager;
 import org.arthur.compta.lapin.model.ExerciceMensuel;
 import org.arthur.compta.lapin.model.Trimestre;
+import org.arthur.compta.lapin.model.operation.EtatOperation;
+import org.arthur.compta.lapin.model.operation.Operation;
 import org.arthur.compta.lapin.model.operation.OperationType;
 import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
@@ -191,9 +194,12 @@ public class TrimestreManager {
 
 				// insertion de l'exercice mensuel en base
 				String idEm = DBManager.getInstance().addExerciceMensuel(debut, fin);
+
 				// création de l'exercice applicatif
 				AppExerciceMensuel appEm = new AppExerciceMensuel(em);
 				appEm.setAppID(idEm);
+				// ajout des opérations du templates
+				applyTtemplate(appEm, i);
 
 				appTrim.setAppExerciceMensuel(i, appEm);
 
@@ -210,6 +216,105 @@ public class TrimestreManager {
 		}
 
 		return appTrim;
+	}
+
+	/**
+	 * Ajoute les opérations du template au mois
+	 * 
+	 * @param exMen
+	 *            l'exercice mensuel
+	 * @param num
+	 *            l'indice du mois dans le trimestre
+	 * @throws ComptaException 
+	 */
+	private void applyTtemplate(AppExerciceMensuel exMen, int num) throws ComptaException {
+
+		TrimestreTemplate tmp = getTrimestreTemplate();
+
+		for (TrimestreTemplateElement elt : tmp.getElements()) {
+
+			int count = 0;
+
+			// hebdomadaire
+			if (elt.getFreq().equals(TrimestreTemplateElementFrequence.HEBDOMADAIRE)) {
+
+				// on se place au début du mois
+				final Calendar cal = Calendar.getInstance();
+				cal.set(exMen.getDateDebut().get(Calendar.YEAR), exMen.getDateDebut().get(Calendar.MONTH), 1);
+
+				for (int j = 0; j < cal.getActualMaximum(Calendar.DAY_OF_MONTH); j++) {
+
+					cal.roll(Calendar.DAY_OF_MONTH, 1);
+					// on obtient tombe sur le jour
+					if (cal.get(Calendar.DAY_OF_WEEK) == elt.getOccurence()) {
+						count++;
+					}
+
+				}
+			}
+			//mensuel
+			if (elt.getFreq().equals(TrimestreTemplateElementFrequence.MENSUEL)) {
+
+				count++;
+
+			}
+			//trimestriel
+			if (elt.getFreq().equals(TrimestreTemplateElementFrequence.TRIMESTRIEL)) {
+
+				if (elt.getOccurence() == num) {
+					count++;
+				}
+
+			}
+			// on ajout l'opération autant de fois que nécessaire
+			for(int i=0;i<count;i++){
+				createOperationFromTmpElt(exMen, elt);
+			}
+
+		}
+
+	}
+
+	/**
+	 * Crée et ajoute une opération dans l'exercice depuis un élément de
+	 * template
+	 * 
+	 * @param exMen
+	 *            l'exercice
+	 * @param elt
+	 *            l'element
+	 * @throws ComptaException
+	 */
+	private void createOperationFromTmpElt(AppExerciceMensuel exMen, TrimestreTemplateElement elt)
+			throws ComptaException {
+		if (elt.getType().equals(OperationType.DEPENSE.toString())) {
+
+			// création
+			String compteId = elt.getCompteSource().getAppId();
+			Operation dep = new Operation(OperationType.DEPENSE,
+					CompteManager.getInstance().getCompte(compteId).getCompte(), elt.getNom(), elt.getMontant(),
+					EtatOperation.PREVISION);
+			String idOp = DBManager.getInstance().createDepense(dep, compteId, exMen.getAppId());
+			// ajout dans l'application
+			exMen.addDepense(dep, idOp);
+
+		}
+		if (elt.getType().equals(OperationType.RESSOURCE.toString())) {
+
+			// création
+			String compteId = elt.getCompteSource().getAppId();
+			Operation res = new Operation(OperationType.RESSOURCE,
+					CompteManager.getInstance().getCompte(compteId).getCompte(), elt.getNom(), elt.getMontant(),
+					EtatOperation.PREVISION);
+			String idOp = DBManager.getInstance().createRessource(res, compteId, exMen.getAppId());
+			// ajout dans l'application
+			exMen.addDepense(res, idOp);
+
+		}
+		if (elt.getType().equals(OperationType.TRANSFERT.toString())) {
+			// TODO
+		}
+
 	}
 
 	/**
@@ -363,6 +468,20 @@ public class TrimestreManager {
 	public boolean isTransfertType(String type) {
 
 		return OperationType.TRANSFERT.toString().equals(type);
+	}
+
+	/**
+	 * Met à jour le modèle de trimestre
+	 * 
+	 * @param elementList
+	 * @throws ComptaException
+	 *             Echec
+	 */
+	public void updateTrimestreTemplate(List<TrimestreTemplateElement> elementList) throws ComptaException {
+
+		DBManager.getInstance().clearTrimTemplate();
+		DBManager.getInstance().addTrimstreTempElts(elementList);
+
 	}
 
 }

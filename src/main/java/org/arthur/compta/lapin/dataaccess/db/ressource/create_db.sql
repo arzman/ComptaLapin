@@ -66,4 +66,36 @@ CREATE TABLE TEMPLATE(
 	CONSTRAINT compte_cible_id_fk FOREIGN KEY (compte_cible_id) REFERENCES COMPTE(ID)
 );
 
+#***************************************************************
+#   Table: DEPENSE
+#***************************************************************
+CREATE TABLE DEPENSE(
+	ID  				IDENTITY NOT NULL ,
+	nom					VARCHAR (25) NOT NULL,
+	montant     		FLOAT  NOT NULL,
+	etat  				VARCHAR (25) NOT NULL,
+	compte_source_id	INTEGER, 
+	mois_id				INTEGER,
+	CONSTRAINT TEMPLATE_Pk PRIMARY KEY (ID),
+	CONSTRAINT mois_id_fk FOREIGN KEY (mois_id) REFERENCES EXERCICE_MENSUEL(ID),
+	CONSTRAINT compte_source_id_fk FOREIGN KEY (compte_source_id) REFERENCES COMPTE(ID)
+);
+
+#***************************************************************
+#   Table: RESSOURCE
+#***************************************************************
+CREATE TABLE RESSOURCE(
+	ID  				IDENTITY NOT NULL ,
+	nom					VARCHAR (25) NOT NULL,
+	montant     		FLOAT  NOT NULL,
+	etat  				VARCHAR (25) NOT NULL,
+	compte_source_id	INTEGER, 
+	mois_id				INTEGER,
+	CONSTRAINT TEMPLATE_Pk PRIMARY KEY (ID),
+	CONSTRAINT mois_id_fk FOREIGN KEY (mois_id) REFERENCES EXERCICE_MENSUEL(ID),
+	CONSTRAINT compte_source_id_fk FOREIGN KEY (compte_source_id) REFERENCES COMPTE(ID),
+);
+
+
+
 

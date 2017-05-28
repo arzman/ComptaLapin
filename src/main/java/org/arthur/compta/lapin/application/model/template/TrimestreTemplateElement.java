@@ -232,4 +232,12 @@ public class TrimestreTemplateElement implements IMontant {
 		return _compteSource.get();
 	}
 
+	/**
+	 * Retourne le compte cible
+	 * @return
+	 */
+	public AppCompte getCompteCible() {
+		return _compteCible.get();
+	}
+
 }

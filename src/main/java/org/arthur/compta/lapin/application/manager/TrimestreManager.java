@@ -6,8 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
+import org.arthur.compta.lapin.application.model.AppCompte;
 import org.arthur.compta.lapin.application.model.AppExerciceMensuel;
 import org.arthur.compta.lapin.application.model.AppOperation;
+import org.arthur.compta.lapin.application.model.AppTransfert;
 import org.arthur.compta.lapin.application.model.AppTrimestre;
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplate;
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElement;
@@ -45,16 +47,6 @@ public class TrimestreManager {
 	private TrimestreManager() {
 
 		_trimestreCourant = new SimpleObjectProperty<AppTrimestre>();
-
-		try {
-			String[] info = DBManager.getInstance().getTrimestreCourantId();
-			if (info != null && info.length == 1 && info[0] != null && !info[0].isEmpty()) {
-				loadTrimestreCourant(info[0]);
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 
 	}
 
@@ -104,6 +96,9 @@ public class TrimestreManager {
 
 				_trimestreCourant.set(appTrimestre);
 				DBManager.getInstance().setTrimestreCourant(appId);
+
+				// avertit le CompteManager de mettre a jour les prévisions
+				CompteManager.getInstance().refreshAllPrev();
 
 			}
 		} catch (Exception e) {
@@ -181,7 +176,13 @@ public class TrimestreManager {
 										CompteManager.getInstance().getCompte(infodep[4]).getCompte(), infodep[0],
 										Double.parseDouble(infodep[1]), EtatOperation.valueOf(infodep[3]),
 										CompteManager.getInstance().getCompte(infodep[5]).getCompte());
-								appEm.addTransfert(trans, iddep);
+
+								AppTransfert apptr = new AppTransfert(trans);
+								apptr.setAppID(id);
+								apptr.setCompteSrc(CompteManager.getInstance().getCompte(infodep[4]));
+								apptr.setCompteCible(CompteManager.getInstance().getCompte(infodep[5]));
+
+								appEm.addTransfert(apptr);
 							}
 						}
 					}
@@ -340,44 +341,44 @@ public class TrimestreManager {
 		if (elt.getType().equals(OperationType.DEPENSE.toString())) {
 
 			// création
-			String compteId = elt.getCompteSource().getAppId();
-			Operation dep = new Operation(OperationType.DEPENSE,
-					CompteManager.getInstance().getCompte(compteId).getCompte(), elt.getNom(), elt.getMontant(),
-					EtatOperation.PREVISION);
-			String idOp = DBManager.getInstance().createOperation(dep, compteId, null, exMen.getAppId());
+			Operation dep = new Operation(OperationType.DEPENSE, elt.getCompteSource().getCompte(), elt.getNom(),
+					elt.getMontant(), EtatOperation.PREVISION);
+			String idOp = DBManager.getInstance().createOperation(dep, elt.getCompteSource().getAppId(), null,
+					exMen.getAppId());
 
 			// ajout dans l'application
 			AppOperation appDep = new AppOperation(dep);
 			appDep.setAppID(idOp);
-			appDep.setCompteSrc(CompteManager.getInstance().getCompte(compteId));
+			appDep.setCompteSrc(elt.getCompteSource());
 			exMen.addDepense(appDep);
 
 		}
 		if (elt.getType().equals(OperationType.RESSOURCE.toString())) {
 
 			// création
-			String compteId = elt.getCompteSource().getAppId();
-			Operation res = new Operation(OperationType.RESSOURCE,
-					CompteManager.getInstance().getCompte(compteId).getCompte(), elt.getNom(), elt.getMontant(),
-					EtatOperation.PREVISION);
-			String idOp = DBManager.getInstance().createOperation(res, compteId, null, exMen.getAppId());
+			Operation res = new Operation(OperationType.RESSOURCE, elt.getCompteSource().getCompte(), elt.getNom(),
+					elt.getMontant(), EtatOperation.PREVISION);
+			String idOp = DBManager.getInstance().createOperation(res, elt.getCompteSource().getAppId(), null,
+					exMen.getAppId());
 			// ajout dans l'application
 			AppOperation appRes = new AppOperation(res);
 			appRes.setAppID(idOp);
-			appRes.setCompteSrc(CompteManager.getInstance().getCompte(compteId));
+			appRes.setCompteSrc(elt.getCompteSource());
 			exMen.addRessource(appRes);
 
 		}
 		if (elt.getType().equals(OperationType.TRANSFERT.toString())) {
 			// création
-			String compteSrcId = elt.getCompteSource().getAppId();
-			String compteCibleId = elt.getCompteCible().getAppId();
-			TransfertOperation res = new TransfertOperation(
-					CompteManager.getInstance().getCompte(compteSrcId).getCompte(), elt.getNom(), elt.getMontant(),
-					EtatOperation.PREVISION, CompteManager.getInstance().getCompte(compteCibleId).getCompte());
-			String idOp = DBManager.getInstance().createOperation(res, compteSrcId, compteCibleId, exMen.getAppId());
+			TransfertOperation trans = new TransfertOperation(elt.getCompteSource().getCompte(), elt.getNom(),
+					elt.getMontant(), EtatOperation.PREVISION, elt.getCompteCible().getCompte());
+			String idOp = DBManager.getInstance().createOperation(trans, elt.getCompteSource().getAppId(),
+					elt.getCompteCible().getAppId(), exMen.getAppId());
 			// ajout dans l'application
-			exMen.addTransfert(res, idOp);
+			AppTransfert apptr = new AppTransfert(trans);
+			apptr.setAppID(idOp);
+			apptr.setCompteSrc(elt.getCompteSource());
+			apptr.setCompteCible(elt.getCompteCible());
+			exMen.addTransfert(apptr);
 		}
 
 	}
@@ -549,23 +550,76 @@ public class TrimestreManager {
 
 	}
 
-	public double getDeltaForCompte(String idCompte, int numMois) {
+	/**
+	 * Retourne la somme a ajouter au compte pour la fin de l'exercice mensuel
+	 * 
+	 * @param idCompte
+	 * @param numMois
+	 * @return
+	 */
+	public double getDeltaForCompte(AppCompte compte, int numMois) {
 
-		double res = 0;
+		double delta = 0;
 
-		if (_trimestreCourant.get()!=null) {
-
+		if (_trimestreCourant.get() != null) {
+			// retrait des dépenses
 			for (AppOperation dep : _trimestreCourant.getValue().getAppExerciceMensuel(numMois).get().getDepenses()) {
 
-				if (dep.getCompteSource()) {
+				if (dep.getEtat().equals(EtatOperation.PREVISION) && dep.getCompteSource().equals(compte)) {
+
+					delta = delta - dep.getMontant();
 
 				}
 
 			}
+			// ajout des ressources
+			for (AppOperation res : _trimestreCourant.getValue().getAppExerciceMensuel(numMois).get().getRessources()) {
 
+				if (res.getEtat().equals(EtatOperation.PREVISION) && res.getCompteSource().equals(compte)) {
+
+					delta = delta + res.getMontant();
+
+				}
+
+			}
+			// prise en compte des transfert
+			for (AppTransfert trans : _trimestreCourant.getValue().getAppExerciceMensuel(numMois).get()
+					.getTransferts()) {
+				// compte source : l'argent part
+				if (trans.getEtat().equals(EtatOperation.PREVISION) && trans.getCompteSource().equals(compte)) {
+
+					delta = delta - trans.getMontant();
+
+				}
+				// compte cible : l'argent rentre
+				if (trans.getEtat().equals(EtatOperation.PREVISION) && trans.getCompteCible().equals(compte)) {
+
+					delta = delta + trans.getMontant();
+
+				}
+
+			}
 		}
 
-		return res;
+		return delta;
+	}
+
+	/**
+	 * Charge le trimestre courant précédemment enregistré en base. Cette
+	 * méthode ne peut pas se mettre dans le constructeur car sinon il y a une
+	 * boucle d'instanciation avec le CompteManager
+	 */
+	public void recoverTrimestre() {
+		try {
+			String[] info = DBManager.getInstance().getTrimestreCourantId();
+			if (info != null && info.length == 1 && info[0] != null && !info[0].isEmpty()) {
+				TrimestreManager.getInstance().loadTrimestreCourant(info[0]);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 
 }

@@ -10,9 +10,6 @@ public class OperationTableView<T extends AppOperation> extends TableView<T> {
 
 	public OperationTableView() {
 
-		//les colonnes prennent toutes la place
-		setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
 		// Colonne du nom
 		TableColumn<T, String> colNom = new TableColumn<>("Libellé");
 		colNom.setResizable(true);

@@ -49,11 +49,7 @@ public class CompteManager {
 				// encapsulation applicative
 				AppCompte appC = new AppCompte(compte);
 				appC.setAppID(id);
-				
-				//ajout des prévisions
-				double delta1 = TrimestreManager.getInstance().getDeltaForCompte(id,0);
-				appC.soldePrev1Property().set(compte.getSolde() + delta1);
-				
+
 				// ajout dans l'application
 				_compteList.add(appC);
 
@@ -203,21 +199,38 @@ public class CompteManager {
 	 * @return
 	 */
 	public AppCompte getCompte(String id) {
-		
-		AppCompte res= null;
-		
+
+		AppCompte res = null;
+
 		boolean stop = false;
-		for(int i=0;i<_compteList.size() && !stop;i++){
-			
-			if(_compteList.get(i).getAppId().equals(id)){
+		for (int i = 0; i < _compteList.size() && !stop; i++) {
+
+			if (_compteList.get(i).getAppId().equals(id)) {
 				res = _compteList.get(i);
 				stop = true;
 			}
-			
+
 		}
-		
-		
+
 		return res;
+	}
+
+	/**
+	 * Met à jour les prévisions de tout les comptes
+	 */
+	public void refreshAllPrev() {
+
+		for (AppCompte compte : _compteList) {
+
+			// ajout des prévisions
+			double delta1 = TrimestreManager.getInstance().getDeltaForCompte(compte, 0);
+			compte.soldePrev1Property().set(compte.getSolde() + delta1);
+			double delta2 = TrimestreManager.getInstance().getDeltaForCompte(compte, 1);
+			compte.soldePrev2Property().set(compte.soldePrev1Property().doubleValue() + delta2);
+			double delta3 = TrimestreManager.getInstance().getDeltaForCompte(compte, 2);
+			compte.soldePrev3Property().set(compte.soldePrev2Property().doubleValue() + delta3);
+		}
+
 	}
 
 }

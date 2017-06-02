@@ -1,6 +1,8 @@
 package org.arthur.compta.lapin;
 
+import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.manager.ConfigurationManager;
+import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.dataaccess.db.DBManager;
 import org.arthur.compta.lapin.dataaccess.files.FilesManager;
 import org.arthur.compta.lapin.presentation.scene.MainScene;
@@ -8,7 +10,6 @@ import org.arthur.compta.lapin.presentation.scene.MainScene;
 import com.sun.javafx.application.LauncherImpl;
 
 import javafx.application.Application;
-import javafx.application.Preloader.PreloaderNotification;
 import javafx.event.EventHandler;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -30,10 +31,14 @@ public class ComptaLapin extends Application {
 
 		super.init();
 
+		notifyPreloader(new ComptaPreloaderNotification("Chargement de la configuration"));
 		FilesManager.getInstance();
+		notifyPreloader(new ComptaPreloaderNotification("Ouverture de la base"));
 		DBManager.getInstance();
-		notifyPreloader(new PreloaderNotification() {
-		});
+		notifyPreloader(new ComptaPreloaderNotification("Chargement des comptes"));
+		CompteManager.getInstance();
+		notifyPreloader(new ComptaPreloaderNotification("Chargement du trimestre courant"));
+		TrimestreManager.getInstance().recoverTrimestre();
 
 	}
 

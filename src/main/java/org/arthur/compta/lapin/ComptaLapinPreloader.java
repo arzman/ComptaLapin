@@ -37,17 +37,14 @@ public class ComptaLapinPreloader extends Preloader {
 		colCons0.setPercentWidth(100);
 		gridPane.getColumnConstraints().add(colCons0);
 
-		//image du lapin
+		// image du lapin
 		ImageView imView = new ImageView(ImageLoader.getImage("bunny.jpg"));
 		gridPane.add(imView, 0, 0);
-		
-		
-		//barre de progression
+
+		// barre de progression
 		ProgressBar progressBar = new ProgressBar();
 		progressBar.setMaxWidth(Double.MAX_VALUE);
 		gridPane.add(progressBar, 0, 1);
-		
-		
 
 		// un petit texte
 		loadingLdl = new Label("Chargement en cours...");
@@ -73,7 +70,9 @@ public class ComptaLapinPreloader extends Preloader {
 	@Override
 	public void handleApplicationNotification(PreloaderNotification info) {
 
-		loadingLdl.setText("Ca va s'ouvrir");
+		if (info instanceof ComptaPreloaderNotification) {
+			loadingLdl.setText(((ComptaPreloaderNotification) info).getMessage());
+		}
 
 	}
 

@@ -3,7 +3,6 @@ package org.arthur.compta.lapin.application.model;
 import java.util.Calendar;
 
 import org.arthur.compta.lapin.model.ExerciceMensuel;
-import org.arthur.compta.lapin.model.operation.TransfertOperation;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -75,8 +74,6 @@ public class AppExerciceMensuel extends AppObject {
 	 */
 	public void addDepense(AppOperation appDep) {
 
-
-
 		_appDepenseList.add(appDep);
 		_exMensuel.getDepensesList().add(appDep.getOperation());
 
@@ -109,18 +106,13 @@ public class AppExerciceMensuel extends AppObject {
 	/**
 	 * Ajoute un transfert dans l'exercice mensuel
 	 * 
-	 * @param trans
+	 * @param apptrans
 	 *            le transfert
-	 * @param id
-	 *            l'identifiant applicatif
 	 */
-	public void addTransfert(TransfertOperation trans, String id) {
-
-		AppTransfert apptr = new AppTransfert(trans);
-		apptr.setAppID(id);
+	public void addTransfert(AppTransfert apptr) {
 
 		_appTransfertList.add(apptr);
-		_exMensuel.getTransfertList().add(trans);
+		_exMensuel.getTransfertList().add(apptr.getTransfert());
 
 	}
 

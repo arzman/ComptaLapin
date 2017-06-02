@@ -2,7 +2,7 @@ package org.arthur.compta.lapin.application.model;
 
 import org.arthur.compta.lapin.model.operation.TransfertOperation;
 
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.SimpleObjectProperty;
 
 /**
  * Encapsulation application d'une opération de transfert
@@ -10,14 +10,8 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public class AppTransfert extends AppOperation {
 
-	/**
-	 * le compte source
-	 */
-	private SimpleStringProperty _sourceProp;
-	/**
-	 * Le compte cible
-	 */
-	private SimpleStringProperty _cibleProp;
+	/** Le compte cible */
+	private SimpleObjectProperty<AppCompte> _compteCibleProp;
 
 	/**
 	 * Constructeur
@@ -28,19 +22,8 @@ public class AppTransfert extends AppOperation {
 	public AppTransfert(TransfertOperation transfert) {
 
 		super(transfert);
+		_compteCibleProp = new SimpleObjectProperty<AppCompte>();
 
-		_sourceProp = new SimpleStringProperty(_operation.getCompte().getNom());
-		_cibleProp = new SimpleStringProperty(((TransfertOperation) _operation).getCompteCible().getNom());
-
-	}
-
-	/**
-	 * Retourne Le compte source sous forme de property
-	 * 
-	 * @return
-	 */
-	public SimpleStringProperty sourceProperty() {
-		return _sourceProp;
 	}
 
 	/**
@@ -48,8 +31,37 @@ public class AppTransfert extends AppOperation {
 	 * 
 	 * @return
 	 */
-	public SimpleStringProperty cibleProperty() {
-		return _cibleProp;
+	public SimpleObjectProperty<AppCompte> compteCibleProperty() {
+		return _compteCibleProp;
+	}
+
+	/**
+	 * Retourne le compte cible du transfert
+	 * 
+	 * @return
+	 */
+	public AppCompte getCompteCible() {
+		return _compteCibleProp.get();
+	}
+
+	/**
+	 * Positionne le compte cible
+	 * 
+	 * @param compte
+	 */
+	public void setCompteCible(AppCompte compte) {
+		_compteCibleProp.set(compte);
+
+	}
+
+	/**
+	 * Retourne le transfert
+	 * 
+	 * @return
+	 */
+	public TransfertOperation getTransfert() {
+
+		return (TransfertOperation) _operation;
 	}
 
 }

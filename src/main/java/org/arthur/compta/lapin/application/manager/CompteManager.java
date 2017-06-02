@@ -49,6 +49,11 @@ public class CompteManager {
 				// encapsulation applicative
 				AppCompte appC = new AppCompte(compte);
 				appC.setAppID(id);
+				
+				//ajout des prévisions
+				double delta1 = TrimestreManager.getInstance().getDeltaForCompte(id,0);
+				appC.soldePrev1Property().set(compte.getSolde() + delta1);
+				
 				// ajout dans l'application
 				_compteList.add(appC);
 

@@ -11,33 +11,24 @@ import javafx.beans.property.SimpleStringProperty;
  * couche de présentation et la persistance
  *
  */
-public class AppCompte extends AppObject  {
+public class AppCompte extends AppObject {
 
-	/**
-	 * le compte métier
-	 */
+	/** le compte métier */
 	private Compte _compte;
-
-	/**
-	 * Le nom du compte
-	 */
+	/** Le nom du compte */
 	private SimpleStringProperty _nom;
-
-	/**
-	 * Le solde du compte
-	 */
+	/** Le solde du compte */
 	private SimpleDoubleProperty _solde;
-
-
-	/**
-	 * Indique si le compte est un livret
-	 */
+	/** Indique si le compte est un livret */
 	private SimpleBooleanProperty _isLivretProp;
-
-	/**
-	 * Indique si le compte est concerné par les budgets
-	 */
+	/** Indique si le compte est concerné par les budgets */
 	private SimpleBooleanProperty _isBudgetProp;
+	/** Le solde du compte */
+	private SimpleDoubleProperty _soldePrev1;
+	/** Le solde du compte */
+	private SimpleDoubleProperty _soldePrev2;
+	/** Le solde du compte */
+	private SimpleDoubleProperty _soldePrev3;
 
 	/**
 	 * Constructeur
@@ -54,6 +45,11 @@ public class AppCompte extends AppObject  {
 		_isLivretProp = new SimpleBooleanProperty(_compte.isLivret());
 		_isBudgetProp = new SimpleBooleanProperty(_compte.isBudgetAllowed());
 
+		// solde prévisionnel
+		_soldePrev1 = new SimpleDoubleProperty(0);
+		_soldePrev2 = new SimpleDoubleProperty(0);
+		_soldePrev3 = new SimpleDoubleProperty(0);
+
 	}
 
 	/**
@@ -67,22 +63,24 @@ public class AppCompte extends AppObject  {
 
 	/**
 	 * Retourne la propriété observable du nom
+	 * 
 	 * @return
 	 */
 	public SimpleStringProperty nomProperty() {
 		return _nom;
 	}
-	
+
 	/**
 	 * Positionne le nom du compte
+	 * 
 	 * @param nom
 	 */
 	public void setNom(String nom) {
 		_compte.setNom(nom);
 		_nom.set(nom);
-		
+
 	}
-	
+
 	/**
 	 * Retourne le solde du compte
 	 * 
@@ -91,23 +89,25 @@ public class AppCompte extends AppObject  {
 	public double getSolde() {
 		return _solde.get();
 	}
-	
+
 	/**
 	 * Retourne la propriété observable du solde
+	 * 
 	 * @return
 	 */
-	public SimpleDoubleProperty soldeProperty(){
+	public SimpleDoubleProperty soldeProperty() {
 		return _solde;
 	}
-	
+
 	/**
 	 * Positionne le solde du compte
+	 * 
 	 * @param solde
 	 */
 	public void setSolde(double soldes) {
 		_compte.setSolde(soldes);
 		_solde.set(soldes);
-		
+
 	}
 
 	/**
@@ -131,34 +131,70 @@ public class AppCompte extends AppObject  {
 
 	/**
 	 * Positionne le flag isLivret
-	 * @param isLivret le flag isLivret
+	 * 
+	 * @param isLivret
+	 *            le flag isLivret
 	 */
 	public void setIsLivret(boolean isLivret) {
 		_isLivretProp.set(isLivret);
 		_compte.setLivret(isLivret);
-		
+
 	}
 
 	/**
 	 * Posiotionne le flag isBudget
+	 * 
 	 * @param isBudget
 	 */
 	public void setIsBudget(boolean isBudget) {
 		_isBudgetProp.set(isBudget);
 		_compte.setBudgetAllowed(isBudget);
-		
+
 	}
-	
-	
+
 	@Override
 	public String toString() {
 
 		return _nom.get();
 	}
 
+	/**
+	 * Retourne le compte associé
+	 * 
+	 * @return
+	 */
 	public Compte getCompte() {
 		return _compte;
 	}
-	
+
+	/**
+	 * Retourne le montant prévu à la fin du premier mois du trimestre sous
+	 * forme de propriété
+	 * 
+	 * @return
+	 */
+	public SimpleDoubleProperty soldePrev1Property() {
+		return _soldePrev1;
+	}
+
+	/**
+	 * Retourne le montant prévu à la fin du deuxieme mois du trimestre sous
+	 * forme de propriété
+	 * 
+	 * @return
+	 */
+	public SimpleDoubleProperty soldePrev2Property() {
+		return _soldePrev2;
+	}
+
+	/**
+	 * Retourne le montant prévu à la fin du troisieme mois du trimestre sous
+	 * forme de propriété
+	 * 
+	 * @return
+	 */
+	public SimpleDoubleProperty soldePrev3Property() {
+		return _soldePrev3;
+	}
 
 }

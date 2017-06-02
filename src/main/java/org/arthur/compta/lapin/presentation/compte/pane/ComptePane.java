@@ -92,24 +92,30 @@ public class ComptePane extends GridPane {
 		_table.getColumns().add(colMontant);
 
 		// Colonne solde prevu a la fin du 1er mois
-		TableColumn<AppCompte, String> colprev1 = new TableColumn<>("1er Mois");
+		TableColumn<AppCompte, Number> colprev1 = new TableColumn<>("1er Mois");
 		colprev1.setResizable(true);
 		colprev1.setEditable(false);
 		colprev1.setId("prev1");
+		colprev1.setCellValueFactory(cellData -> cellData.getValue().soldePrev1Property());
+		colprev1.setCellFactory(new SoldeCompteCellFactory());
 		_table.getColumns().add(colprev1);
 
 		// Colonne du solde prevu à la fin du 2eme mois
-		TableColumn<AppCompte, String> colprev2 = new TableColumn<>("2eme Mois");
+		TableColumn<AppCompte, Number> colprev2 = new TableColumn<>("2eme Mois");
 		colprev2.setResizable(true);
 		colprev2.setEditable(false);
 		colprev2.setId("prev2");
+		colprev2.setCellValueFactory(cellData -> cellData.getValue().soldePrev2Property());
+		colprev2.setCellFactory(new SoldeCompteCellFactory());
 		_table.getColumns().add(colprev2);
 
 		// Colonne du solde prévu à la fin du 3eme mois
-		TableColumn<AppCompte, String> colprev3 = new TableColumn<>("3eme Mois");
+		TableColumn<AppCompte, Number> colprev3 = new TableColumn<>("3eme Mois");
 		colprev3.setResizable(true);
 		colprev3.setEditable(false);
 		colprev3.setId("prev3");
+		colprev3.setCellValueFactory(cellData -> cellData.getValue().soldePrev3Property());
+		colprev3.setCellFactory(new SoldeCompteCellFactory());
 		_table.getColumns().add(colprev3);
 
 		// bind à la liste des comptes

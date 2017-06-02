@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.model.AppExerciceMensuel;
+import org.arthur.compta.lapin.application.model.AppOperation;
 import org.arthur.compta.lapin.application.model.AppTrimestre;
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplate;
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElement;
@@ -155,19 +156,31 @@ public class TrimestreManager {
 						Operation dep = new Operation(OperationType.DEPENSE,
 								CompteManager.getInstance().getCompte(infodep[4]).getCompte(), infodep[0],
 								Double.parseDouble(infodep[1]), EtatOperation.valueOf(infodep[3]));
-						appEm.addDepense(dep, iddep);
+
+						AppOperation appDep = new AppOperation(dep);
+						appDep.setAppID(id);
+						appDep.setCompteSrc(CompteManager.getInstance().getCompte(infodep[4]));
+
+						appEm.addDepense(appDep);
 					} else {
 						// ressource
 						if (infodep[2].equals(OperationType.RESSOURCE.toString())) {
 							Operation res = new Operation(OperationType.RESSOURCE,
 									CompteManager.getInstance().getCompte(infodep[4]).getCompte(), infodep[0],
 									Double.parseDouble(infodep[1]), EtatOperation.valueOf(infodep[3]));
-							appEm.addRessource(res, iddep);
+
+							// Ajout dans l'appli
+							AppOperation appRes = new AppOperation(res);
+							appRes.setAppID(id);
+							appRes.setCompteSrc(CompteManager.getInstance().getCompte(infodep[4]));
+							appEm.addRessource(appRes);
 						} else {
 							// transfert
 							if (infodep[2].equals(OperationType.TRANSFERT.toString())) {
-								TransfertOperation trans = new TransfertOperation(CompteManager.getInstance().getCompte(infodep[4]).getCompte(), infodep[0],
-										Double.parseDouble(infodep[1]), EtatOperation.valueOf(infodep[3]),CompteManager.getInstance().getCompte(infodep[5]).getCompte());
+								TransfertOperation trans = new TransfertOperation(
+										CompteManager.getInstance().getCompte(infodep[4]).getCompte(), infodep[0],
+										Double.parseDouble(infodep[1]), EtatOperation.valueOf(infodep[3]),
+										CompteManager.getInstance().getCompte(infodep[5]).getCompte());
 								appEm.addTransfert(trans, iddep);
 							}
 						}
@@ -332,8 +345,12 @@ public class TrimestreManager {
 					CompteManager.getInstance().getCompte(compteId).getCompte(), elt.getNom(), elt.getMontant(),
 					EtatOperation.PREVISION);
 			String idOp = DBManager.getInstance().createOperation(dep, compteId, null, exMen.getAppId());
+
 			// ajout dans l'application
-			exMen.addDepense(dep, idOp);
+			AppOperation appDep = new AppOperation(dep);
+			appDep.setAppID(idOp);
+			appDep.setCompteSrc(CompteManager.getInstance().getCompte(compteId));
+			exMen.addDepense(appDep);
 
 		}
 		if (elt.getType().equals(OperationType.RESSOURCE.toString())) {
@@ -345,7 +362,10 @@ public class TrimestreManager {
 					EtatOperation.PREVISION);
 			String idOp = DBManager.getInstance().createOperation(res, compteId, null, exMen.getAppId());
 			// ajout dans l'application
-			exMen.addDepense(res, idOp);
+			AppOperation appRes = new AppOperation(res);
+			appRes.setAppID(idOp);
+			appRes.setCompteSrc(CompteManager.getInstance().getCompte(compteId));
+			exMen.addRessource(appRes);
 
 		}
 		if (elt.getType().equals(OperationType.TRANSFERT.toString())) {
@@ -357,7 +377,7 @@ public class TrimestreManager {
 					EtatOperation.PREVISION, CompteManager.getInstance().getCompte(compteCibleId).getCompte());
 			String idOp = DBManager.getInstance().createOperation(res, compteSrcId, compteCibleId, exMen.getAppId());
 			// ajout dans l'application
-			exMen.addDepense(res, idOp);
+			exMen.addTransfert(res, idOp);
 		}
 
 	}
@@ -527,6 +547,25 @@ public class TrimestreManager {
 		DBManager.getInstance().clearTrimTemplate();
 		DBManager.getInstance().addTrimstreTempElts(elementList);
 
+	}
+
+	public double getDeltaForCompte(String idCompte, int numMois) {
+
+		double res = 0;
+
+		if (_trimestreCourant.get()!=null) {
+
+			for (AppOperation dep : _trimestreCourant.getValue().getAppExerciceMensuel(numMois).get().getDepenses()) {
+
+				if (dep.getCompteSource()) {
+
+				}
+
+			}
+
+		}
+
+		return res;
 	}
 
 }

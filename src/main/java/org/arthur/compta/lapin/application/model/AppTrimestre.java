@@ -159,4 +159,25 @@ public class AppTrimestre extends AppObject {
 
 	}
 
+	/**
+	 * Retourne l'exercice mensuel correspondant au numéro fourni
+	 * 
+	 * @param numMois
+	 * @return
+	 */
+	public SimpleObjectProperty<AppExerciceMensuel> getAppExerciceMensuel(int numMois) {
+
+		switch (numMois) {
+
+		case 0:
+			return _premierMois;
+		case 1:
+			return _deuxiemeMois;
+		case 2:
+			return _troisiemeMois;
+		default:
+			return null;
+		}
+	}
+
 }

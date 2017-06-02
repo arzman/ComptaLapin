@@ -17,6 +17,7 @@ import org.arthur.compta.lapin.model.Trimestre;
 import org.arthur.compta.lapin.model.operation.EtatOperation;
 import org.arthur.compta.lapin.model.operation.Operation;
 import org.arthur.compta.lapin.model.operation.OperationType;
+import org.arthur.compta.lapin.model.operation.TransfertOperation;
 import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
 import javafx.beans.property.ObjectProperty;
@@ -225,7 +226,7 @@ public class TrimestreManager {
 	 *            l'exercice mensuel
 	 * @param num
 	 *            l'indice du mois dans le trimestre
-	 * @throws ComptaException 
+	 * @throws ComptaException
 	 */
 	private void applyTtemplate(AppExerciceMensuel exMen, int num) throws ComptaException {
 
@@ -252,13 +253,13 @@ public class TrimestreManager {
 
 				}
 			}
-			//mensuel
+			// mensuel
 			if (elt.getFreq().equals(TrimestreTemplateElementFrequence.MENSUEL)) {
 
 				count++;
 
 			}
-			//trimestriel
+			// trimestriel
 			if (elt.getFreq().equals(TrimestreTemplateElementFrequence.TRIMESTRIEL)) {
 
 				if (elt.getOccurence() == num) {
@@ -267,7 +268,7 @@ public class TrimestreManager {
 
 			}
 			// on ajout l'opération autant de fois que nécessaire
-			for(int i=0;i<count;i++){
+			for (int i = 0; i < count; i++) {
 				createOperationFromTmpElt(exMen, elt);
 			}
 
@@ -294,7 +295,7 @@ public class TrimestreManager {
 			Operation dep = new Operation(OperationType.DEPENSE,
 					CompteManager.getInstance().getCompte(compteId).getCompte(), elt.getNom(), elt.getMontant(),
 					EtatOperation.PREVISION);
-			String idOp = DBManager.getInstance().createDepense(dep, compteId, exMen.getAppId());
+			String idOp = DBManager.getInstance().createOperation(dep, compteId, null, exMen.getAppId());
 			// ajout dans l'application
 			exMen.addDepense(dep, idOp);
 
@@ -306,13 +307,20 @@ public class TrimestreManager {
 			Operation res = new Operation(OperationType.RESSOURCE,
 					CompteManager.getInstance().getCompte(compteId).getCompte(), elt.getNom(), elt.getMontant(),
 					EtatOperation.PREVISION);
-			String idOp = DBManager.getInstance().createRessource(res, compteId, exMen.getAppId());
+			String idOp = DBManager.getInstance().createOperation(res, compteId, null, exMen.getAppId());
 			// ajout dans l'application
 			exMen.addDepense(res, idOp);
 
 		}
 		if (elt.getType().equals(OperationType.TRANSFERT.toString())) {
-			// TODO
+			// création
+			String compteSrcId = elt.getCompteSource().getAppId();
+			String compteCibleId = elt.getCompteCible().getAppId();
+			TransfertOperation res = new TransfertOperation(CompteManager.getInstance().getCompte(compteSrcId).getCompte(), elt.getNom(), elt.getMontant(),
+					EtatOperation.PREVISION,CompteManager.getInstance().getCompte(compteCibleId).getCompte());
+			String idOp = DBManager.getInstance().createOperation(res, compteSrcId, compteCibleId, exMen.getAppId());
+			// ajout dans l'application
+			exMen.addDepense(res, idOp);
 		}
 
 	}

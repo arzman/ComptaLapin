@@ -79,7 +79,7 @@ public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 		// mise en place des listener sur les modifications
 		hookListeners();
 		// vérif initiale
-		checkInput();
+		checkInput(true);
 
 		// crée l'élement de template après appuis sur Ok
 		setResultConverter(new Callback<ButtonType, TrimestreTemplateElement>() {
@@ -102,7 +102,7 @@ public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 					}
 					elt.setCompteSource(_srcCombo.getSelectionModel().getSelectedItem());
 					if (!_cibleCombo.isDisable()) {
-						elt.setCompteSource(_cibleCombo.getSelectionModel().getSelectedItem());
+						elt.setCompteCible(_cibleCombo.getSelectionModel().getSelectedItem());
 					}
 
 				}
@@ -183,7 +183,7 @@ public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 			_freqCombo.getSelectionModel().select(String.valueOf(_templateElt.getType()));
 			_occComb.getSelectionModel().select(new Integer(_templateElt.getOccurence()));
 			_srcCombo.getSelectionModel().select(_templateElt.getCompteSource());
-			_cibleCombo.getSelectionModel().select(_templateElt.getCompteSource());
+			_cibleCombo.getSelectionModel().select(_templateElt.getCompteCible());
 
 		} else {
 			// création
@@ -217,27 +217,27 @@ public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 	private void hookListeners() {
 		// nom
 		_nomTxt.textProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
+			checkInput(false);
 		});
 		// montant
 		_montantTxt.textProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
+			checkInput(false);
 		});
 		// type
 		_typeCombo.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
+			checkInput(false);
 		});
 		// frequence
 		_freqCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
+			checkInput(true);
 		});
 		// compte source
 		_srcCombo.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
+			checkInput(false);
 		});
 		// compte cible
 		_cibleCombo.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
+			checkInput(false);
 		});
 
 	}
@@ -245,7 +245,7 @@ public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 	/**
 	 * Vérifie la validité de la saisie
 	 */
-	private void checkInput() {
+	private void checkInput(boolean changeOcc) {
 
 		// Vérif du nom
 		boolean nomError = true;
@@ -277,7 +277,7 @@ public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 			_occComb.setDisable(_freqCombo.getSelectionModel().getSelectedItem()
 					.equals(TrimestreTemplateElementFrequence.MENSUEL.toString()));
 
-			if (!_occComb.isDisable()) {
+			if (changeOcc) {
 				_occComb.getItems().clear();
 				_occComb.getItems().addAll(TrimestreManager.getInstance()
 						.getOccurenceForFreq(_freqCombo.getSelectionModel().getSelectedItem()));

@@ -17,13 +17,17 @@ public class TransfertOperation extends Operation {
 	/**
 	 * Constructeur
 	 * 
+	 * @param prevision
+	 * 
 	 * @param ope
 	 *            L'opération
+	 * @param etat
+	 *            l'état de prise en compte
 	 * @param compteCible
 	 */
-	public TransfertOperation(Compte compteSource, String nom, double montant, Compte compteCible) {
+	public TransfertOperation(Compte compteSource, String nom, double montant, EtatOperation etat, Compte compteCible) {
 
-		super(OperationType.TRANSFERT, compteSource, nom, montant, EtatOperation.PREVISION);
+		super(OperationType.TRANSFERT, compteSource, nom, montant, etat);
 		_compteCible = compteCible;
 
 	}

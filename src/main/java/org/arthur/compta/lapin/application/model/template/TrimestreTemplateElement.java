@@ -119,8 +119,6 @@ public class TrimestreTemplateElement implements IMontant {
 	 */
 	public void setCompteSource(AppCompte compte) {
 		_compteSource.set(compte);
-		;
-
 	}
 
 	/**

@@ -663,29 +663,35 @@ public class DBManager {
 	}
 
 	/**
-	 * Ajoute une dépense en base de donnée
+	 * Ajoute une opération en base de donnée
 	 * 
 	 * @param dep
-	 *            la dépense
+	 *            l'operation
 	 * @param compteSrcId
 	 *            l'id du compte
-	 * @param appId
+	 * @param appEmId
 	 *            l'id de l'exercice mensuel
 	 * @return l'id de la depense
 	 * @throws ComptaException
 	 */
-	public String createDepense(Operation dep, String compteSrcId, String appId) throws ComptaException {
+	public String createOperation(Operation dep, String compteSrcId, String compteCibleId, String appEmId)
+			throws ComptaException {
 
 		String id = null;
-
-		String query = "INSERT INTO DEPENSE (nom,montant,etat,compte_source_id,mois_id) VALUES (?,?,?,?,?);";
+		String query = "INSERT INTO OPERATION (nom,montant,type_ope,etat,compte_source_id,compte_cible_id,mois_id) VALUES (?,?,?,?,?,?,?);";
 		try (PreparedStatement stmt = connexionDB.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
 			stmt.setString(1, dep.getNom());
 			stmt.setDouble(2, dep.getMontant());
-			stmt.setString(3, dep.getEtat().toString());
-			stmt.setInt(4, Integer.parseInt(compteSrcId));
-			stmt.setInt(5, Integer.parseInt(appId));
+			stmt.setString(3, dep.getType().toString());
+			stmt.setString(4, dep.getEtat().toString());
+			stmt.setInt(5, Integer.parseInt(compteSrcId));
+			if (compteCibleId != null && !compteCibleId.trim().isEmpty()) {
+				stmt.setInt(6, Integer.parseInt(compteCibleId));
+			}else{
+				stmt.setNull(6, Types.INTEGER);
+			}
+			stmt.setInt(7, Integer.parseInt(appEmId));
 
 			stmt.executeUpdate();
 
@@ -693,45 +699,6 @@ public class DBManager {
 			ResultSet res = stmt.getGeneratedKeys();
 			if (res.getMetaData().getColumnCount() == 1 && res.next()) {
 				id = res.getString(1).trim();
-			}
-
-		} catch (Exception e) {
-			throw new ComptaException("Impossible d'insérer l'opération", e);
-		}
-
-		return id;
-	}
-
-	/**
-	 * Ajoute une ressource en base de donnée
-	 * 
-	 * @param res
-	 *            la ressource
-	 * @param compteId
-	 *            le compte a sourcer
-	 * @param appId
-	 *            l'id de l'exercice mensuel
-	 * @return l'id de la ressource
-	 * @throws ComptaException
-	 */
-	public String createRessource(Operation res, String compteId, String appId) throws ComptaException {
-		String id = null;
-
-		String query = "INSERT INTO RESSOURCE (nom,montant,etat,compte_source_id,mois_id) VALUES (?,?,?,?,?);";
-		try (PreparedStatement stmt = connexionDB.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS)) {
-
-			stmt.setString(1, res.getNom());
-			stmt.setDouble(2, res.getMontant());
-			stmt.setString(3, res.getEtat().toString());
-			stmt.setInt(4, Integer.parseInt(compteId));
-			stmt.setInt(5, Integer.parseInt(appId));
-
-			stmt.executeUpdate();
-
-			// récupération de l'id en base du compte créé
-			ResultSet resset = stmt.getGeneratedKeys();
-			if (resset.getMetaData().getColumnCount() == 1 && resset.next()) {
-				id = resset.getString(1).trim();
 			}
 
 		} catch (Exception e) {

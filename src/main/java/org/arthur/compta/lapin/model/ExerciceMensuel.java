@@ -99,7 +99,7 @@ public class ExerciceMensuel implements Comparable<ExerciceMensuel> {
 	 */
 	public boolean ajouterTransfert(String nom, double montant, Compte compteSource, Compte compteCible) {
 
-		return _transfertList.add(new TransfertOperation(compteSource, nom, montant, compteCible));
+		return _transfertList.add(new TransfertOperation(compteSource, nom, montant,EtatOperation.PREVISION, compteCible));
 
 	}
 

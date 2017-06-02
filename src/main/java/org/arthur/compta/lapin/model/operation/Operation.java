@@ -37,7 +37,7 @@ public class Operation {
 	 * Construction par défaut
 	 */
 	public Operation(OperationType type, Compte leCompte, String nom, double montant, EtatOperation etat) {
-		setEtat(EtatOperation.PREVISION);
+		setEtat(etat);
 		_type = type;
 		setCompte(leCompte);
 		setNom(nom);

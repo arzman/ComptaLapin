@@ -135,9 +135,45 @@ public class TrimestreManager {
 				Calendar deb = Calendar.getInstance();
 				deb.setTime(ApplicationFormatter.databaseDateFormat.parse(infos[1]));
 				em.setDateDebut(deb);
+				// date fin
+				Calendar fin = Calendar.getInstance();
+				fin.setTime(ApplicationFormatter.databaseDateFormat.parse(infos[2]));
+				em.setDateFin(fin);
 
 				appEm = new AppExerciceMensuel(em);
 				appEm.setAppID(infos[0]);
+
+				// récupération des opérations
+				HashMap<String, String[]> infosDep = DBManager.getInstance().getOperationInfo(appEm.getAppId());
+
+				for (String iddep : infosDep.keySet()) {
+
+					String[] infodep = infosDep.get(iddep);
+
+					// depense
+					if (infodep[2].equals(OperationType.DEPENSE.toString())) {
+						Operation dep = new Operation(OperationType.DEPENSE,
+								CompteManager.getInstance().getCompte(infodep[4]).getCompte(), infodep[0],
+								Double.parseDouble(infodep[1]), EtatOperation.valueOf(infodep[3]));
+						appEm.addDepense(dep, iddep);
+					} else {
+						// ressource
+						if (infodep[2].equals(OperationType.RESSOURCE.toString())) {
+							Operation res = new Operation(OperationType.RESSOURCE,
+									CompteManager.getInstance().getCompte(infodep[4]).getCompte(), infodep[0],
+									Double.parseDouble(infodep[1]), EtatOperation.valueOf(infodep[3]));
+							appEm.addRessource(res, iddep);
+						} else {
+							// transfert
+							if (infodep[2].equals(OperationType.TRANSFERT.toString())) {
+								TransfertOperation trans = new TransfertOperation(CompteManager.getInstance().getCompte(infodep[4]).getCompte(), infodep[0],
+										Double.parseDouble(infodep[1]), EtatOperation.valueOf(infodep[3]),CompteManager.getInstance().getCompte(infodep[5]).getCompte());
+								appEm.addTransfert(trans, iddep);
+							}
+						}
+					}
+
+				}
 
 			}
 
@@ -316,8 +352,9 @@ public class TrimestreManager {
 			// création
 			String compteSrcId = elt.getCompteSource().getAppId();
 			String compteCibleId = elt.getCompteCible().getAppId();
-			TransfertOperation res = new TransfertOperation(CompteManager.getInstance().getCompte(compteSrcId).getCompte(), elt.getNom(), elt.getMontant(),
-					EtatOperation.PREVISION,CompteManager.getInstance().getCompte(compteCibleId).getCompte());
+			TransfertOperation res = new TransfertOperation(
+					CompteManager.getInstance().getCompte(compteSrcId).getCompte(), elt.getNom(), elt.getMontant(),
+					EtatOperation.PREVISION, CompteManager.getInstance().getCompte(compteCibleId).getCompte());
 			String idOp = DBManager.getInstance().createOperation(res, compteSrcId, compteCibleId, exMen.getAppId());
 			// ajout dans l'application
 			exMen.addDepense(res, idOp);

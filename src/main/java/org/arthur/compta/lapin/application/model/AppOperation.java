@@ -9,12 +9,12 @@ import javafx.beans.property.SimpleStringProperty;
  * Encapsulation applicative d'une opération
  *
  */
-public class AppOperation<T extends Operation> extends AppObject implements IMontant {
+public class AppOperation extends AppObject implements IMontant {
 
 	/**
 	 * L'operation
 	 */
-	protected T _operation;
+	protected Operation _operation;
 	/**
 	 * Le libellé de l'opération
 	 */
@@ -28,7 +28,7 @@ public class AppOperation<T extends Operation> extends AppObject implements IMon
 	/**
 	 * Constructeur
 	 */
-	public AppOperation(T operation) {
+	public AppOperation(Operation operation) {
 
 		_operation = operation;
 
@@ -39,6 +39,7 @@ public class AppOperation<T extends Operation> extends AppObject implements IMon
 
 	/**
 	 * Retourne le libelle de l'opération sous forme de propriété
+	 * 
 	 * @return
 	 */
 	public SimpleStringProperty libelleProperty() {
@@ -47,11 +48,21 @@ public class AppOperation<T extends Operation> extends AppObject implements IMon
 
 	/**
 	 * Retourne le montant de l'opération sous forme de propriété
+	 * 
 	 * @return
 	 */
 	public SimpleDoubleProperty montantProperty() {
 
 		return _montantProp;
+	}
+
+	/**
+	 * Retourne le montant de l'opération
+	 * 
+	 * @return
+	 */
+	public double getMontant() {
+		return _montantProp.doubleValue();
 	}
 
 }

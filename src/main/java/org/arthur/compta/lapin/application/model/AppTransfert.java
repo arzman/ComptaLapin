@@ -8,7 +8,7 @@ import javafx.beans.property.SimpleStringProperty;
  * Encapsulation application d'une opération de transfert
  *
  */
-public class AppTransfert extends AppOperation<TransfertOperation> {
+public class AppTransfert extends AppOperation {
 
 	/**
 	 * le compte source
@@ -30,7 +30,7 @@ public class AppTransfert extends AppOperation<TransfertOperation> {
 		super(transfert);
 
 		_sourceProp = new SimpleStringProperty(_operation.getCompte().getNom());
-		_cibleProp = new SimpleStringProperty(_operation.getCompteCible().getNom());
+		_cibleProp = new SimpleStringProperty(((TransfertOperation) _operation).getCompteCible().getNom());
 
 	}
 

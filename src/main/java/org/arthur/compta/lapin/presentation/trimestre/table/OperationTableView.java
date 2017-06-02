@@ -1,13 +1,12 @@
 package org.arthur.compta.lapin.presentation.trimestre.table;
 
 import org.arthur.compta.lapin.application.model.AppOperation;
-import org.arthur.compta.lapin.model.operation.Operation;
 import org.arthur.compta.lapin.presentation.trimestre.cellfactory.MontantCellFactory;
 
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
-public class OperationTableView<T extends AppOperation<? extends Operation>> extends TableView<T> {
+public class OperationTableView<T extends AppOperation> extends TableView<T> {
 
 	public OperationTableView() {
 

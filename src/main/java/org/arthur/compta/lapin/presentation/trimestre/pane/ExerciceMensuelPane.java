@@ -3,7 +3,6 @@ package org.arthur.compta.lapin.presentation.trimestre.pane;
 import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.application.model.AppExerciceMensuel;
 import org.arthur.compta.lapin.application.model.AppOperation;
-import org.arthur.compta.lapin.model.operation.Operation;
 import org.arthur.compta.lapin.presentation.trimestre.table.OperationTableView;
 import org.arthur.compta.lapin.presentation.trimestre.table.TransfertTableView;
 
@@ -35,11 +34,11 @@ public class ExerciceMensuelPane extends GridPane {
 	/**
 	 * Tableau des dépenses
 	 */
-	private OperationTableView<AppOperation<Operation>> _depenseTable;
+	private OperationTableView<AppOperation> _depenseTable;
 	/**
 	 * Tableau des ressources
 	 */
-	private OperationTableView<AppOperation<Operation>> _ressourceTable;
+	private OperationTableView<AppOperation> _ressourceTable;
 	/**
 	 * Tableau des transferts
 	 */
@@ -47,15 +46,25 @@ public class ExerciceMensuelPane extends GridPane {
 
 	/**
 	 * Constructeur
-	 * @param id l'id
+	 * 
+	 * @param id
+	 *            l'id
 	 */
 	public ExerciceMensuelPane(String id) {
 
 		setId(id);
-		
+
 		_title = new ExerciceHeaderPane();
 		add(_title, 0, 0);
 
+		createContent();
+
+	}
+
+	/**
+	 * Création du contenu graphique
+	 */
+	private void createContent() {
 		ColumnConstraints colCons = new ColumnConstraints();
 		colCons.setHgrow(Priority.ALWAYS);
 		colCons.setFillWidth(true);
@@ -64,7 +73,7 @@ public class ExerciceMensuelPane extends GridPane {
 		setVgap(5);
 
 		// tableau des dépenses
-		_depenseTable = new OperationTableView<AppOperation<Operation>>();
+		_depenseTable = new OperationTableView<AppOperation>();
 		_depenseTable.setMaxWidth(Double.MAX_VALUE);
 		_depenseTable.setMaxHeight(Double.MAX_VALUE);
 		_depenseTable.setId("depTable");
@@ -74,7 +83,7 @@ public class ExerciceMensuelPane extends GridPane {
 		depPane.setId("depPane");
 		add(depPane, 0, 1);
 		// tableau des ressources
-		_ressourceTable = new OperationTableView<AppOperation<Operation>>();
+		_ressourceTable = new OperationTableView<AppOperation>();
 		_ressourceTable.setMaxWidth(Double.MAX_VALUE);
 		_ressourceTable.setMaxHeight(Double.MAX_VALUE);
 		_ressourceTable.setId("resTable");
@@ -96,8 +105,8 @@ public class ExerciceMensuelPane extends GridPane {
 		setBorder(bord);
 
 		// restauration de l'état
-		depPane.setExpanded(Boolean.parseBoolean(ConfigurationManager.getInstance().getProp(
-				"ExerciceMensuelPane." + getId() + "." + depPane.getId() + ".exp", Boolean.toString(true))));
+		depPane.setExpanded(Boolean.parseBoolean(ConfigurationManager.getInstance()
+				.getProp("ExerciceMensuelPane." + getId() + "." + depPane.getId() + ".exp", Boolean.toString(true))));
 		depPane.expandedProperty().addListener(new ChangeListener<Boolean>() {
 
 			@Override
@@ -108,8 +117,8 @@ public class ExerciceMensuelPane extends GridPane {
 						Boolean.toString(depPane.isExpanded()));
 			}
 		});
-		resPane.setExpanded(Boolean.parseBoolean(ConfigurationManager.getInstance().getProp(
-				"ExerciceMensuelPane." + getId() + "." + resPane.getId() + ".exp", Boolean.toString(true))));
+		resPane.setExpanded(Boolean.parseBoolean(ConfigurationManager.getInstance()
+				.getProp("ExerciceMensuelPane." + getId() + "." + resPane.getId() + ".exp", Boolean.toString(true))));
 		resPane.expandedProperty().addListener(new ChangeListener<Boolean>() {
 
 			@Override
@@ -120,8 +129,8 @@ public class ExerciceMensuelPane extends GridPane {
 						Boolean.toString(resPane.isExpanded()));
 			}
 		});
-		transPane.setExpanded(Boolean.parseBoolean(ConfigurationManager.getInstance().getProp(
-				"ExerciceMensuelPane." + getId() + "." + transPane.getId() + ".exp", Boolean.toString(true))));
+		transPane.setExpanded(Boolean.parseBoolean(ConfigurationManager.getInstance()
+				.getProp("ExerciceMensuelPane." + getId() + "." + transPane.getId() + ".exp", Boolean.toString(true))));
 		transPane.expandedProperty().addListener(new ChangeListener<Boolean>() {
 
 			@Override
@@ -150,9 +159,16 @@ public class ExerciceMensuelPane extends GridPane {
 			_title.setMois(newEM.getDateDebut().getTime());
 			_title.setResutlat(newEM.getResultat());
 
+			_depenseTable.setItems(newEM.getDepenses());
+			_ressourceTable.setItems(newEM.getRessources());
+			_transfertTable.setItems(newEM.getTransferts());
+
 		} else {
 			_title.setMois(null);
 			_title.setResutlat(0);
+			_depenseTable.setItems(null);
+			_ressourceTable.setItems(null);
+			_transfertTable.setItems(null);
 		}
 
 	}

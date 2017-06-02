@@ -330,7 +330,7 @@ public class DBManager {
 			// parsing du résultat
 			res[0] = queryRes.getString("ID");
 			res[1] = ApplicationFormatter.databaseDateFormat.format(queryRes.getDate("date_debut"));
-			res[0] = ApplicationFormatter.databaseDateFormat.format(queryRes.getDate("date_fin"));
+			res[2] = ApplicationFormatter.databaseDateFormat.format(queryRes.getDate("date_fin"));
 
 		}
 
@@ -706,6 +706,52 @@ public class DBManager {
 		}
 
 		return id;
+	}
+
+	/**
+	 * Retourne une map contenant les champ en base des dépenses associée à un exercice
+	 * 
+	 * clé : id , valeurs : [nom,montant,type_ope,etat,compte_source_id,compte_cible_id]
+	 * 
+	 * @param appId
+	 * @return
+	 * @throws ComptaException 
+	 */
+	public HashMap<String, String[]> getOperationInfo(String exId) throws ComptaException {
+		
+		HashMap<String, String[]> map = new HashMap<>();
+		
+		//création de la requete
+		String query = "SELECT ID,nom,montant,type_ope,etat,compte_source_id,compte_cible_id FROM OPERATION WHERE mois_id=?;";
+		
+		try (PreparedStatement stmt = connexionDB.prepareStatement(query)) {
+			// positionnement du parametre
+			stmt.setInt(1, Integer.parseInt(exId));
+			
+			ResultSet queryRes = stmt.executeQuery();
+
+			while (queryRes.next()) {
+				// parsing du résultat
+				String[] elt = new String[6];
+
+				elt[0] = queryRes.getString("nom");
+				elt[1] = String.valueOf(queryRes.getDouble("montant"));
+				elt[2] = queryRes.getString("type_ope");
+				elt[3] = queryRes.getString("etat");
+				elt[4] = String.valueOf(queryRes.getInt("compte_source_id"));
+				elt[5] = String.valueOf(queryRes.getInt("compte_cible_id"));
+
+				map.put(queryRes.getString("ID"), elt);
+			}
+			
+			
+			
+		}catch (Exception e) {
+			throw new ComptaException("Impossible de récupérer les dépenses", e);
+		}
+		
+		
+		return map;
 	}
 
 }

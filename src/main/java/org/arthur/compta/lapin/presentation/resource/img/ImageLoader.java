@@ -18,6 +18,8 @@ public class ImageLoader {
 	public static final String SELECT_TRIM_IMG = "select_icon.gif";
 	// configuration du template
 	public static final String CONFIG_TMP_IMG = "config_icon.png";
+	// V vert
+	public static final String VALID_IMG = "valid_icon.png";
 	
 	
 	/**

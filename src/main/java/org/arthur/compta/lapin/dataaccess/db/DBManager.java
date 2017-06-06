@@ -19,6 +19,9 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
+import org.arthur.compta.lapin.application.model.AppCompte;
+import org.arthur.compta.lapin.application.model.AppOperation;
+import org.arthur.compta.lapin.application.model.AppTransfert;
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElement;
 import org.arthur.compta.lapin.dataaccess.files.FilesManager;
 import org.arthur.compta.lapin.model.operation.Operation;
@@ -32,7 +35,7 @@ public class DBManager {
 	/** l'instance du singleton */
 	private static DBManager _instance;
 
-	private Connection connexionDB;
+	private Connection _connexionDB;
 
 	/**
 	 * Retourne l'instance unique du singleton
@@ -56,7 +59,7 @@ public class DBManager {
 
 		try {
 			// tentative de connexion à la base
-			connexionDB = DriverManager.getConnection("jdbc:hsqldb:file:" + pathToDb + ";ifexists=true", "sa", "");
+			_connexionDB = DriverManager.getConnection("jdbc:hsqldb:file:" + pathToDb + ";ifexists=true", "sa", "");
 
 		} catch (Exception e) {
 			System.out.println("Création de la base de donnée");
@@ -109,15 +112,24 @@ public class DBManager {
 
 		// création de la base
 		try {
-			connexionDB = DriverManager.getConnection("jdbc:hsqldb:file:" + pathToDb.toString() + ";ifexists=false",
+			_connexionDB = DriverManager.getConnection("jdbc:hsqldb:file:" + pathToDb.toString() + ";ifexists=false",
 					"sa", "");
 
-			loadScript(connexionDB, "create_db.sql");
+			loadScript(_connexionDB, "create_db.sql");
 
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
+	}
+
+	/**
+	 * Retourne une connexion valide
+	 * 
+	 * @return
+	 */
+	private synchronized Connection getConnexion() {
+		return _connexionDB;
 	}
 
 	/**
@@ -135,14 +147,13 @@ public class DBManager {
 	 * @throws SQLException
 	 *             Exception en cas de problème lors de l'insertion
 	 */
-	public synchronized String addCompte(String nom, double solde, boolean livret, boolean budgetAllowed)
-			throws SQLException {
+	public String addCompte(String nom, double solde, boolean livret, boolean budgetAllowed) throws SQLException {
 
 		String id = "";
 
 		// préparation de la requête
 		String query = "INSERT INTO COMPTE (nom,solde,is_livret,budget_allowed) VALUES (?,?,?,?);";
-		PreparedStatement stmt = connexionDB.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+		PreparedStatement stmt = getConnexion().prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 		stmt.setString(1, nom);
 		stmt.setDouble(2, solde);
 		stmt.setBoolean(3, livret);
@@ -170,12 +181,12 @@ public class DBManager {
 	 * @throws SQLException
 	 *             Exception sur la récupération en base
 	 */
-	public synchronized HashMap<String, String[]> getAllCompte() throws SQLException {
+	public HashMap<String, String[]> getAllCompte() throws SQLException {
 
 		HashMap<String, String[]> infos = new HashMap<String, String[]>();
 
 		// requête sur la table COMPTE
-		Statement stmt = connexionDB.createStatement();
+		Statement stmt = getConnexion().createStatement();
 		ResultSet res = stmt.executeQuery("SELECT ID,nom,solde,is_livret,budget_allowed FROM COMPTE;");
 
 		if (res.getMetaData().getColumnCount() == 5) {
@@ -208,10 +219,10 @@ public class DBManager {
 	 * @throws SQLException
 	 *             Exception si la requête en base échoue
 	 */
-	public synchronized void removeCompte(String appId) throws SQLException {
+	public void removeCompte(String appId) throws SQLException {
 
 		// préparation de la requête de suppression
-		PreparedStatement stmt = connexionDB.prepareStatement("DELETE FROM COMPTE WHERE ID = ?");
+		PreparedStatement stmt = getConnexion().prepareStatement("DELETE FROM COMPTE WHERE ID = ?");
 		stmt.setString(1, appId);
 		// execution
 		stmt.executeUpdate();
@@ -221,32 +232,27 @@ public class DBManager {
 	/**
 	 * Met à jour le compte en base
 	 * 
-	 * @param appId
-	 *            l'id du compte a mettre a jour
-	 * @param nom
-	 *            le nouveau nom
-	 * @param solde
-	 *            le nouveau solde
-	 * @param isLivret
-	 *            le nouveau flag islivret
-	 * @param isBudget
-	 *            le nouveau flag isBudget
-	 * @throws SQLException
+	 * @param compte
+	 *            :le compte a mettre a jour en base
+	 *
+	 * @throws ComptaException
 	 *             Exception si la requête en base échoue
 	 */
-	public synchronized void updateCompte(String appId, String nom, double solde, boolean isLivret, boolean isBudget)
-			throws SQLException {
+	public void updateCompte(AppCompte compte) throws ComptaException {
 
 		// préparation de la requête
-		PreparedStatement stmt = connexionDB
-				.prepareStatement("UPDATE COMPTE SET nom=?,solde=?,is_livret=?,budget_allowed=? WHERE ID = ?");
-		stmt.setString(1, nom);
-		stmt.setDouble(2, solde);
-		stmt.setBoolean(3, isLivret);
-		stmt.setBoolean(4, isBudget);
-		stmt.setString(5, appId);
-		// execution
-		stmt.executeUpdate();
+		String query = "UPDATE COMPTE SET nom=?,solde=?,is_livret=?,budget_allowed=? WHERE ID = ?";
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
+			stmt.setString(1, compte.getNom());
+			stmt.setDouble(2, compte.getSolde());
+			stmt.setBoolean(3, compte.isLivret());
+			stmt.setBoolean(4, compte.isBudget());
+			stmt.setString(5, compte.getAppId());
+			// execution
+			stmt.executeUpdate();
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de mettre à jour le compte");
+		}
 
 	}
 
@@ -257,13 +263,13 @@ public class DBManager {
 	 * @throws SQLException
 	 *             Echec de la récupération
 	 */
-	public synchronized String[] getTrimestreCourantId() throws SQLException {
+	public String[] getTrimestreCourantId() throws SQLException {
 
 		String[] res = new String[1];
 
 		// création de la requete
 		String query = "SELECT ID_TRIMESTRE FROM CONFIGURATION limit 1";
-		PreparedStatement stmt = connexionDB.prepareStatement(query);
+		PreparedStatement stmt = getConnexion().prepareStatement(query);
 		// execution
 		ResultSet queryRes = stmt.executeQuery();
 		// parse du resultat
@@ -290,7 +296,7 @@ public class DBManager {
 
 		// création de requete
 		String query = "SELECT ID,premier_mois_id,deux_mois_id,trois_mois_id FROM TRIMESTRE WHERE ID=?";
-		PreparedStatement stmt = connexionDB.prepareStatement(query);
+		PreparedStatement stmt = getConnexion().prepareStatement(query);
 		stmt.setInt(1, Integer.parseInt(appId));
 		ResultSet queryRes = stmt.executeQuery();
 
@@ -321,7 +327,7 @@ public class DBManager {
 		String[] res = new String[3];
 		// création de la requete
 		String query = "SELECT ID ,date_debut,date_fin FROM EXERCICE_MENSUEL WHERE ID=?";
-		PreparedStatement stmt = connexionDB.prepareStatement(query);
+		PreparedStatement stmt = getConnexion().prepareStatement(query);
 		stmt.setInt(1, Integer.parseInt(id));
 		// exécution
 		ResultSet queryRes = stmt.executeQuery();
@@ -353,7 +359,7 @@ public class DBManager {
 
 		// préparation de la requête
 		String query = "INSERT INTO EXERCICE_MENSUEL (date_debut,date_fin) VALUES (?,?);";
-		PreparedStatement stmt = connexionDB.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+		PreparedStatement stmt = getConnexion().prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 		stmt.setDate(1, new Date(debut.getTime().getTime()));
 		stmt.setDate(2, new Date(fin.getTime().getTime()));
 
@@ -391,7 +397,7 @@ public class DBManager {
 		String id = null;
 		// préparation de la requête
 		String query = "INSERT INTO TRIMESTRE (premier_mois_id,deux_mois_id,trois_mois_id) VALUES (?,?,?);";
-		try (PreparedStatement stmt = connexionDB.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 			stmt.setString(1, idMois1);
 			stmt.setString(2, idMois2);
 			stmt.setString(3, idMois3);
@@ -423,7 +429,7 @@ public class DBManager {
 
 		// préparation de la requête
 		String query = "UPDATE CONFIGURATION SET ID_TRIMESTRE=?;";
-		try (PreparedStatement stmt = connexionDB.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
 			stmt.setInt(1, Integer.parseInt(appId));
 			stmt.executeUpdate();
@@ -431,7 +437,7 @@ public class DBManager {
 			if (stmt.getUpdateCount() == 0) {
 				// pas d'update, on insert
 				String query2 = "INSERT INTO CONFIGURATION (date_verif,ID_TRIMESTRE) VALUES (?,?);";
-				try (PreparedStatement stmt2 = connexionDB.prepareStatement(query2)) {
+				try (PreparedStatement stmt2 = getConnexion().prepareStatement(query2)) {
 					stmt2.setDate(1, new Date(Calendar.getInstance().getTime().getTime()));
 					stmt2.setInt(2, Integer.parseInt(appId));
 					stmt2.executeUpdate();
@@ -458,7 +464,7 @@ public class DBManager {
 		ArrayList<String> res = new ArrayList<>();
 
 		String query = "SELECT ID FROM TRIMESTRE;";
-		try (PreparedStatement stmt = connexionDB.prepareStatement(query);) {
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query);) {
 			ResultSet queryRes = stmt.executeQuery();
 			while (queryRes.next()) {
 				// parsing du résultat
@@ -487,7 +493,7 @@ public class DBManager {
 		// récupération de la date de début du premier exercice mensuel
 		String query = "SELECT date_debut FROM EXERCICE_MENSUEL E INNER JOIN TRIMESTRE T ON E.ID=T.premier_mois_id WHERE T.ID=? ;";
 
-		try (PreparedStatement stmt = connexionDB.prepareStatement(query);) {
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query);) {
 
 			stmt.setInt(1, Integer.parseInt(id));
 			ResultSet queryRes = stmt.executeQuery();
@@ -516,14 +522,14 @@ public class DBManager {
 
 		// suppression des excercices mensuels
 		String queryEM = "SELECT premier_mois_id,deux_mois_id,trois_mois_id FROM TRIMESTRE WHERE ID=?;";
-		try (PreparedStatement stmtEM = connexionDB.prepareStatement(queryEM)) {
+		try (PreparedStatement stmtEM = getConnexion().prepareStatement(queryEM)) {
 
 			stmtEM.setInt(1, Integer.valueOf(idTrimestre));
 			ResultSet queryRes = stmtEM.executeQuery();
 
 			// suppression du trimestre
 			String query = "DELETE FROM TRIMESTRE WHERE ID=? ;";
-			try (PreparedStatement stmt = connexionDB.prepareStatement(query)) {
+			try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 
 				stmt.setInt(1, Integer.parseInt(idTrimestre));
 				stmt.executeUpdate();
@@ -558,7 +564,7 @@ public class DBManager {
 	private void removeExcerciceMensuel(String idMois) throws ComptaException {
 		// suppression de l'exercie
 		String query = "DELETE FROM EXERCICE_MENSUEL WHERE ID=? ;";
-		try (PreparedStatement stmt = connexionDB.prepareStatement(query)) {
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 			stmt.setInt(1, Integer.parseInt(idMois));
 			stmt.executeUpdate();
 		} catch (Exception e) {
@@ -581,7 +587,7 @@ public class DBManager {
 		HashMap<String, String[]> infos = new HashMap<>();
 
 		String query = "SELECT ID,nom,montant,type_ope,frequence,occurence,compte_source_id,compte_cible_id FROM TEMPLATE;";
-		try (PreparedStatement stmt = connexionDB.prepareStatement(query)) {
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 
 			ResultSet queryRes = stmt.executeQuery();
 
@@ -616,7 +622,7 @@ public class DBManager {
 	public void clearTrimTemplate() throws ComptaException {
 
 		String query = "DELETE FROM TEMPLATE;";
-		try (PreparedStatement stmt = connexionDB.prepareStatement(query)) {
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 			stmt.executeUpdate();
 		} catch (Exception e) {
 			throw new ComptaException("Impossible de vider les templates", e);
@@ -634,7 +640,7 @@ public class DBManager {
 	public void addTrimstreTempElts(List<TrimestreTemplateElement> elements) throws ComptaException {
 
 		String query = "INSERT INTO TEMPLATE (nom,montant,type_ope,frequence,occurence,compte_source_id,compte_cible_id) VALUES (?,?,?,?,?,?,?);";
-		try (PreparedStatement stmt = connexionDB.prepareStatement(query)) {
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 
 			for (TrimestreTemplateElement elt : elements) {
 
@@ -679,7 +685,7 @@ public class DBManager {
 
 		String id = null;
 		String query = "INSERT INTO OPERATION (nom,montant,type_ope,etat,compte_source_id,compte_cible_id,mois_id) VALUES (?,?,?,?,?,?,?);";
-		try (PreparedStatement stmt = connexionDB.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS)) {
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
 			stmt.setString(1, dep.getNom());
 			stmt.setDouble(2, dep.getMontant());
@@ -688,7 +694,7 @@ public class DBManager {
 			stmt.setInt(5, Integer.parseInt(compteSrcId));
 			if (compteCibleId != null && !compteCibleId.trim().isEmpty()) {
 				stmt.setInt(6, Integer.parseInt(compteCibleId));
-			}else{
+			} else {
 				stmt.setNull(6, Types.INTEGER);
 			}
 			stmt.setInt(7, Integer.parseInt(appEmId));
@@ -709,25 +715,27 @@ public class DBManager {
 	}
 
 	/**
-	 * Retourne une map contenant les champ en base des dépenses associée à un exercice
+	 * Retourne une map contenant les champ en base des dépenses associée à un
+	 * exercice
 	 * 
-	 * clé : id , valeurs : [nom,montant,type_ope,etat,compte_source_id,compte_cible_id]
+	 * clé : id , valeurs :
+	 * [nom,montant,type_ope,etat,compte_source_id,compte_cible_id]
 	 * 
 	 * @param appId
 	 * @return
-	 * @throws ComptaException 
+	 * @throws ComptaException
 	 */
 	public HashMap<String, String[]> getOperationInfo(String exId) throws ComptaException {
-		
+
 		HashMap<String, String[]> map = new HashMap<>();
-		
-		//création de la requete
+
+		// création de la requete
 		String query = "SELECT ID,nom,montant,type_ope,etat,compte_source_id,compte_cible_id FROM OPERATION WHERE mois_id=?;";
-		
-		try (PreparedStatement stmt = connexionDB.prepareStatement(query)) {
+
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 			// positionnement du parametre
 			stmt.setInt(1, Integer.parseInt(exId));
-			
+
 			ResultSet queryRes = stmt.executeQuery();
 
 			while (queryRes.next()) {
@@ -743,15 +751,49 @@ public class DBManager {
 
 				map.put(queryRes.getString("ID"), elt);
 			}
-			
-			
-			
-		}catch (Exception e) {
+
+		} catch (Exception e) {
 			throw new ComptaException("Impossible de récupérer les dépenses", e);
 		}
-		
-		
+
 		return map;
+	}
+
+	/**
+	 * Mise à jour de l'opération en base
+	 * 
+	 * L'exercice mensuel auquel l'opération est rattaché ne changera pas.
+	 * 
+	 * @param appOp
+	 * @throws ComptaException
+	 */
+	public void updateOperation(AppOperation appOp) throws ComptaException {
+
+		// création de la requete
+		String query = "UPDATE OPERATION SET nom=?,montant=?,type_ope=?,etat=?,compte_source_id=?,compte_cible_id=? WHERE ID=?;";
+
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query);) {
+
+			stmt.setString(1, appOp.getLibelle());
+			stmt.setDouble(2, appOp.getMontant());
+			stmt.setString(3, appOp.getType().toString());
+			stmt.setString(4, appOp.getEtat());
+			stmt.setInt(5, Integer.parseInt(appOp.getCompteSource().getAppId()));
+
+			if (appOp instanceof AppTransfert) {
+				stmt.setInt(6, Integer.parseInt(((AppTransfert) appOp).getCompteCible().getAppId()));
+			} else {
+				stmt.setNull(6, Types.INTEGER);
+			}
+			
+			stmt.setInt(7, Integer.parseInt(appOp.getAppId()));
+
+			// execution
+			stmt.executeUpdate();
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de mettre l'opération à jour",e);
+		}
+
 	}
 
 }

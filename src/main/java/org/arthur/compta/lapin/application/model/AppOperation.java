@@ -2,6 +2,7 @@ package org.arthur.compta.lapin.application.model;
 
 import org.arthur.compta.lapin.model.operation.EtatOperation;
 import org.arthur.compta.lapin.model.operation.Operation;
+import org.arthur.compta.lapin.model.operation.OperationType;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -24,7 +25,7 @@ public class AppOperation extends AppObject implements IMontant {
 	/** Le compte source */
 	protected SimpleObjectProperty<AppCompte> _compteSourceProp;
 	/** Etat de l'opération */
-	protected SimpleObjectProperty<EtatOperation> _etatProp;
+	protected SimpleStringProperty _etatProp;
 
 	/**
 	 * Constructeur
@@ -34,7 +35,7 @@ public class AppOperation extends AppObject implements IMontant {
 		_operation = operation;
 		_libelleProp = new SimpleStringProperty(_operation.getNom());
 		_montantProp = new SimpleDoubleProperty(_operation.getMontant());
-		_etatProp = new SimpleObjectProperty<EtatOperation>(_operation.getEtat());
+		_etatProp = new SimpleStringProperty(_operation.getEtat().toString());
 		_compteSourceProp = new SimpleObjectProperty<AppCompte>();
 
 	}
@@ -78,6 +79,7 @@ public class AppOperation extends AppObject implements IMontant {
 
 	/**
 	 * Retourne l'opération encapsulée
+	 * 
 	 * @return
 	 */
 	public Operation getOperation() {
@@ -93,21 +95,62 @@ public class AppOperation extends AppObject implements IMontant {
 		_compteSourceProp.set(compte);
 
 	}
-	
+
 	/**
 	 * Retourne le compte source sous forme de propriété
+	 * 
 	 * @return
 	 */
-	public SimpleObjectProperty<AppCompte> compteSourceProperty(){
+	public SimpleObjectProperty<AppCompte> compteSourceProperty() {
 		return _compteSourceProp;
 	}
+
+	public SimpleStringProperty etatProperty() {
+		return _etatProp;
+	}
+
 	/**
 	 * Retourne l'état de l'opération
 	 * 
 	 * @return
 	 */
-	public EtatOperation getEtat() {
+	public String getEtat() {
 		return _etatProp.get();
+	}
+
+	public OperationType getType() {
+		return _operation.getType();
+	}
+
+	/**
+	 * Permutte l'état de l'opération
+	 */
+	public void switchEtat() {
+		if (_operation.getEtat() == EtatOperation.PREVISION) {
+
+			_operation.setEtat(EtatOperation.PRISE_EN_COMPTE);
+
+		} else {
+
+			if (_operation.getEtat() == EtatOperation.PRISE_EN_COMPTE) {
+
+				_operation.setEtat(EtatOperation.PREVISION);
+
+			}
+
+		}
+
+		_etatProp.set(_operation.getEtat().toString());
+	}
+
+	/**
+	 * Retourne le libellé de l'opération
+	 * 
+	 * @return
+	 */
+	public String getLibelle() {
+
+		return _libelleProp.get();
 	}
 
 }

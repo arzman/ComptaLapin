@@ -1,14 +1,29 @@
 package org.arthur.compta.lapin.presentation.trimestre.table;
 
+import org.arthur.compta.lapin.application.exception.ComptaException;
+import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.application.model.AppOperation;
+import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
+import org.arthur.compta.lapin.presentation.trimestre.cellfactory.EtatCellFactory;
 import org.arthur.compta.lapin.presentation.trimestre.cellfactory.MontantCellFactory;
 
+import javafx.event.EventHandler;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.input.MouseEvent;
 
 public class OperationTableView<T extends AppOperation> extends TableView<T> {
 
 	public OperationTableView() {
+
+		// Colonne etat
+		TableColumn<T, String> colEtat = new TableColumn<>(" ");
+		colEtat.setResizable(true);
+		colEtat.setEditable(false);
+		// bind sur la nom
+		colEtat.setCellFactory(new EtatCellFactory<T>());
+		colEtat.setCellValueFactory(cellData -> cellData.getValue().etatProperty());
+		getColumns().add(colEtat);
 
 		// Colonne du nom
 		TableColumn<T, String> colNom = new TableColumn<>("Libellé");
@@ -25,6 +40,23 @@ public class OperationTableView<T extends AppOperation> extends TableView<T> {
 		colMontant.setCellValueFactory(cellData -> cellData.getValue().montantProperty());
 		colMontant.setCellFactory(new MontantCellFactory<T>());
 		getColumns().add(colMontant);
+
+		setOnMousePressed(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+
+				// écoute sur le double-clic
+				if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
+
+					try {
+						TrimestreManager.getInstance().switchEtatOperation(getSelectionModel().getSelectedItem());
+					} catch (ComptaException e) {
+						ExceptionDisplayService.showException(e);
+					}
+
+				}
+			}
+		});
 
 	}
 

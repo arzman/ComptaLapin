@@ -5,8 +5,12 @@ import java.util.HashMap;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.model.AppCompte;
+import org.arthur.compta.lapin.application.model.AppOperation;
+import org.arthur.compta.lapin.application.model.AppTransfert;
 import org.arthur.compta.lapin.dataaccess.db.DBManager;
 import org.arthur.compta.lapin.model.Compte;
+import org.arthur.compta.lapin.model.operation.EtatOperation;
+import org.arthur.compta.lapin.model.operation.OperationType;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -177,12 +181,13 @@ public class CompteManager {
 		if (appCompte != null) {
 
 			try {
-				DBManager.getInstance().updateCompte(appCompte.getAppId(), nom, solde, isLivret, isBudget);
-
+				// modification dans l'application
 				appCompte.setNom(nom);
 				appCompte.setSolde(solde);
 				appCompte.setIsLivret(isLivret);
 				appCompte.setIsBudget(isBudget);
+				// écriture en base
+				DBManager.getInstance().updateCompte(appCompte);
 
 			} catch (Exception e) {
 				throw new ComptaException("Impossible de mettre à jour le compte", e);
@@ -226,9 +231,48 @@ public class CompteManager {
 			double delta1 = TrimestreManager.getInstance().getDeltaForCompte(compte, 0);
 			compte.soldePrev1Property().set(compte.getSolde() + delta1);
 			double delta2 = TrimestreManager.getInstance().getDeltaForCompte(compte, 1);
-			compte.soldePrev2Property().set(compte.soldePrev1Property().doubleValue() + delta2);
+			compte.soldePrev2Property().set(compte.getSolde() + delta1 + delta2);
 			double delta3 = TrimestreManager.getInstance().getDeltaForCompte(compte, 2);
-			compte.soldePrev3Property().set(compte.soldePrev2Property().doubleValue() + delta3);
+			compte.soldePrev3Property().set(compte.getSolde() + delta1 + delta2 + delta3);
+		}
+
+	}
+
+	/**
+	 * Prise en compte du changement d'état d'une opération
+	 * 
+	 * @param appOp
+	 *            l'opération
+	 * @throws SQLException
+	 *             Erreur lors de l'opération
+	 */
+	public void operationSwitched(AppOperation appOp) throws ComptaException {
+
+		double etatMod;
+		if (appOp.getEtat().equals(EtatOperation.PRISE_EN_COMPTE.toString())) {
+			etatMod = -1.0;
+		} else {
+			etatMod = 1.0;
+		}
+
+		double typeMode;
+		if (appOp.getType().equals(OperationType.RESSOURCE)) {
+			typeMode = -1.0;
+		} else {
+			typeMode = 1.0;
+		}
+
+		double soldeSrcInit = appOp.getCompteSource().getSolde();
+		double delta = etatMod * typeMode * appOp.getMontant();
+		appOp.getCompteSource().setSolde(soldeSrcInit + delta);
+
+		DBManager.getInstance().updateCompte(appOp.getCompteSource());
+
+		// compte cible si transfert
+		if (appOp instanceof AppTransfert) {
+			double soldeCibleInit = ((AppTransfert) appOp).getCompteCible().getSolde();
+			((AppTransfert) appOp).getCompteCible().setSolde(soldeCibleInit - delta);
+			DBManager.getInstance().updateCompte(((AppTransfert) appOp).getCompteCible());
 		}
 
 	}

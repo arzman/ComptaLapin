@@ -153,7 +153,7 @@ public class TrimestreManager {
 								Double.parseDouble(infodep[1]), EtatOperation.valueOf(infodep[3]));
 
 						AppOperation appDep = new AppOperation(dep);
-						appDep.setAppID(id);
+						appDep.setAppID(iddep);
 						appDep.setCompteSrc(CompteManager.getInstance().getCompte(infodep[4]));
 
 						appEm.addDepense(appDep);
@@ -166,7 +166,7 @@ public class TrimestreManager {
 
 							// Ajout dans l'appli
 							AppOperation appRes = new AppOperation(res);
-							appRes.setAppID(id);
+							appRes.setAppID(iddep);
 							appRes.setCompteSrc(CompteManager.getInstance().getCompte(infodep[4]));
 							appEm.addRessource(appRes);
 						} else {
@@ -178,7 +178,7 @@ public class TrimestreManager {
 										CompteManager.getInstance().getCompte(infodep[5]).getCompte());
 
 								AppTransfert apptr = new AppTransfert(trans);
-								apptr.setAppID(id);
+								apptr.setAppID(iddep);
 								apptr.setCompteSrc(CompteManager.getInstance().getCompte(infodep[4]));
 								apptr.setCompteCible(CompteManager.getInstance().getCompte(infodep[5]));
 
@@ -565,7 +565,7 @@ public class TrimestreManager {
 			// retrait des dépenses
 			for (AppOperation dep : _trimestreCourant.getValue().getAppExerciceMensuel(numMois).get().getDepenses()) {
 
-				if (dep.getEtat().equals(EtatOperation.PREVISION) && dep.getCompteSource().equals(compte)) {
+				if (dep.getEtat().equals(EtatOperation.PREVISION.toString()) && dep.getCompteSource().equals(compte)) {
 
 					delta = delta - dep.getMontant();
 
@@ -575,7 +575,7 @@ public class TrimestreManager {
 			// ajout des ressources
 			for (AppOperation res : _trimestreCourant.getValue().getAppExerciceMensuel(numMois).get().getRessources()) {
 
-				if (res.getEtat().equals(EtatOperation.PREVISION) && res.getCompteSource().equals(compte)) {
+				if (res.getEtat().equals(EtatOperation.PREVISION.toString()) && res.getCompteSource().equals(compte)) {
 
 					delta = delta + res.getMontant();
 
@@ -586,13 +586,15 @@ public class TrimestreManager {
 			for (AppTransfert trans : _trimestreCourant.getValue().getAppExerciceMensuel(numMois).get()
 					.getTransferts()) {
 				// compte source : l'argent part
-				if (trans.getEtat().equals(EtatOperation.PREVISION) && trans.getCompteSource().equals(compte)) {
+				if (trans.getEtat().equals(EtatOperation.PREVISION.toString())
+						&& trans.getCompteSource().equals(compte)) {
 
 					delta = delta - trans.getMontant();
 
 				}
 				// compte cible : l'argent rentre
-				if (trans.getEtat().equals(EtatOperation.PREVISION) && trans.getCompteCible().equals(compte)) {
+				if (trans.getEtat().equals(EtatOperation.PREVISION.toString())
+						&& trans.getCompteCible().equals(compte)) {
 
 					delta = delta + trans.getMontant();
 
@@ -619,6 +621,26 @@ public class TrimestreManager {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+	}
+
+	/**
+	 * Permutte l'état d'une opération et répercute les conséquences (
+	 * sauvegarde DB + re-calcul du solde compte)
+	 * 
+	 * @param appOp
+	 *            l'operation
+	 * @throws ComptaException
+	 *             Echec de la mise à jour
+	 */
+	public void switchEtatOperation(AppOperation appOp) throws ComptaException {
+
+		// Maj de l'état dans l'application
+		appOp.switchEtat();
+		// re-calcul du solde du compte
+		CompteManager.getInstance().operationSwitched(appOp);
+		// sauvegarde en base
+		DBManager.getInstance().updateOperation(appOp);
 
 	}
 

@@ -644,4 +644,34 @@ public class TrimestreManager {
 
 	}
 
+	/**
+	 * Supprime une opération du mois du trimestre courant
+	 * 
+	 * @param appOp
+	 *            l'opération
+	 * @param numMois
+	 *            l'index du mois dans le trimestre
+	 * @throws ComptaException
+	 */
+	public void removeOperation(AppOperation appOp, Integer numMois) throws ComptaException {
+
+		// récupération de l'exercice mensuel
+		AppExerciceMensuel appEm = _trimestreCourant.get().getAppExerciceMensuel(numMois).get();
+		// suppression de l'opération dans l'application
+		if (appOp.getType().equals(OperationType.DEPENSE)) {
+			appEm.getDepenses().remove(appOp);
+		} else {
+			if (appOp.getType().equals(OperationType.RESSOURCE)) {
+				appEm.getRessources().remove(appOp);
+			} else {
+				if (appOp.getType().equals(OperationType.TRANSFERT)) {
+					appEm.getTransferts().remove(appOp);
+				}
+			}
+		}
+		// suppression de l'opération en base
+		DBManager.getInstance().removeOperation(appOp);
+
+	}
+
 }

@@ -785,13 +785,34 @@ public class DBManager {
 			} else {
 				stmt.setNull(6, Types.INTEGER);
 			}
-			
+
 			stmt.setInt(7, Integer.parseInt(appOp.getAppId()));
 
 			// execution
 			stmt.executeUpdate();
 		} catch (Exception e) {
-			throw new ComptaException("Impossible de mettre l'opération à jour",e);
+			throw new ComptaException("Impossible de mettre l'opération à jour", e);
+		}
+
+	}
+
+	/**
+	 * Supprime l'opération de la base
+	 * 
+	 * @param appOp
+	 * @throws ComptaException
+	 *             Echec de la suppression
+	 */
+	public void removeOperation(AppOperation appOp) throws ComptaException {
+
+		String query = "DELETE FROM OPERATION WHERE ID = ?";
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
+
+			stmt.setInt(1, Integer.parseInt(appOp.getAppId()));
+			stmt.executeUpdate();
+
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de supprimer l'opération", e);
 		}
 
 	}

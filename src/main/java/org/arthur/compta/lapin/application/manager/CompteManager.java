@@ -186,8 +186,11 @@ public class CompteManager {
 				appCompte.setSolde(solde);
 				appCompte.setIsLivret(isLivret);
 				appCompte.setIsBudget(isBudget);
+				// modif du prévisionnel
+				calculateSoldePrev(appCompte);
 				// écriture en base
 				DBManager.getInstance().updateCompte(appCompte);
+				
 
 			} catch (Exception e) {
 				throw new ComptaException("Impossible de mettre à jour le compte", e);
@@ -226,15 +229,26 @@ public class CompteManager {
 	public void refreshAllPrev() {
 
 		for (AppCompte compte : _compteList) {
+			// calcul des soldes prévisionnels
+			calculateSoldePrev(compte);
 
-			// ajout des prévisions
-			double delta1 = TrimestreManager.getInstance().getDeltaForCompte(compte, 0);
-			compte.soldePrev1Property().set(compte.getSolde() + delta1);
-			double delta2 = TrimestreManager.getInstance().getDeltaForCompte(compte, 1);
-			compte.soldePrev2Property().set(compte.getSolde() + delta1 + delta2);
-			double delta3 = TrimestreManager.getInstance().getDeltaForCompte(compte, 2);
-			compte.soldePrev3Property().set(compte.getSolde() + delta1 + delta2 + delta3);
 		}
+
+	}
+
+	/**
+	 * Calcule les différents solde prévisionnel pour le compte donné
+	 * 
+	 * @param compte
+	 */
+	public void calculateSoldePrev(AppCompte compte) {
+		// ajout des prévisions
+		double delta1 = TrimestreManager.getInstance().getDeltaForCompte(compte, 0);
+		compte.soldePrev1Property().set(compte.getSolde() + delta1);
+		double delta2 = TrimestreManager.getInstance().getDeltaForCompte(compte, 1);
+		compte.soldePrev2Property().set(compte.getSolde() + delta1 + delta2);
+		double delta3 = TrimestreManager.getInstance().getDeltaForCompte(compte, 2);
+		compte.soldePrev3Property().set(compte.getSolde() + delta1 + delta2 + delta3);
 
 	}
 

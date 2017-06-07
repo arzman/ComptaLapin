@@ -18,6 +18,11 @@ import javafx.scene.layout.StackPane;
  */
 public class MainScene extends Scene {
 
+	/** Séparation haut/bas (à droite) */
+	private SplitPane splitHautBas;
+	/** Séparation gauche/droite*/
+	private SplitPane splitgaucheDroite;
+
 	/**
 	 * Constructeur par défaut
 	 */
@@ -26,15 +31,16 @@ public class MainScene extends Scene {
 		super(new BorderPane());
 
 		// ajout de la barre de menu
-		((BorderPane) getRoot()).setTop(new ComptaMenuBar());
+		((BorderPane) getRoot()).setTop(new ComptaMenuBar(this));
 
 		// panneau principal de l'appli
 		StackPane stack = new StackPane();
 		((BorderPane) getRoot()).setCenter(stack);
 
 		// ajout d'une séparation gauche-droite de la fenêtre
-		SplitPane splitgaucheDroite = new SplitPane();
-		splitgaucheDroite.setDividerPosition(0, Integer.parseInt(ConfigurationManager.getInstance().getProp("MainScene.splitgaucheDroite.pos", "500"))/1000.0);
+		splitgaucheDroite = new SplitPane();
+		splitgaucheDroite.setDividerPosition(0,
+				Double.parseDouble(ConfigurationManager.getInstance().getProp("MainScene.splitgaucheDroite.pos", "0.5")));
 		splitgaucheDroite.setOrientation(Orientation.HORIZONTAL);
 		stack.getChildren().add(splitgaucheDroite);
 
@@ -42,9 +48,10 @@ public class MainScene extends Scene {
 		splitgaucheDroite.getItems().add(new TrimestreCourantPane());
 
 		// séparation haut-bas de la partie droite
-		SplitPane splitHautBas = new SplitPane();
+		splitHautBas = new SplitPane();
 		splitHautBas.setOrientation(Orientation.VERTICAL);
-		splitHautBas.setDividerPosition(0, Integer.parseInt(ConfigurationManager.getInstance().getProp("MainScene.splitHautBas.pos", "500"))/1000.0);
+		splitHautBas.setDividerPosition(0,
+				Double.parseDouble(ConfigurationManager.getInstance().getProp("MainScene.splitHautBas.pos", "0.5")));
 		splitgaucheDroite.getItems().add(splitHautBas);
 
 		// Ajout de l'affichage des budgets
@@ -53,9 +60,18 @@ public class MainScene extends Scene {
 		// Ajout de l'affichage des comptes
 		splitHautBas.getItems().add(new ComptePane());
 
+	}
+
+	/**
+	 * Sauvegarde la position des séparations
+	 */
+	public void saveSplitPosition() {
+		ConfigurationManager.getInstance().setProp("MainScene.splitHautBas.pos",
+				String.valueOf(splitHautBas.getDividerPositions()[0]));
 		
-			
-		
+		ConfigurationManager.getInstance().setProp("MainScene.splitgaucheDroite.pos",
+				String.valueOf(splitgaucheDroite.getDividerPositions()[0]));
+
 	}
 
 }

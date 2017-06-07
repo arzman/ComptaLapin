@@ -20,6 +20,8 @@ public class ImageLoader {
 	public static final String CONFIG_TMP_IMG = "config_icon.png";
 	// V vert
 	public static final String VALID_IMG = "valid_icon.png";
+	// pref
+	public static final String PREF_IMG = "pref.png";
 	
 	
 	/**

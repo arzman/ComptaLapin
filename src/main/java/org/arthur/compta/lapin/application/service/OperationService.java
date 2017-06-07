@@ -119,7 +119,7 @@ public class OperationService {
 		String id = DBManager.getInstance().createOperation(trans, compteSrc.getAppId(), compteCible.getAppId(), appId);
 		appop.setAppID(id);
 
-		return null;
+		return appop;
 	}
 
 	/**

@@ -310,7 +310,8 @@ public class TrimestreManager {
 	 */
 	public void removeTrimestre(String idTrimestre) throws ComptaException {
 
-		if (_trimestreCourant.get() != null && !idTrimestre.equals(_trimestreCourant.get().getAppId())) {
+		if (_trimestreCourant.get() == null
+				|| (_trimestreCourant.get() != null && !idTrimestre.equals(_trimestreCourant.get().getAppId()))) {
 
 			DBManager.getInstance().removeTrimestre(idTrimestre);
 		}

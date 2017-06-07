@@ -548,13 +548,14 @@ public class DBManager {
 			}
 
 		} catch (Exception e) {
-			throw new ComptaException("Impossible de récupérer le trimestre", e);
+			throw new ComptaException("Impossible de supprimer le trimestre", e);
 		}
 
 	}
 
 	/**
-	 * Supprime un exercice mensuel de la base
+	 * Supprime un exercice mensuel de la base. Les opérations sont également
+	 * supprimées.
 	 * 
 	 * @param idMois
 	 *            l'id de l'exercice mensuel à supprimer
@@ -562,13 +563,24 @@ public class DBManager {
 	 *             Echec de la suppression
 	 */
 	private void removeExcerciceMensuel(String idMois) throws ComptaException {
-		// suppression de l'exercie
-		String query = "DELETE FROM EXERCICE_MENSUEL WHERE ID=? ;";
-		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
+
+		// suppression des opérations de l'exercice
+		String queryOp = "DELETE FROM OPERATION WHERE mois_id=? ;";
+		try (PreparedStatement stmt = getConnexion().prepareStatement(queryOp)) {
 			stmt.setInt(1, Integer.parseInt(idMois));
 			stmt.executeUpdate();
+
+			// suppression de l'exercie
+			String query = "DELETE FROM EXERCICE_MENSUEL WHERE ID=? ;";
+			try (PreparedStatement stmt2 = getConnexion().prepareStatement(query)) {
+				stmt2.setInt(1, Integer.parseInt(idMois));
+				stmt2.executeUpdate();
+			} catch (Exception e) {
+				throw new ComptaException("Impossible de supprimer l'exercice mensuel", e);
+			}
+
 		} catch (Exception e) {
-			throw new ComptaException("Impossible de supprimer l'exercice mensuel", e);
+			throw new ComptaException("Impossible de supprimer les opérations de l'exercice", e);
 		}
 
 	}
@@ -819,7 +831,7 @@ public class DBManager {
 
 	public void editOperation(AppOperation _operation) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

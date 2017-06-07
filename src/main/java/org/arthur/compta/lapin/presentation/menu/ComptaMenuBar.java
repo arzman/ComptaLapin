@@ -7,6 +7,7 @@ import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.presentation.compte.dialog.EditCompteDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
+import org.arthur.compta.lapin.presentation.scene.MainScene;
 import org.arthur.compta.lapin.presentation.trimestre.dialog.ConfigureTemplateDialog;
 import org.arthur.compta.lapin.presentation.trimestre.dialog.CreateTrimestreDialog;
 import org.arthur.compta.lapin.presentation.trimestre.dialog.ManageTrimestreCourantDialog;
@@ -24,13 +25,41 @@ import javafx.scene.image.ImageView;
  */
 public class ComptaMenuBar extends MenuBar {
 
-	public ComptaMenuBar() {
+	private MainScene _scene;
+	
+	public ComptaMenuBar(MainScene mainScene) {
 		super();
+		
+		_scene = mainScene;
 
+		// menu Système
+		createSystemMenu();
 		// menu Trimestre
 		createTrimestreMenu();
 		// menu Compte
 		createCompteMenu();
+	}
+
+	private void createSystemMenu() {
+
+		// création du menu Trimestre
+		Menu sysMenu = new Menu("Système");
+
+		// ajout de l'action créé trimestre
+		MenuItem prefItem = new MenuItem("Sauver taille");
+		prefItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.PREF_IMG)));
+		prefItem.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				// ouverture de la fenêtre de saisie
+				_scene.saveSplitPosition();
+
+			}
+		});
+		sysMenu.getItems().add(prefItem);
+		getMenus().add(sysMenu);
+
 	}
 
 	/**
@@ -79,7 +108,7 @@ public class ComptaMenuBar extends MenuBar {
 			}
 		});
 		trimMenu.getItems().add(selectItem);
-		
+
 		// ajout de l'action de configuration du template de trimestre
 		MenuItem configItem = new MenuItem("Configurer modèle");
 		configItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.CONFIG_TMP_IMG)));
@@ -90,7 +119,6 @@ public class ComptaMenuBar extends MenuBar {
 				// ouverture de la fenêtre de saisie
 				ConfigureTemplateDialog dia = new ConfigureTemplateDialog();
 				dia.showAndWait();
-
 
 			}
 		});

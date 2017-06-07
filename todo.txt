@@ -1,0 +1,5 @@
+
+Ajout gain prévisionnel mensualisé
+
+Budget : ajouter mois prévu de complétion basé sur le gain prévisionnel mensualisé
+		 ajouter mois réel de complétion

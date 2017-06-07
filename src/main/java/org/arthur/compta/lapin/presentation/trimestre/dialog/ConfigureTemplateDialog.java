@@ -1,13 +1,12 @@
 package org.arthur.compta.lapin.presentation.trimestre.dialog;
 
-
 import java.util.Optional;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.ConfigurationManager;
-import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.application.model.AppCompte;
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElement;
+import org.arthur.compta.lapin.application.service.TemplateService;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import org.arthur.compta.lapin.presentation.trimestre.cellfactory.CompteCellFactory;
@@ -52,7 +51,7 @@ public class ConfigureTemplateDialog extends Dialog<String> {
 	public ConfigureTemplateDialog() {
 
 		_elementList = FXCollections.observableArrayList();
-		_elementList.addAll(TrimestreManager.getInstance().getTrimestreTemplate().getElements());
+		_elementList.addAll(TemplateService.getTrimestreTemplate().getElements());
 
 		setTitle("Configuration du modèle");
 		setResizable(true);
@@ -96,11 +95,11 @@ public class ConfigureTemplateDialog extends Dialog<String> {
 
 		// création des actions sur la liste
 		createControlButton();
-		root.add(_addBut,0,0);
-		
+		root.add(_addBut, 0, 0);
+
 		// Tableau des élements de modèle
 		createTable();
-		root.add(_table,0,1);
+		root.add(_table, 0, 1);
 
 		// restaure les tailles sauvegardées
 		// sauvegarde de la taille de la fenetres
@@ -121,25 +120,24 @@ public class ConfigureTemplateDialog extends Dialog<String> {
 	 * Création des boutons ajouter et supprimer des éléments de template
 	 */
 	private void createControlButton() {
-		
-		
+
 		_addBut = new Button("Ajouter");
 		_addBut.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.ADD_IMG)));
 		_addBut.setOnAction(new EventHandler<ActionEvent>() {
-			
+
 			public void handle(ActionEvent event) {
-				
-				//ouverture de la fenêtre de saisie
+
+				// ouverture de la fenêtre de saisie
 				EditTemplateEltDialog diag = new EditTemplateEltDialog(null);
 				Optional<TrimestreTemplateElement> res = diag.showAndWait();
-				
-				if(res.isPresent()){
-					
+
+				if (res.isPresent()) {
+
 					_elementList.add(res.get());
-					
+
 				}
 			};
-		});	
+		});
 	}
 
 	/**
@@ -223,24 +221,23 @@ public class ConfigureTemplateDialog extends Dialog<String> {
 		// bouton annuler
 		ButtonType cancelButton = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(cancelButton);
-		
+
 		setResultConverter(new Callback<ButtonType, String>() {
-			
+
 			@Override
 			public String call(ButtonType param) {
-				
-				
-				if(param.equals(okButton)){
-					
+
+				if (param.equals(okButton)) {
+
 					// on écrase le template en DB par le nouveau
 					try {
-						TrimestreManager.getInstance().updateTrimestreTemplate(_elementList);
+						TemplateService.updateTrimestreTemplate(_elementList);
 					} catch (ComptaException e) {
 						ExceptionDisplayService.showException(e);
 					}
-					
+
 				}
-				
+
 				return "lol";
 			}
 		});

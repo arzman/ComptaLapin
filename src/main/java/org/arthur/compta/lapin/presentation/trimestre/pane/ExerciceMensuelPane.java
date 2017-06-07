@@ -3,10 +3,10 @@ package org.arthur.compta.lapin.presentation.trimestre.pane;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
-import org.arthur.compta.lapin.application.model.AppExerciceMensuel;
 import org.arthur.compta.lapin.application.model.AppOperation;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
+import org.arthur.compta.lapin.presentation.trimestre.dialog.CreateOperationDialog;
 import org.arthur.compta.lapin.presentation.trimestre.table.OperationTableView;
 import org.arthur.compta.lapin.presentation.trimestre.table.TransfertTableView;
 
@@ -38,13 +38,13 @@ import javafx.scene.paint.Color;
  */
 public class ExerciceMensuelPane extends GridPane {
 
-	/** Libellé de la date	 */
+	/** Libellé de la date */
 	private ExerciceHeaderPane _title;
 	/** Tableau des dépenses */
 	private OperationTableView<AppOperation> _depenseTable;
-	/** Tableau des ressources	 */
+	/** Tableau des ressources */
 	private OperationTableView<AppOperation> _ressourceTable;
-	/** Tableau des transferts	 */
+	/** Tableau des transferts */
 	private TransfertTableView _transfertTable;
 	/** Numéro du mois présenté */
 	private Integer _numMois;
@@ -55,11 +55,11 @@ public class ExerciceMensuelPane extends GridPane {
 	 * @param id
 	 *            l'id
 	 */
-	public ExerciceMensuelPane(String id,int numMois) {
+	public ExerciceMensuelPane(String id, int numMois) {
 
 		setId(id);
 		_numMois = numMois;
-		
+
 		_title = new ExerciceHeaderPane();
 		add(_title, 0, 0);
 
@@ -152,8 +152,7 @@ public class ExerciceMensuelPane extends GridPane {
 		});
 
 	}
-	
-	
+
 	/**
 	 * Création du menu contexuel sur le tableau des compte
 	 * 
@@ -166,11 +165,28 @@ public class ExerciceMensuelPane extends GridPane {
 		final ContextMenu menu = new ContextMenu();
 		table.setContextMenu(menu);
 
+		// action d'ajout d'opération
+		// action de suppression de l'operation
+		final MenuItem addOp = new MenuItem("Ajouter");
+		addOp.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.ADD_IMG)));
+		addOp.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+
+				// remonte l'ihm de saisie
+				CreateOperationDialog cod = new CreateOperationDialog(null, _numMois);
+				cod.showAndWait();
+				_title.setResutlat(TrimestreManager.getInstance().getResultat(_numMois));
+
+			}
+		});
+		menu.getItems().add(addOp);
+
 		// action de suppression de l'operation
 		final MenuItem removeOp = new MenuItem("Supprimer");
 		removeOp.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.DEL_IMG)));
 		removeOp.setOnAction(new EventHandler<ActionEvent>() {
-			
 
 			@Override
 			public void handle(ActionEvent event) {
@@ -179,7 +195,8 @@ public class ExerciceMensuelPane extends GridPane {
 				AppOperation appOp = table.getSelectionModel().getSelectedItems().get(0);
 				// suppression
 				try {
-					TrimestreManager.getInstance().removeOperation(appOp,_numMois);
+					TrimestreManager.getInstance().removeOperation(appOp, _numMois);
+					_title.setResutlat(TrimestreManager.getInstance().getResultat(_numMois));
 				} catch (ComptaException e) {
 					ExceptionDisplayService.showException(e);
 				}
@@ -189,38 +206,20 @@ public class ExerciceMensuelPane extends GridPane {
 		removeOp.disableProperty().bind(Bindings.isEmpty(table.getSelectionModel().getSelectedItems()));
 		menu.getItems().add(removeOp);
 
-		
-
 	}
-
 
 	/**
 	 * Change l'affichage des mois
 	 * 
-	 * @param oldEM
-	 *            l'ancien mois dans un propriété observable
-	 * @param newEM
-	 *            le nouveau mois dans un propriété observable
 	 */
-	public void changeBind(AppExerciceMensuel oldEM, AppExerciceMensuel newEM) {
+	public void changeBind() {
 
-		// changement de l'affichage de la date
-		if (newEM != null) {
-			_title.setMois(newEM.getDateDebut().getTime());
-			_title.setResutlat(newEM.getResultat());
+		_title.setMois(TrimestreManager.getInstance().getDateDebut(_numMois));
+		_title.setResutlat(TrimestreManager.getInstance().getResultat(_numMois));
 
-			_depenseTable.setItems(newEM.getDepenses());
-			_ressourceTable.setItems(newEM.getRessources());
-			_transfertTable.setItems(newEM.getTransferts());
-
-		} else {
-			_title.setMois(null);
-			_title.setResutlat(0);
-			_depenseTable.setItems(null);
-			_ressourceTable.setItems(null);
-			_transfertTable.setItems(null);
-		}
-		
+		_depenseTable.setItems(TrimestreManager.getInstance().getDepenses(_numMois));
+		_ressourceTable.setItems(TrimestreManager.getInstance().getRessources(_numMois));
+		_transfertTable.setItems(TrimestreManager.getInstance().getTransfert(_numMois));
 
 	}
 

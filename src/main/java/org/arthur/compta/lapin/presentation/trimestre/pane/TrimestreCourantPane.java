@@ -59,15 +59,15 @@ public class TrimestreCourantPane extends GridPane {
 		// Création du contenu
 
 		// panneau du premier mois
-		_premMoisPane = new ExerciceMensuelPane("un",0);
+		_premMoisPane = new ExerciceMensuelPane("un", 0);
 		add(_premMoisPane, 0, 0);
 
 		// panneau du deuxieme mois
-		_deuxMoisPane = new ExerciceMensuelPane("deux",1);
+		_deuxMoisPane = new ExerciceMensuelPane("deux", 1);
 		add(_deuxMoisPane, 1, 0);
 
 		// panneau du troisieme mois
-		_troisMoisPane = new ExerciceMensuelPane("trois",2);
+		_troisMoisPane = new ExerciceMensuelPane("trois", 2);
 		add(_troisMoisPane, 2, 0);
 
 		// écoute sur le changement du trimestre courant
@@ -77,58 +77,28 @@ public class TrimestreCourantPane extends GridPane {
 			public void changed(ObservableValue<? extends AppTrimestre> observable, AppTrimestre oldValue,
 					AppTrimestre newValue) {
 
-				updateExerciceMensuelPane(oldValue, newValue);
+				updateExerciceMensuelPane();
 
 			}
 
 		});
 
 		// chargement initial
-		updateExerciceMensuelPane(null, TrimestreManager.getInstance().trimestreCourantProperty().getValue());
+		updateExerciceMensuelPane();
 	}
 
 	/**
 	 * Mets à jour le contenu des IHM des excercices mensuels
 	 * 
-	 * @param oldValue
-	 *            L'ancien trimestre affiché
-	 * @param newValue
-	 *            Le nouveau trimestre affiché
 	 */
-	private void updateExerciceMensuelPane(AppTrimestre oldValue, AppTrimestre newValue) {
+	private void updateExerciceMensuelPane() {
 
-		if (oldValue == null) {
-
-			if (newValue != null) {
-				// chargement de l'appli avec un trimestre courant en place
-
-				// premier mois
-				_premMoisPane.changeBind(null, newValue.premierMoisProperty().get());
-				// premier mois
-				_deuxMoisPane.changeBind(null, newValue.deuxiemeMoisProperty().get());
-				// premier mois
-				_troisMoisPane.changeBind(null, newValue.troisiemeMoisProperty().get());
-			} else {
-				// chargement de l'appli from scratch
-				// premier mois
-				_premMoisPane.changeBind(null, null);
-				// premier mois
-				_deuxMoisPane.changeBind(null, null);
-				// premier mois
-				_troisMoisPane.changeBind(null, null);
-			}
-
-		} else {
-
-			// changement de trimestre courant
-
-			// premier mois
-			_premMoisPane.changeBind(oldValue.premierMoisProperty().get(), newValue.premierMoisProperty().get());
-			// premier mois
-			_deuxMoisPane.changeBind(oldValue.premierMoisProperty().get(), newValue.deuxiemeMoisProperty().get());
-			// premier mois
-			_troisMoisPane.changeBind(oldValue.premierMoisProperty().get(), newValue.troisiemeMoisProperty().get());
-		}
+		// premier mois
+		_premMoisPane.changeBind();
+		// premier mois
+		_deuxMoisPane.changeBind();
+		// premier mois
+		_troisMoisPane.changeBind();
 
 	}
 

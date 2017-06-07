@@ -3,12 +3,11 @@ package org.arthur.compta.lapin.presentation.trimestre.dialog;
 import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.application.model.AppCompte;
-import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElement;
-import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElementFrequence;
+import org.arthur.compta.lapin.application.model.AppOperation;
+import org.arthur.compta.lapin.application.model.AppTransfert;
 import org.arthur.compta.lapin.application.service.OperationService;
-import org.arthur.compta.lapin.application.service.TemplateService;
+import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.trimestre.cellfactory.CompteCellComboFactory;
-import org.arthur.compta.lapin.presentation.trimestre.cellfactory.OccurenceCellFactory;
 
 import javafx.scene.Node;
 import javafx.scene.control.ButtonBar.ButtonData;
@@ -27,28 +26,25 @@ import javafx.scene.paint.Color;
 import javafx.util.Callback;
 
 /**
- * Fenêtre de saisie d'un élément de template de trimestre
+ * Fenêtre permettant la création et l'édition d'opération
  *
  */
-public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
+public class CreateOperationDialog extends Dialog<String> {
 
-	/** L'élément de template */
-	private TrimestreTemplateElement _templateElt;
-
+	/** L'opération a créer ou éditer */
+	private AppOperation _operation;
+	/** l'index du mois dans lequel l'opération sera créée */
+	private int _numMois;
 	/** La bordure rouge en cas d'erreur de saisi */
 	private final Border BORDER_ERROR = new Border(
 			new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1)));
 
 	/** champ de saisie du nom */
-	private TextField _nomTxt;
+	private TextField _libTxt;
 	/** champ de saisie du montant */
 	private TextField _montantTxt;
 	/** champ de saisie du type */
 	private ComboBox<String> _typeCombo;
-	/** saisie de la frequence */
-	private ComboBox<String> _freqCombo;
-	/** Saisie de l'occurence */
-	private ComboBox<Integer> _occComb;
 	/** Saisie du compte source */
 	private ComboBox<AppCompte> _srcCombo;
 	/** Saisie du compte cible */
@@ -59,57 +55,53 @@ public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 	/**
 	 * Constructeur
 	 * 
-	 * @param elt
-	 *            l'element a éditer , null si création
+	 * @param op
+	 *            l'opération à éditer, null si création
 	 */
-	public EditTemplateEltDialog(TrimestreTemplateElement elt) {
+	public CreateOperationDialog(AppOperation op, int numMois) {
 
-		_templateElt = elt;
-
-		if (_templateElt == null) {
-			setTitle("Création d'un élément");
-		} else {
-			setTitle("Edition d'un élément");
-		}
-
-		// création des zones de saisie
+		_operation = op;
+		_numMois = numMois;
+		// création du contenu
 		createContent();
-		// création des bouton ok/cancel
-		createButtonBar();
 		// initialisation des valeurs
 		initValues();
-		// mise en place des listener sur les modifications
+		// Création des boutons
+		createButtonBar();
+		// ajout des listeners sur les champs
 		hookListeners();
-		// vérif initiale
-		checkInput(true);
 
-		// crée l'élement de template après appuis sur Ok
-		setResultConverter(new Callback<ButtonType, TrimestreTemplateElement>() {
+		// crée ou édite l'élement de template après appuis sur Ok
+		setResultConverter(new Callback<ButtonType, String>() {
 
 			@Override
-			public TrimestreTemplateElement call(ButtonType param) {
+			public String call(ButtonType param) {
 
-				TrimestreTemplateElement elt = null;
+				String res = "Cancel";
+
 				// appuis sur ok
 				if (param.equals(_okButton)) {
 
-					elt = new TrimestreTemplateElement();
-					elt.setNom(_nomTxt.getText());
-					elt.setMontant(Double.parseDouble(_montantTxt.getText()));
-					elt.setType(_typeCombo.getSelectionModel().getSelectedItem());
-					elt.setFreq(TrimestreTemplateElementFrequence
-							.valueOf(_freqCombo.getSelectionModel().getSelectedItem()));
-					if (!_occComb.isDisable()) {
-						elt.setOccurence(_occComb.getSelectionModel().getSelectedItem());
-					}
-					elt.setCompteSource(_srcCombo.getSelectionModel().getSelectedItem());
-					if (!_cibleCombo.isDisable()) {
-						elt.setCompteCible(_cibleCombo.getSelectionModel().getSelectedItem());
+					// création
+					if (_operation == null) {
+
+						try {
+							_operation = TrimestreManager.getInstance().createOperation(_libTxt.getText(),
+									Double.parseDouble(_montantTxt.getText()),
+									_typeCombo.getSelectionModel().getSelectedItem(),
+									_srcCombo.getSelectionModel().getSelectedItem(),
+									_cibleCombo.getSelectionModel().getSelectedItem(), _numMois);
+						} catch (Exception e) {
+							ExceptionDisplayService.showException(e);
+						}
+
+					} else {
+
 					}
 
 				}
 
-				return elt;
+				return res;
 			}
 		});
 	}
@@ -123,10 +115,10 @@ public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 		getDialogPane().setContent(root);
 
 		// saisie du nom
-		Label nomLdl = new Label("Nom :");
+		Label nomLdl = new Label("Libellé :");
 		root.add(nomLdl, 0, 0);
-		_nomTxt = new TextField();
-		root.add(_nomTxt, 1, 0);
+		_libTxt = new TextField();
+		root.add(_libTxt, 1, 0);
 
 		// saisie du montant
 		Label montantLdl = new Label("Montant :");
@@ -141,35 +133,21 @@ public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 		_typeCombo.setItems(OperationService.getOperationType());
 		root.add(_typeCombo, 1, 2);
 
-		// saisie de la frequence
-		Label freqLbl = new Label("Fréquence :");
-		root.add(freqLbl, 0, 3);
-		_freqCombo = new ComboBox<String>();
-		_freqCombo.setItems(TemplateService.getTemplateEltFreq());
-		root.add(_freqCombo, 1, 3);
-
-		// saisie de l'occurence le contenu est positionné par checkInput()
-		Label occLbl = new Label("Occurence :");
-		root.add(occLbl, 0, 4);
-		_occComb = new ComboBox<Integer>();
-		_occComb.setCellFactory(new OccurenceCellFactory(_freqCombo));
-		root.add(_occComb, 1, 4);
-
 		// saisie du compte source
 		Label srcLbl = new Label("Source :");
-		root.add(srcLbl, 0, 5);
+		root.add(srcLbl, 0, 3);
 		_srcCombo = new ComboBox<AppCompte>();
 		_srcCombo.setItems(CompteManager.getInstance().getCompteList());
 		_srcCombo.setCellFactory(new CompteCellComboFactory());
-		root.add(_srcCombo, 1, 5);
+		root.add(_srcCombo, 1, 3);
 
 		// saisie du compte cible
 		Label cibleLbl = new Label("Cible");
-		root.add(cibleLbl, 0, 6);
+		root.add(cibleLbl, 0, 4);
 		_cibleCombo = new ComboBox<AppCompte>();
 		_cibleCombo.setItems(CompteManager.getInstance().getCompteList());
 		_cibleCombo.setCellFactory(new CompteCellComboFactory());
-		root.add(_cibleCombo, 1, 6);
+		root.add(_cibleCombo, 1, 4);
 	}
 
 	/**
@@ -177,23 +155,21 @@ public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 	 */
 	private void initValues() {
 
-		if (_templateElt != null) {
+		if (_operation != null) {
 			// édition
-			_nomTxt.setText(_templateElt.getNom());
-			_montantTxt.setText(String.valueOf(_templateElt.getMontant()));
-			_typeCombo.getSelectionModel().select(String.valueOf(_templateElt.getType()));
-			_freqCombo.getSelectionModel().select(String.valueOf(_templateElt.getType()));
-			_occComb.getSelectionModel().select(new Integer(_templateElt.getOccurence()));
-			_srcCombo.getSelectionModel().select(_templateElt.getCompteSource());
-			_cibleCombo.getSelectionModel().select(_templateElt.getCompteCible());
+			_libTxt.setText(_operation.getLibelle());
+			_montantTxt.setText(String.valueOf(_operation.getMontant()));
+			_typeCombo.getSelectionModel().select(String.valueOf(_operation.getType()));
+			_srcCombo.getSelectionModel().select(_operation.getCompteSource());
+			if (_operation instanceof AppTransfert) {
+				_cibleCombo.getSelectionModel().select(((AppTransfert) _operation).getCompteCible());
+			}
 
 		} else {
 			// création
-			_nomTxt.setText("");
+			_libTxt.setText("");
 			_montantTxt.setText("0");
 			_typeCombo.getSelectionModel().select(0);
-			_freqCombo.getSelectionModel().select(0);
-			_occComb.getSelectionModel().select(0);
 			_srcCombo.getSelectionModel().select(0);
 			_cibleCombo.getSelectionModel().select(0);
 		}
@@ -218,28 +194,24 @@ public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 	 */
 	private void hookListeners() {
 		// nom
-		_nomTxt.textProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput(false);
+		_libTxt.textProperty().addListener((observable, oldValue, newValue) -> {
+			checkInput();
 		});
 		// montant
 		_montantTxt.textProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput(false);
+			checkInput();
 		});
 		// type
 		_typeCombo.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput(false);
-		});
-		// frequence
-		_freqCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput(true);
+			checkInput();
 		});
 		// compte source
 		_srcCombo.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput(false);
+			checkInput();
 		});
 		// compte cible
 		_cibleCombo.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput(false);
+			checkInput();
 		});
 
 	}
@@ -247,16 +219,16 @@ public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 	/**
 	 * Vérifie la validité de la saisie
 	 */
-	private void checkInput(boolean changeOcc) {
+	private void checkInput() {
 
-		// Vérif du nom
+		// Vérif du libellé
 		boolean nomError = true;
 
-		if (!_nomTxt.getText().trim().isEmpty() && _nomTxt.getText().matches("[a-zA-Z123456789 ]+")) {
-			_nomTxt.setBorder(null);
+		if (!_libTxt.getText().trim().isEmpty() && _libTxt.getText().matches("[a-zA-Z123456789 ]+")) {
+			_libTxt.setBorder(null);
 			nomError = false;
 		} else {
-			_nomTxt.setBorder(BORDER_ERROR);
+			_libTxt.setBorder(BORDER_ERROR);
 			nomError = true;
 		}
 
@@ -274,20 +246,6 @@ public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 
 		_cibleCombo.setDisable(
 				!TrimestreManager.getInstance().isTransfertType(_typeCombo.getSelectionModel().getSelectedItem()));
-
-		// Vérif de la frequence
-		if (_freqCombo.getSelectionModel().getSelectedItem() != null) {
-			_occComb.setDisable(_freqCombo.getSelectionModel().getSelectedItem()
-					.equals(TrimestreTemplateElementFrequence.MENSUEL.toString()));
-
-			if (changeOcc) {
-				_occComb.getItems().clear();
-				_occComb.getItems()
-						.addAll(TemplateService.getOccurenceForFreq(_freqCombo.getSelectionModel().getSelectedItem()));
-				_occComb.getSelectionModel().select(0);
-			}
-
-		}
 
 		if (_okButton != null) {
 			Node OkButton = getDialogPane().lookupButton(_okButton);

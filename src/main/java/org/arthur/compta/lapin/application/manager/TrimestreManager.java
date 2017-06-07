@@ -2,8 +2,8 @@ package org.arthur.compta.lapin.application.manager;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.model.AppCompte;
@@ -11,9 +11,8 @@ import org.arthur.compta.lapin.application.model.AppExerciceMensuel;
 import org.arthur.compta.lapin.application.model.AppOperation;
 import org.arthur.compta.lapin.application.model.AppTransfert;
 import org.arthur.compta.lapin.application.model.AppTrimestre;
-import org.arthur.compta.lapin.application.model.template.TrimestreTemplate;
-import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElement;
-import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElementFrequence;
+import org.arthur.compta.lapin.application.service.OperationService;
+import org.arthur.compta.lapin.application.service.TemplateService;
 import org.arthur.compta.lapin.dataaccess.db.DBManager;
 import org.arthur.compta.lapin.model.ExerciceMensuel;
 import org.arthur.compta.lapin.model.Trimestre;
@@ -25,7 +24,6 @@ import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 /**
@@ -250,7 +248,7 @@ public class TrimestreManager {
 				AppExerciceMensuel appEm = new AppExerciceMensuel(em);
 				appEm.setAppID(idEm);
 				// ajout des opérations du templates
-				applyTtemplate(appEm, i);
+				TemplateService.applyTtemplate(appEm, i);
 
 				appTrim.setAppExerciceMensuel(i, appEm);
 
@@ -267,120 +265,6 @@ public class TrimestreManager {
 		}
 
 		return appTrim;
-	}
-
-	/**
-	 * Ajoute les opérations du template au mois
-	 * 
-	 * @param exMen
-	 *            l'exercice mensuel
-	 * @param num
-	 *            l'indice du mois dans le trimestre
-	 * @throws ComptaException
-	 */
-	private void applyTtemplate(AppExerciceMensuel exMen, int num) throws ComptaException {
-
-		TrimestreTemplate tmp = getTrimestreTemplate();
-
-		for (TrimestreTemplateElement elt : tmp.getElements()) {
-
-			int count = 0;
-
-			// hebdomadaire
-			if (elt.getFreq().equals(TrimestreTemplateElementFrequence.HEBDOMADAIRE)) {
-
-				// on se place au début du mois
-				final Calendar cal = Calendar.getInstance();
-				cal.set(exMen.getDateDebut().get(Calendar.YEAR), exMen.getDateDebut().get(Calendar.MONTH), 1);
-
-				for (int j = 0; j < cal.getActualMaximum(Calendar.DAY_OF_MONTH); j++) {
-
-					cal.roll(Calendar.DAY_OF_MONTH, 1);
-					// on obtient tombe sur le jour
-					if (cal.get(Calendar.DAY_OF_WEEK) == elt.getOccurence()) {
-						count++;
-					}
-
-				}
-			}
-			// mensuel
-			if (elt.getFreq().equals(TrimestreTemplateElementFrequence.MENSUEL)) {
-
-				count++;
-
-			}
-			// trimestriel
-			if (elt.getFreq().equals(TrimestreTemplateElementFrequence.TRIMESTRIEL)) {
-
-				if (elt.getOccurence() == num) {
-					count++;
-				}
-
-			}
-			// on ajout l'opération autant de fois que nécessaire
-			for (int i = 0; i < count; i++) {
-				createOperationFromTmpElt(exMen, elt);
-			}
-
-		}
-
-	}
-
-	/**
-	 * Crée et ajoute une opération dans l'exercice depuis un élément de
-	 * template
-	 * 
-	 * @param exMen
-	 *            l'exercice
-	 * @param elt
-	 *            l'element
-	 * @throws ComptaException
-	 */
-	private void createOperationFromTmpElt(AppExerciceMensuel exMen, TrimestreTemplateElement elt)
-			throws ComptaException {
-		if (elt.getType().equals(OperationType.DEPENSE.toString())) {
-
-			// création
-			Operation dep = new Operation(OperationType.DEPENSE, elt.getCompteSource().getCompte(), elt.getNom(),
-					elt.getMontant(), EtatOperation.PREVISION);
-			String idOp = DBManager.getInstance().createOperation(dep, elt.getCompteSource().getAppId(), null,
-					exMen.getAppId());
-
-			// ajout dans l'application
-			AppOperation appDep = new AppOperation(dep);
-			appDep.setAppID(idOp);
-			appDep.setCompteSrc(elt.getCompteSource());
-			exMen.addDepense(appDep);
-
-		}
-		if (elt.getType().equals(OperationType.RESSOURCE.toString())) {
-
-			// création
-			Operation res = new Operation(OperationType.RESSOURCE, elt.getCompteSource().getCompte(), elt.getNom(),
-					elt.getMontant(), EtatOperation.PREVISION);
-			String idOp = DBManager.getInstance().createOperation(res, elt.getCompteSource().getAppId(), null,
-					exMen.getAppId());
-			// ajout dans l'application
-			AppOperation appRes = new AppOperation(res);
-			appRes.setAppID(idOp);
-			appRes.setCompteSrc(elt.getCompteSource());
-			exMen.addRessource(appRes);
-
-		}
-		if (elt.getType().equals(OperationType.TRANSFERT.toString())) {
-			// création
-			TransfertOperation trans = new TransfertOperation(elt.getCompteSource().getCompte(), elt.getNom(),
-					elt.getMontant(), EtatOperation.PREVISION, elt.getCompteCible().getCompte());
-			String idOp = DBManager.getInstance().createOperation(trans, elt.getCompteSource().getAppId(),
-					elt.getCompteCible().getAppId(), exMen.getAppId());
-			// ajout dans l'application
-			AppTransfert apptr = new AppTransfert(trans);
-			apptr.setAppID(idOp);
-			apptr.setCompteSrc(elt.getCompteSource());
-			apptr.setCompteCible(elt.getCompteCible());
-			exMen.addTransfert(apptr);
-		}
-
 	}
 
 	/**
@@ -434,97 +318,6 @@ public class TrimestreManager {
 	}
 
 	/**
-	 * Retourne le template de trimestre
-	 * 
-	 * @return
-	 */
-	public TrimestreTemplate getTrimestreTemplate() {
-
-		TrimestreTemplate tmp = new TrimestreTemplate();
-		try {
-			HashMap<String, String[]> tmpInfo = DBManager.getInstance().loadTemplateInfo();
-
-			for (String key : tmpInfo.keySet()) {
-				// récupération des infos
-				String[] info = tmpInfo.get(key);
-
-				TrimestreTemplateElement elt = new TrimestreTemplateElement();
-				elt.setNom(info[0]);
-				elt.setMontant(Double.parseDouble(info[1]));
-				elt.setType(info[2]);
-				elt.setFreq(TrimestreTemplateElementFrequence.valueOf(info[3]));
-				elt.setOccurence(Integer.parseInt(info[4]));
-				elt.setCompteSource(CompteManager.getInstance().getCompte(info[5]));
-				elt.setCompteCible(CompteManager.getInstance().getCompte(info[6]));
-
-				tmp.addElement(elt);
-
-			}
-
-		} catch (ComptaException e) {
-			e.printStackTrace();
-			// Impossible de récupérer le template, on en génère un vide
-		}
-
-		return tmp;
-	}
-
-	/**
-	 * Retourne les types possibles pour un élément de template
-	 * 
-	 * @return
-	 */
-	public ObservableList<String> getTemplateEltType() {
-		// creation de la liste
-		ObservableList<String> res = FXCollections.observableArrayList();
-		// on récupère les valeurs de l'enum
-		for (OperationType opeType : OperationType.values()) {
-			res.add(opeType.toString());
-		}
-
-		return res;
-	}
-
-	/**
-	 * Retourne les fréquences possibles pour un élément de template
-	 * 
-	 * @return
-	 */
-	public ObservableList<String> getTemplateEltFreq() {
-		// creation de la liste
-		ObservableList<String> res = FXCollections.observableArrayList();
-		// on récupère les valeurs de l'enum
-		for (TrimestreTemplateElementFrequence freq : TrimestreTemplateElementFrequence.values()) {
-			res.add(freq.toString());
-		}
-
-		return res;
-	}
-
-	/**
-	 * Retourne les occurences possible en fonction de la fréquence choisie
-	 * 
-	 * @param freq
-	 * @return
-	 */
-	public Integer[] getOccurenceForFreq(String freq) {
-
-		Integer[] res = null;
-
-		if (freq.equals(TrimestreTemplateElementFrequence.HEBDOMADAIRE.toString())) {
-			res = new Integer[] { 2, 3, 4, 5, 6, 7, 1 };
-		}
-		if (freq.equals(TrimestreTemplateElementFrequence.TRIMESTRIEL.toString())) {
-			res = new Integer[] { 0, 1, 2 };
-		}
-		if (freq.equals(TrimestreTemplateElementFrequence.MENSUEL.toString())) {
-			res = new Integer[] {};
-		}
-
-		return res;
-	}
-
-	/**
 	 * Indique si la chaine de caractère correspond au type d'opération :
 	 * Transfert
 	 * 
@@ -534,20 +327,6 @@ public class TrimestreManager {
 	public boolean isTransfertType(String type) {
 
 		return OperationType.TRANSFERT.toString().equals(type);
-	}
-
-	/**
-	 * Met à jour le modèle de trimestre
-	 * 
-	 * @param elementList
-	 * @throws ComptaException
-	 *             Echec
-	 */
-	public void updateTrimestreTemplate(List<TrimestreTemplateElement> elementList) throws ComptaException {
-
-		DBManager.getInstance().clearTrimTemplate();
-		DBManager.getInstance().addTrimstreTempElts(elementList);
-
 	}
 
 	/**
@@ -566,19 +345,13 @@ public class TrimestreManager {
 			for (AppOperation dep : _trimestreCourant.getValue().getAppExerciceMensuel(numMois).get().getDepenses()) {
 
 				if (dep.getEtat().equals(EtatOperation.PREVISION.toString()) && dep.getCompteSource().equals(compte)) {
-
 					delta = delta - dep.getMontant();
-
 				}
-
 			}
 			// ajout des ressources
 			for (AppOperation res : _trimestreCourant.getValue().getAppExerciceMensuel(numMois).get().getRessources()) {
-
 				if (res.getEtat().equals(EtatOperation.PREVISION.toString()) && res.getCompteSource().equals(compte)) {
-
 					delta = delta + res.getMontant();
-
 				}
 
 			}
@@ -590,16 +363,12 @@ public class TrimestreManager {
 						&& trans.getCompteSource().equals(compte)) {
 
 					delta = delta - trans.getMontant();
-
 				}
 				// compte cible : l'argent rentre
 				if (trans.getEtat().equals(EtatOperation.PREVISION.toString())
 						&& trans.getCompteCible().equals(compte)) {
-
 					delta = delta + trans.getMontant();
-
 				}
-
 			}
 		}
 
@@ -625,26 +394,6 @@ public class TrimestreManager {
 	}
 
 	/**
-	 * Permutte l'état d'une opération et répercute les conséquences (
-	 * sauvegarde DB + re-calcul du solde compte)
-	 * 
-	 * @param appOp
-	 *            l'operation
-	 * @throws ComptaException
-	 *             Echec de la mise à jour
-	 */
-	public void switchEtatOperation(AppOperation appOp) throws ComptaException {
-
-		// Maj de l'état dans l'application
-		appOp.switchEtat();
-		// re-calcul du solde du compte
-		CompteManager.getInstance().operationSwitched(appOp);
-		// sauvegarde en base
-		DBManager.getInstance().updateOperation(appOp);
-
-	}
-
-	/**
 	 * Supprime une opération du mois du trimestre courant
 	 * 
 	 * @param appOp
@@ -654,6 +403,11 @@ public class TrimestreManager {
 	 * @throws ComptaException
 	 */
 	public void removeOperation(AppOperation appOp, Integer numMois) throws ComptaException {
+
+		// si l'opération est prise en compte, on l'annule
+		if (appOp.getEtat().equals(EtatOperation.PRISE_EN_COMPTE.toString())) {
+			OperationService.switchEtatOperation(appOp);
+		}
 
 		// récupération de l'exercice mensuel
 		AppExerciceMensuel appEm = _trimestreCourant.get().getAppExerciceMensuel(numMois).get();
@@ -669,9 +423,175 @@ public class TrimestreManager {
 				}
 			}
 		}
+
+		// Maj prévisionnel
+		CompteManager.getInstance().calculateSoldePrev(appOp.getCompteSource());
+		if (appOp instanceof AppTransfert) {
+			CompteManager.getInstance().calculateSoldePrev(((AppTransfert) appOp).getCompteCible());
+		}
+
 		// suppression de l'opération en base
 		DBManager.getInstance().removeOperation(appOp);
 
+	}
+
+	/**
+	 * Crée une nouvelle opération dans le mois du trimestre courant
+	 * correspondant à l'index
+	 * 
+	 * @param libelle
+	 *            le libelle
+	 * @param montant
+	 *            le montant
+	 * @param type
+	 *            le type
+	 * @param compteSrc
+	 *            le compte source
+	 * @param compteCible
+	 *            le compte cible si Transfert, null sinon
+	 * @param numMois
+	 *            l'index du mois
+	 * @return
+	 * @throws ComptaException
+	 *             Erreur lors de l'ajout
+	 */
+	public AppOperation createOperation(String libelle, double montant, String type, AppCompte compteSrc,
+			AppCompte compteCible, int numMois) throws ComptaException {
+
+		AppOperation appop = null;
+
+		if (type.equals(OperationType.DEPENSE.toString())) {
+
+			// dépense
+
+			appop = OperationService.createDepense(libelle, montant, compteSrc,
+					_trimestreCourant.get().getAppExerciceMensuel(numMois).get().getAppId());
+			_trimestreCourant.get().getAppExerciceMensuel(numMois).get().addDepense(appop);
+
+		} else {
+
+			if (type.equals(OperationType.RESSOURCE.toString())) {
+
+				// ressource
+				appop = OperationService.createRessource(libelle, montant, compteSrc,
+						_trimestreCourant.get().getAppExerciceMensuel(numMois).get().getAppId());
+				_trimestreCourant.get().getAppExerciceMensuel(numMois).get().addRessource(appop);
+
+			} else {
+				if (type.equals(OperationType.TRANSFERT.toString())) {
+
+					appop = OperationService.createTransfert(libelle, montant, compteSrc, compteCible,
+							_trimestreCourant.get().getAppExerciceMensuel(numMois).get().getAppId());
+					_trimestreCourant.get().getAppExerciceMensuel(numMois).get().addTransfert((AppTransfert) appop);
+
+				}
+			}
+
+		}
+
+		// refresh du previsionnel
+		CompteManager.getInstance().calculateSoldePrev(compteSrc);
+		CompteManager.getInstance().calculateSoldePrev(compteCible);
+
+		return appop;
+	}
+
+	/**
+	 * Retourne la date de début de l'excercice mensuel correspondant à l'index
+	 * donné du trimestre courant
+	 * 
+	 * @param numMois
+	 * @return
+	 */
+	public Date getDateDebut(int numMois) {
+
+		Date dat = null;
+
+		if (_trimestreCourant != null) {
+
+			dat = _trimestreCourant.get().getAppExerciceMensuel(numMois).get().getDateDebut().getTime();
+
+		}
+
+		return dat;
+	}
+
+	/**
+	 * Retourne le résultat de l'excercice mensuel correspondant à l'index donné
+	 * du trimestre courant
+	 * 
+	 * @param numMois
+	 * @return
+	 */
+	public double getResultat(int numMois) {
+
+		double res = 0;
+
+		if (_trimestreCourant != null) {
+
+			res = _trimestreCourant.get().getAppExerciceMensuel(numMois).get().getResultat();
+
+		}
+
+		return res;
+	}
+
+	/**
+	 * Retourne les dépenses de l'excercice mensuel correspondant à l'index
+	 * donné du trimestre courant
+	 * 
+	 * @param numMois
+	 * @return
+	 */
+	public ObservableList<AppOperation> getDepenses(Integer numMois) {
+
+		ObservableList<AppOperation> res = null;
+
+		if (_trimestreCourant != null) {
+
+			res = _trimestreCourant.get().getAppExerciceMensuel(numMois).get().getDepenses();
+
+		}
+
+		return res;
+	}
+
+	/**
+	 * Retourne les ressources de l'excercice mensuel correspondant à l'index
+	 * donné du trimestre courant
+	 * 
+	 * @param numMois
+	 * @return
+	 */
+	public ObservableList<AppOperation> getRessources(Integer numMois) {
+		ObservableList<AppOperation> res = null;
+
+		if (_trimestreCourant != null) {
+
+			res = _trimestreCourant.get().getAppExerciceMensuel(numMois).get().getRessources();
+
+		}
+
+		return res;
+	}
+
+	/**
+	 * Retourne les transferts de l'excercice mensuel correspondant à l'index
+	 * donné du trimestre courant
+	 * 
+	 * @param numMois
+	 * @return
+	 */
+	public ObservableList<AppTransfert> getTransfert(Integer numMois) {
+		ObservableList<AppTransfert> res = null;
+
+		if (_trimestreCourant != null) {
+
+			res = _trimestreCourant.get().getAppExerciceMensuel(numMois).get().getTransferts();
+
+		}
+
+		return res;
 	}
 
 }

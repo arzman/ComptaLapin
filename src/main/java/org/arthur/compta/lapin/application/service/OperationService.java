@@ -1,0 +1,127 @@
+package org.arthur.compta.lapin.application.service;
+
+import org.arthur.compta.lapin.application.exception.ComptaException;
+import org.arthur.compta.lapin.application.manager.CompteManager;
+import org.arthur.compta.lapin.application.model.AppCompte;
+import org.arthur.compta.lapin.application.model.AppOperation;
+import org.arthur.compta.lapin.application.model.AppTransfert;
+import org.arthur.compta.lapin.dataaccess.db.DBManager;
+import org.arthur.compta.lapin.model.operation.EtatOperation;
+import org.arthur.compta.lapin.model.operation.Operation;
+import org.arthur.compta.lapin.model.operation.OperationType;
+import org.arthur.compta.lapin.model.operation.TransfertOperation;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
+public class OperationService {
+
+	/**
+	 * Permutte l'état d'une opération et répercute les conséquences (
+	 * sauvegarde DB + re-calcul du solde compte)
+	 * 
+	 * @param appOp
+	 *            l'operation
+	 * @throws ComptaException
+	 *             Echec de la mise à jour
+	 */
+	public static void switchEtatOperation(AppOperation appOp) throws ComptaException {
+
+		// Maj de l'état dans l'application
+		appOp.switchEtat();
+		// re-calcul du solde du compte
+		CompteManager.getInstance().operationSwitched(appOp);
+		// sauvegarde en base
+		DBManager.getInstance().updateOperation(appOp);
+
+	}
+
+	/**
+	 * Retourne les types possibles pour une opération
+	 * 
+	 * @return
+	 */
+	public static ObservableList<String> getOperationType() {
+		// creation de la liste
+		ObservableList<String> res = FXCollections.observableArrayList();
+		// on récupère les valeurs de l'enum
+		for (OperationType opeType : OperationType.values()) {
+			res.add(opeType.toString());
+		}
+
+		return res;
+	}
+
+	/**
+	 * Crée une dépense applicative et la sauve en base
+	 * 
+	 * @param compteSrc
+	 *            le compte source de l'opération
+	 * @param libelle
+	 *            le libelle
+	 * @param montant
+	 *            le montant
+	 * @param appMoisId
+	 *            l'id applicatif de l'exercice mensuel
+	 * @return
+	 * @throws ComptaException
+	 */
+	public static AppOperation createDepense(String libelle, double montant, AppCompte compteSrc, String appMoisId)
+			throws ComptaException {
+
+		Operation op = new Operation(OperationType.DEPENSE, compteSrc.getCompte(), libelle, montant,
+				EtatOperation.PREVISION);
+
+		AppOperation appop = new AppOperation(op);
+		appop.setCompteSrc(compteSrc);
+		String id = DBManager.getInstance().createOperation(op, appop.getCompteSource().getAppId(), null, appMoisId);
+		appop.setAppID(id);
+
+		return appop;
+	}
+
+	/**
+	 * Crée une ressource applicative et la sauve en base
+	 * 
+	 * @param compteSrc
+	 *            le compte source de l'opération
+	 * @param libelle
+	 *            le libelle
+	 * @param montant
+	 *            le montant
+	 * @param appMoisId
+	 *            l'id applicatif de l'exercice mensuel
+	 * @return
+	 * @throws ComptaException
+	 */
+	public static AppOperation createRessource(String libelle, double montant, AppCompte compteSrc, String appId)
+			throws ComptaException {
+
+		Operation op = new Operation(OperationType.RESSOURCE, compteSrc.getCompte(), libelle, montant,
+				EtatOperation.PREVISION);
+
+		AppOperation appop = new AppOperation(op);
+		appop.setCompteSrc(compteSrc);
+		String id = DBManager.getInstance().createOperation(op, appop.getCompteSource().getAppId(), null, appId);
+		appop.setAppID(id);
+
+		return appop;
+	}
+
+	public static AppOperation createTransfert(String libelle, double montant, AppCompte compteSrc,
+			AppCompte compteCible, String appId) throws ComptaException {
+		
+		TransfertOperation trans = new TransfertOperation(compteSrc.getCompte(), libelle, montant,
+				EtatOperation.PREVISION, compteCible.getCompte());
+		AppTransfert appop = new AppTransfert(trans);
+		appop.setCompteSrc(compteSrc);
+		((AppTransfert) appop).setCompteCible(compteCible);
+		String id = DBManager.getInstance().createOperation(trans,compteSrc.getAppId(),
+				compteCible.getAppId(),appId);
+		appop.setAppID(id);
+		
+		
+		return null;
+	}
+
+}

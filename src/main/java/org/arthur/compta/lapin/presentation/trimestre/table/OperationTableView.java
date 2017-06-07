@@ -20,15 +20,16 @@ public class OperationTableView<T extends AppOperation> extends TableView<T> {
 		TableColumn<T, String> colEtat = new TableColumn<>(" ");
 		colEtat.setResizable(true);
 		colEtat.setEditable(false);
-		// bind sur la nom
+		// bind sur l etat
 		colEtat.setCellFactory(new EtatCellFactory<T>());
 		colEtat.setCellValueFactory(cellData -> cellData.getValue().etatProperty());
 		getColumns().add(colEtat);
 
-		// Colonne du nom
+		// Colonne du libelle
 		TableColumn<T, String> colNom = new TableColumn<>("Libellé");
 		colNom.setResizable(true);
 		colNom.setEditable(false);
+		colNom.setSortable(true);
 		// bind sur la nom
 		colNom.setCellValueFactory(cellData -> cellData.getValue().libelleProperty());
 		getColumns().add(colNom);
@@ -37,6 +38,7 @@ public class OperationTableView<T extends AppOperation> extends TableView<T> {
 		TableColumn<T, Number> colMontant = new TableColumn<>("Montant");
 		colMontant.setResizable(true);
 		colMontant.setEditable(false);
+		colMontant.setSortable(true);
 		colMontant.setCellValueFactory(cellData -> cellData.getValue().montantProperty());
 		colMontant.setCellFactory(new MontantCellFactory<T>());
 		getColumns().add(colMontant);

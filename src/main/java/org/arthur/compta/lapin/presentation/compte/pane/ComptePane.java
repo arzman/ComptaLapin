@@ -77,6 +77,7 @@ public class ComptePane extends GridPane {
 		TableColumn<AppCompte, String> colNom = new TableColumn<>("Nom");
 		colNom.setResizable(true);
 		colNom.setEditable(false);
+		colNom.setSortable(true);
 		colNom.setId("nom");
 		// bind sur la nom
 		colNom.setCellValueFactory(cellData -> cellData.getValue().nomProperty());
@@ -86,6 +87,7 @@ public class ComptePane extends GridPane {
 		TableColumn<AppCompte, Number> colMontant = new TableColumn<>("Solde");
 		colMontant.setResizable(true);
 		colMontant.setEditable(false);
+		colMontant.setSortable(true);
 		colMontant.setCellValueFactory(cellData -> cellData.getValue().soldeProperty());
 		colMontant.setCellFactory(new SoldeCompteCellFactory());
 		colMontant.setId("montant");

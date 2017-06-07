@@ -166,7 +166,6 @@ public class ExerciceMensuelPane extends GridPane {
 		table.setContextMenu(menu);
 
 		// action d'ajout d'opération
-		// action de suppression de l'operation
 		final MenuItem addOp = new MenuItem("Ajouter");
 		addOp.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.ADD_IMG)));
 		addOp.setOnAction(new EventHandler<ActionEvent>() {
@@ -182,6 +181,27 @@ public class ExerciceMensuelPane extends GridPane {
 			}
 		});
 		menu.getItems().add(addOp);
+
+		// action d'édition d'opération
+		final MenuItem editOp = new MenuItem("Editer");
+		editOp.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.EDIT_IMG)));
+		editOp.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+
+				AppOperation appOp = table.getSelectionModel().getSelectedItems().get(0);
+
+				// remonte l'ihm de saisie
+				CreateOperationDialog cod = new CreateOperationDialog(appOp, _numMois);
+				cod.showAndWait();
+				_title.setResutlat(TrimestreManager.getInstance().getResultat(_numMois));
+
+			}
+		});
+		// on désactive le menu si la selection est vide
+		editOp.disableProperty().bind(Bindings.isEmpty(table.getSelectionModel().getSelectedItems()));
+		menu.getItems().add(editOp);
 
 		// action de suppression de l'operation
 		final MenuItem removeOp = new MenuItem("Supprimer");

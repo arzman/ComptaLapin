@@ -455,7 +455,7 @@ public class TrimestreManager {
 	 * @throws ComptaException
 	 *             Erreur lors de l'ajout
 	 */
-	public AppOperation createOperation(String libelle, double montant, String type, AppCompte compteSrc,
+	public AppOperation addOperation(String libelle, double montant, String type, AppCompte compteSrc,
 			AppCompte compteCible, int numMois) throws ComptaException {
 
 		AppOperation appop = null;

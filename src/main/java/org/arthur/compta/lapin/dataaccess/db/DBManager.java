@@ -817,4 +817,9 @@ public class DBManager {
 
 	}
 
+	public void editOperation(AppOperation _operation) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

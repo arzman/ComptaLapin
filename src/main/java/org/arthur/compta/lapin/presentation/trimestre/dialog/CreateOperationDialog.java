@@ -86,7 +86,7 @@ public class CreateOperationDialog extends Dialog<String> {
 					if (_operation == null) {
 
 						try {
-							_operation = TrimestreManager.getInstance().createOperation(_libTxt.getText(),
+							_operation = TrimestreManager.getInstance().addOperation(_libTxt.getText(),
 									Double.parseDouble(_montantTxt.getText()),
 									_typeCombo.getSelectionModel().getSelectedItem(),
 									_srcCombo.getSelectionModel().getSelectedItem(),
@@ -96,7 +96,15 @@ public class CreateOperationDialog extends Dialog<String> {
 						}
 
 					} else {
-
+						// édition
+						try {
+							_operation = OperationService.editOperation(_operation, _libTxt.getText(),
+									Double.parseDouble(_montantTxt.getText()),
+									_srcCombo.getSelectionModel().getSelectedItem(),
+									_cibleCombo.getSelectionModel().getSelectedItem());
+						} catch (Exception e) {
+							ExceptionDisplayService.showException(e);
+						}
 					}
 
 				}
@@ -160,6 +168,7 @@ public class CreateOperationDialog extends Dialog<String> {
 			_libTxt.setText(_operation.getLibelle());
 			_montantTxt.setText(String.valueOf(_operation.getMontant()));
 			_typeCombo.getSelectionModel().select(String.valueOf(_operation.getType()));
+			_typeCombo.setDisable(true);
 			_srcCombo.getSelectionModel().select(_operation.getCompteSource());
 			if (_operation instanceof AppTransfert) {
 				_cibleCombo.getSelectionModel().select(((AppTransfert) _operation).getCompteCible());

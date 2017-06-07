@@ -110,18 +110,60 @@ public class OperationService {
 
 	public static AppOperation createTransfert(String libelle, double montant, AppCompte compteSrc,
 			AppCompte compteCible, String appId) throws ComptaException {
-		
+
 		TransfertOperation trans = new TransfertOperation(compteSrc.getCompte(), libelle, montant,
 				EtatOperation.PREVISION, compteCible.getCompte());
 		AppTransfert appop = new AppTransfert(trans);
 		appop.setCompteSrc(compteSrc);
 		((AppTransfert) appop).setCompteCible(compteCible);
-		String id = DBManager.getInstance().createOperation(trans,compteSrc.getAppId(),
-				compteCible.getAppId(),appId);
+		String id = DBManager.getInstance().createOperation(trans, compteSrc.getAppId(), compteCible.getAppId(), appId);
 		appop.setAppID(id);
-		
-		
+
 		return null;
+	}
+
+	/**
+	 * Edite l'opération passé en paramètre
+	 * 
+	 * @param _operation
+	 * @param newLib
+	 * @param newMontant
+	 * @param newCompteSrc
+	 * @param newCompteCibles
+	 * @return
+	 * @throws ComptaException
+	 */
+	public static AppOperation editOperation(AppOperation _operation, String newLib, double newMontant,
+			AppCompte newCompteSrc, AppCompte newCompteCibles) throws ComptaException {
+
+		// si l'opération est prise en compte, on la déselectionne
+		boolean toSwitch = false;
+		if (_operation.getEtat().equals(EtatOperation.PRISE_EN_COMPTE.toString())) {
+			toSwitch = true;
+			switchEtatOperation(_operation);
+		}
+
+		// modification de l'opération
+		_operation.setLibelle(newLib);
+		_operation.setMontant(newMontant);
+		_operation.setCompteSrc(newCompteSrc);
+
+		if (_operation instanceof AppTransfert) {
+			((AppTransfert) _operation).setCompteCible(newCompteCibles);
+		}
+
+		// enregistrement en base
+		DBManager.getInstance().updateOperation(_operation);
+
+		if (toSwitch) {
+			switchEtatOperation(_operation);
+		}
+
+		// refresh du previsionnel
+		CompteManager.getInstance().calculateSoldePrev(newCompteSrc);
+		CompteManager.getInstance().calculateSoldePrev(newCompteCibles);
+		
+		return _operation;
 	}
 
 }

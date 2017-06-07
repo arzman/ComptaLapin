@@ -153,4 +153,14 @@ public class AppOperation extends AppObject implements IMontant {
 		return _libelleProp.get();
 	}
 
+	public void setLibelle(String newLib) {
+		_libelleProp.set(newLib);
+
+	}
+
+	public void setMontant(double newMontant) {
+		_montantProp.set(newMontant);
+
+	}
+
 }

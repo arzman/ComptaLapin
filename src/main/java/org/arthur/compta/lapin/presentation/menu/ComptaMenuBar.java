@@ -1,9 +1,11 @@
 package org.arthur.compta.lapin.presentation.menu;
 
+import java.util.Calendar;
 import java.util.Optional;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
+import org.arthur.compta.lapin.application.service.ComptaService;
 import org.arthur.compta.lapin.presentation.compte.dialog.EditCompteDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
@@ -26,10 +28,10 @@ import javafx.scene.image.ImageView;
 public class ComptaMenuBar extends MenuBar {
 
 	private MainScene _scene;
-	
+
 	public ComptaMenuBar(MainScene mainScene) {
 		super();
-		
+
 		_scene = mainScene;
 
 		// menu Système
@@ -38,6 +40,8 @@ public class ComptaMenuBar extends MenuBar {
 		createTrimestreMenu();
 		// menu Compte
 		createCompteMenu();
+		// item date derniere vérif
+		createDerVerifItem();
 	}
 
 	private void createSystemMenu() {
@@ -149,6 +153,40 @@ public class ComptaMenuBar extends MenuBar {
 
 		compteMenu.getItems().add(addItem);
 		getMenus().add(compteMenu);
+
+	}
+
+	private void createDerVerifItem() {
+
+		try {
+			String dat = ComptaService.getDateDerVerif();
+
+			Menu datMenu = new Menu();
+			datMenu.setText("Vérif : " + dat);
+
+			MenuItem verifNow = new MenuItem("Vérifier");
+			verifNow.setOnAction(new EventHandler<ActionEvent>() {
+
+				@Override
+				public void handle(ActionEvent event) {
+
+					try {
+						ComptaService.setDateDerVerif(Calendar.getInstance());
+						datMenu.setText("Vérif : " + ComptaService.getDateDerVerif());
+					} catch (ComptaException e) {
+						ExceptionDisplayService.showException(e);
+					}
+
+				}
+			});
+
+			datMenu.getItems().add(verifNow);
+
+			getMenus().add(datMenu);
+
+		} catch (ComptaException e) {
+			ExceptionDisplayService.showException(e);
+		}
 
 	}
 

@@ -62,7 +62,6 @@ public class DBManager {
 			_connexionDB = DriverManager.getConnection("jdbc:hsqldb:file:" + pathToDb + ";ifexists=true", "sa", "");
 
 		} catch (Exception e) {
-			System.out.println("Création de la base de donnée");
 			createDB(pathToDb);
 		}
 
@@ -260,23 +259,26 @@ public class DBManager {
 	 * Récupère en base l'id du trimestre courant
 	 * 
 	 * @return les champ du compte courant
-	 * @throws SQLException
+	 * @throws ComptaException
 	 *             Echec de la récupération
 	 */
-	public String[] getTrimestreCourantId() throws SQLException {
+	public String[] getTrimestreCourantId() throws ComptaException {
 
 		String[] res = new String[1];
 
 		// création de la requete
 		String query = "SELECT ID_TRIMESTRE FROM CONFIGURATION limit 1";
-		PreparedStatement stmt = getConnexion().prepareStatement(query);
-		// execution
-		ResultSet queryRes = stmt.executeQuery();
-		// parse du resultat
-		while (queryRes.next()) {
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
+			// execution
+			ResultSet queryRes = stmt.executeQuery();
+			// parse du resultat
+			while (queryRes.next()) {
 
-			res[0] = String.valueOf(queryRes.getInt("ID_TRIMESTRE"));
+				res[0] = String.valueOf(queryRes.getInt("ID_TRIMESTRE"));
 
+			}
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de récupérer l'id du trimestre courant", e);
 		}
 
 		return res;
@@ -829,8 +831,53 @@ public class DBManager {
 
 	}
 
-	public void editOperation(AppOperation _operation) {
-		// TODO Auto-generated method stub
+	/**
+	 * Retourne la date de dernière vérification sauvée en base
+	 * 
+	 * @return
+	 * @throws ComptaException
+	 *             Echec de la récupération
+	 */
+	public String getDateDerVerif() throws ComptaException {
+
+		String res = "";
+
+		// création de la requete
+		String query = "SELECT date_verif FROM CONFIGURATION limit 1";
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
+			// execution
+			ResultSet queryRes = stmt.executeQuery();
+			// parse du resultat
+			while (queryRes.next()) {
+
+				res = ApplicationFormatter.databaseDateFormat.format(queryRes.getDate("date_verif"));
+
+			}
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de récupérer la date de dernière vérif", e);
+		}
+
+		return res;
+
+	}
+
+	/**
+	 * Sauve en base la date de dernière modif
+	 * 
+	 * @param date
+	 * @throws ComptaException
+	 *             Echec de l'écriture en base
+	 */
+	public void setDateDerVerif(Calendar date) throws ComptaException {
+
+		String query = "UPDATE CONFIGURATION SET date_verif=?;";
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
+
+			stmt.setDate(1, new Date(date.getTime().getTime()));
+			stmt.executeUpdate();
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de mettre la date a jour", e);
+		}
 
 	}
 

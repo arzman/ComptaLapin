@@ -508,7 +508,7 @@ public class TrimestreManager {
 
 		Date dat = null;
 
-		if (_trimestreCourant != null) {
+		if (_trimestreCourant.get() != null) {
 
 			dat = _trimestreCourant.get().getAppExerciceMensuel(numMois).get().getDateDebut().getTime();
 
@@ -528,7 +528,7 @@ public class TrimestreManager {
 
 		double res = 0;
 
-		if (_trimestreCourant != null) {
+		if (_trimestreCourant.get() != null) {
 
 			res = _trimestreCourant.get().getAppExerciceMensuel(numMois).get().getResultat();
 
@@ -548,7 +548,7 @@ public class TrimestreManager {
 
 		ObservableList<AppOperation> res = null;
 
-		if (_trimestreCourant != null) {
+		if (_trimestreCourant.get() != null) {
 
 			res = _trimestreCourant.get().getAppExerciceMensuel(numMois).get().getDepenses();
 
@@ -567,7 +567,7 @@ public class TrimestreManager {
 	public ObservableList<AppOperation> getRessources(Integer numMois) {
 		ObservableList<AppOperation> res = null;
 
-		if (_trimestreCourant != null) {
+		if (_trimestreCourant.get() != null) {
 
 			res = _trimestreCourant.get().getAppExerciceMensuel(numMois).get().getRessources();
 
@@ -586,7 +586,7 @@ public class TrimestreManager {
 	public ObservableList<AppTransfert> getTransfert(Integer numMois) {
 		ObservableList<AppTransfert> res = null;
 
-		if (_trimestreCourant != null) {
+		if (_trimestreCourant.get() != null) {
 
 			res = _trimestreCourant.get().getAppExerciceMensuel(numMois).get().getTransferts();
 

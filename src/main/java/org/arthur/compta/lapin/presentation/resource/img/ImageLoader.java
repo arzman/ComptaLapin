@@ -22,6 +22,8 @@ public class ImageLoader {
 	public static final String VALID_IMG = "valid_icon.png";
 	// pref
 	public static final String PREF_IMG = "pref.png";
+	//calendrier
+	public static final String CALENDRIER_IMG = "calendrier.png";
 	
 	
 	/**

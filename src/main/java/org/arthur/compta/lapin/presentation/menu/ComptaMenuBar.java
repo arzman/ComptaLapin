@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.application.service.ComptaService;
+import org.arthur.compta.lapin.presentation.common.dialog.DateDialog;
 import org.arthur.compta.lapin.presentation.compte.dialog.EditCompteDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
@@ -164,13 +165,17 @@ public class ComptaMenuBar extends MenuBar {
 			Menu datMenu = new Menu();
 			datMenu.setText("Vérif : " + dat);
 
+			// vérifier tout de suite
 			MenuItem verifNow = new MenuItem("Vérifier");
+			verifNow.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.VALID_IMG)));
 			verifNow.setOnAction(new EventHandler<ActionEvent>() {
 
 				@Override
 				public void handle(ActionEvent event) {
 
 					try {
+						// positionne la date de derniere verification à la date
+						// courant
 						ComptaService.setDateDerVerif(Calendar.getInstance());
 						datMenu.setText("Vérif : " + ComptaService.getDateDerVerif());
 					} catch (ComptaException e) {
@@ -179,8 +184,36 @@ public class ComptaMenuBar extends MenuBar {
 
 				}
 			});
-
 			datMenu.getItems().add(verifNow);
+
+			// changement de la date de derniere verif
+			MenuItem modVerif = new MenuItem("Changer la date");
+			modVerif.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.CALENDRIER_IMG)));
+			modVerif.setOnAction(new EventHandler<ActionEvent>() {
+
+				@Override
+				public void handle(ActionEvent event) {
+
+					try {
+						// ouverture de la fenetre de choix de date
+						DateDialog dia = new DateDialog(null);
+						// récupération du choix
+						Optional<Calendar> res = dia.showAndWait();
+
+						if (res.isPresent()) {
+							// positionnement de la nouvelle date
+							ComptaService.setDateDerVerif(res.get());
+							datMenu.setText("Vérif : " + ComptaService.getDateDerVerif());
+
+						}
+
+					} catch (ComptaException e) {
+						ExceptionDisplayService.showException(e);
+					}
+
+				}
+			});
+			datMenu.getItems().add(modVerif);
 
 			getMenus().add(datMenu);
 

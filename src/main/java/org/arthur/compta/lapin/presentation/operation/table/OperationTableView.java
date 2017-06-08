@@ -1,4 +1,4 @@
-package org.arthur.compta.lapin.presentation.trimestre.table;
+package org.arthur.compta.lapin.presentation.operation.table;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.model.AppOperation;

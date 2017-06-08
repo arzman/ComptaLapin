@@ -9,6 +9,7 @@ import org.arthur.compta.lapin.application.service.ComptaService;
 import org.arthur.compta.lapin.presentation.common.dialog.DateDialog;
 import org.arthur.compta.lapin.presentation.compte.dialog.EditCompteDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
+import org.arthur.compta.lapin.presentation.operation.dialog.SearchOperationDialog;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import org.arthur.compta.lapin.presentation.scene.MainScene;
 import org.arthur.compta.lapin.presentation.trimestre.dialog.ConfigureTemplateDialog;
@@ -39,12 +40,17 @@ public class ComptaMenuBar extends MenuBar {
 		createSystemMenu();
 		// menu Trimestre
 		createTrimestreMenu();
+		// menu operation
+		createOperationMenu();
 		// menu Compte
 		createCompteMenu();
 		// item date derniere vérif
 		createDerVerifItem();
 	}
 
+	/**
+	 * Création le menu systeme de l'application
+	 */
 	private void createSystemMenu() {
 
 		// création du menu Trimestre
@@ -133,6 +139,33 @@ public class ComptaMenuBar extends MenuBar {
 	}
 
 	/**
+	 * Crée le menu associé aux opérations
+	 */
+	private void createOperationMenu() {
+
+		// création du menu Trimestre
+		Menu opMenu = new Menu("Opération");
+
+		// ajout de l'action créé trimestre
+		MenuItem searchItem = new MenuItem("Rechercher");
+		searchItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.LOUPE_IMG)));
+		searchItem.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				// ouverture de la fenêtre de saisie
+				SearchOperationDialog dia = new SearchOperationDialog();
+				dia.showAndWait();
+
+			}
+		});
+		opMenu.getItems().add(searchItem);
+
+		getMenus().add(opMenu);
+
+	}
+
+	/**
 	 * Crée le menu associé aux comptes
 	 */
 	private void createCompteMenu() {
@@ -157,6 +190,9 @@ public class ComptaMenuBar extends MenuBar {
 
 	}
 
+	/**
+	 * Création du menu affichant la date de derniere vérif
+	 */
 	private void createDerVerifItem() {
 
 		try {

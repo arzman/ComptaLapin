@@ -1,4 +1,4 @@
-package org.arthur.compta.lapin.presentation.trimestre.dialog;
+package org.arthur.compta.lapin.presentation.operation.dialog;
 
 import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;

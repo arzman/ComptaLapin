@@ -5,10 +5,10 @@ import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.application.model.AppOperation;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
+import org.arthur.compta.lapin.presentation.operation.dialog.CreateOperationDialog;
+import org.arthur.compta.lapin.presentation.operation.table.OperationTableView;
+import org.arthur.compta.lapin.presentation.operation.table.TransfertTableView;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
-import org.arthur.compta.lapin.presentation.trimestre.dialog.CreateOperationDialog;
-import org.arthur.compta.lapin.presentation.trimestre.table.OperationTableView;
-import org.arthur.compta.lapin.presentation.trimestre.table.TransfertTableView;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;

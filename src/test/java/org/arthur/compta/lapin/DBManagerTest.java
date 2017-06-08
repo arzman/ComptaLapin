@@ -63,37 +63,40 @@ public class DBManagerTest extends TestCase {
 	}
 
 	/**
-	 * Premier chargement
+	 * Test de l'ajout de compte
 	 */
-	public void testNominal() {
+	public void testAddGetCompte() {
 
 		try {
-			// premier chargement
-			DBManager.getInstance();
-		} catch (Exception e) {
-
-		}
-	}
-
-	/**
-	 * Premier chargement
-	 */
-	public void testAddCompte() {
-
-		try {
-			// ajout du compte
+			// ajout du compte courant
 			String idCourant = DBManager.getInstance().addCompte("Courant", 100, false, false);
 			assertNotNull(idCourant);
 			assertFalse(idCourant.isEmpty());
+			// ajout d'un compt livret
+			String idLivret = DBManager.getInstance().addCompte("Livret", 1000, true, false);
+			assertNotNull(idLivret);
+			assertFalse(idLivret.isEmpty());
+			
 
 			// récupération du compte
 			HashMap<String, String[]> map = DBManager.getInstance().getAllCompte();
 			assertNotNull(map);
 			String[] infoCompte = map.get(idCourant);
 			assertNotNull(infoCompte);
-			assertTrue(infoCompte.length==4);
+			assertTrue(infoCompte.length == 4);
 			assertEquals("Courant", infoCompte[0]);
+			assertEquals("100.0", infoCompte[1]);
+			assertEquals("false", infoCompte[2]);
+			assertEquals("false", infoCompte[3]);
 			
+			String[] infoCompte2 = map.get(idLivret);
+			assertNotNull(infoCompte2);
+			assertTrue(infoCompte2.length == 4);
+			assertEquals("Livret", infoCompte2[0]);
+			assertEquals("1000.0",infoCompte2[1]);
+			assertEquals("true", infoCompte2[2]);
+			assertEquals("false", infoCompte2[3]);
+
 		} catch (SQLException e) {
 			fail("Echec dans le cas nominal");
 		}

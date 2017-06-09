@@ -8,7 +8,7 @@ import org.arthur.compta.lapin.application.model.AppTransfert;
 import org.arthur.compta.lapin.application.service.OperationService;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
-import org.arthur.compta.lapin.presentation.trimestre.cellfactory.CompteCellComboFactory;
+import org.arthur.compta.lapin.presentation.template.cellfactory.CompteCellComboFactory;
 
 import javafx.scene.Node;
 import javafx.scene.control.ButtonBar.ButtonData;

@@ -1,4 +1,4 @@
-package org.arthur.compta.lapin.presentation.trimestre.dialog;
+package org.arthur.compta.lapin.presentation.template.dialog;
 
 import java.util.Optional;
 
@@ -11,7 +11,7 @@ import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.common.cellfactory.MontantCellFactory;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
-import org.arthur.compta.lapin.presentation.trimestre.cellfactory.CompteCellFactory;
+import org.arthur.compta.lapin.presentation.template.cellfactory.CompteCellFactory;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

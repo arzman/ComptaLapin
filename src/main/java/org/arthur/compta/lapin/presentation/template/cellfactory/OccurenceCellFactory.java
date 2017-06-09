@@ -1,4 +1,4 @@
-package org.arthur.compta.lapin.presentation.trimestre.cellfactory;
+package org.arthur.compta.lapin.presentation.template.cellfactory;
 
 import java.text.DateFormatSymbols;
 

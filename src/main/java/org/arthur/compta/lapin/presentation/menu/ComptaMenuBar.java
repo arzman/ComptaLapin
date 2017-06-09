@@ -12,7 +12,7 @@ import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.operation.dialog.SearchOperationDialog;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import org.arthur.compta.lapin.presentation.scene.MainScene;
-import org.arthur.compta.lapin.presentation.trimestre.dialog.ConfigureTemplateDialog;
+import org.arthur.compta.lapin.presentation.template.dialog.ConfigureTemplateDialog;
 import org.arthur.compta.lapin.presentation.trimestre.dialog.CreateTrimestreDialog;
 import org.arthur.compta.lapin.presentation.trimestre.dialog.ManageTrimestreCourantDialog;
 

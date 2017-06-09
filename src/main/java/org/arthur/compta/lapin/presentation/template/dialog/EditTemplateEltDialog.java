@@ -1,4 +1,4 @@
-package org.arthur.compta.lapin.presentation.trimestre.dialog;
+package org.arthur.compta.lapin.presentation.template.dialog;
 
 import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
@@ -8,8 +8,8 @@ import org.arthur.compta.lapin.application.model.template.TrimestreTemplateEleme
 import org.arthur.compta.lapin.application.service.OperationService;
 import org.arthur.compta.lapin.application.service.TemplateService;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
-import org.arthur.compta.lapin.presentation.trimestre.cellfactory.CompteCellComboFactory;
-import org.arthur.compta.lapin.presentation.trimestre.cellfactory.OccurenceCellFactory;
+import org.arthur.compta.lapin.presentation.template.cellfactory.CompteCellComboFactory;
+import org.arthur.compta.lapin.presentation.template.cellfactory.OccurenceCellFactory;
 
 import javafx.scene.Node;
 import javafx.scene.control.ButtonBar.ButtonData;

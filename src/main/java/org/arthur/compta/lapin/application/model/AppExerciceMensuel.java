@@ -134,4 +134,12 @@ public class AppExerciceMensuel extends AppObject {
 		return _appTransfertList;
 	}
 
+	/**
+	 * Retourne le résultat prévisionnel
+	 * @return
+	 */
+	public double getResultatPrev() {
+		return _exMensuel.getResultatPrev();
+	}
+
 }

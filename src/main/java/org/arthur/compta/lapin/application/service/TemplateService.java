@@ -70,6 +70,7 @@ public class TemplateService {
 	 *            l'exercice mensuel
 	 * @param num
 	 *            l'indice du mois dans le trimestre
+	 * @return
 	 * @throws ComptaException
 	 */
 	public static void applyTtemplate(AppExerciceMensuel exMen, int num) throws ComptaException {
@@ -191,7 +192,6 @@ public class TemplateService {
 
 	}
 
-
 	/**
 	 * Retourne les fréquences possibles pour un élément de template
 	 * 
@@ -207,7 +207,7 @@ public class TemplateService {
 
 		return res;
 	}
-	
+
 	/**
 	 * Retourne les occurences possible en fonction de la fréquence choisie
 	 * 
@@ -229,6 +229,58 @@ public class TemplateService {
 		}
 
 		return res;
+	}
+
+	/**
+	 * Retourne le gain moyen mensuel d'une liste d'élément de template
+	 * 
+	 * @param _elementList
+	 * @return
+	 */
+	public static double getGainMoyen(List<TrimestreTemplateElement> _elementList) {
+
+		double gain = 0;
+
+		for (TrimestreTemplateElement elt : _elementList) {
+
+			double mont;
+			// mensualisation du montant
+			switch (elt.getFreq()) {
+			case HEBDOMADAIRE:
+				mont = elt.getMontant() * 52 / 12.0;
+				break;
+			case MENSUEL:
+				mont = elt.getMontant();
+				break;
+			case TRIMESTRIEL:
+				mont = elt.getMontant() / 3.0;
+				break;
+			default:
+				mont = 0;
+				break;
+			}
+			// prise en compte dans le gain
+			switch (OperationType.valueOf(elt.getType())) {
+
+			case DEPENSE:
+				gain = gain - mont;
+				break;
+			case RESSOURCE:
+				gain = gain + mont;
+				break;
+			default:
+				break;
+
+			}
+
+		}
+
+		return gain;
+	}
+
+	public static double getPrevFromtemplate() {
+
+		return getGainMoyen(getTrimestreTemplate().getElements());
 	}
 
 }

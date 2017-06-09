@@ -38,6 +38,8 @@ public class ExerciceMensuel implements Comparable<ExerciceMensuel> {
 	 * Date de fin de l'exercice
 	 */
 	private Calendar _dateFin;
+	/** Le résultat prévisionnel à la création */
+	private double _resPrev;
 
 	/**
 	 * 
@@ -99,7 +101,8 @@ public class ExerciceMensuel implements Comparable<ExerciceMensuel> {
 	 */
 	public boolean ajouterTransfert(String nom, double montant, Compte compteSource, Compte compteCible) {
 
-		return _transfertList.add(new TransfertOperation(compteSource, nom, montant,EtatOperation.PREVISION, compteCible));
+		return _transfertList
+				.add(new TransfertOperation(compteSource, nom, montant, EtatOperation.PREVISION, compteCible));
 
 	}
 
@@ -173,6 +176,25 @@ public class ExerciceMensuel implements Comparable<ExerciceMensuel> {
 	 */
 	public void setTransfertList(List<TransfertOperation> transfertList) {
 		_transfertList = transfertList;
+	}
+
+	/**
+	 * Positionne le résultat prévisionnel à la création
+	 * 
+	 * @param result
+	 */
+	public void setResPrev(double result) {
+		_resPrev = result;
+
+	}
+
+	/**
+	 * Retourne le résultat pévisionnel
+	 * 
+	 * @return
+	 */
+	public double getResultatPrev() {
+		return _resPrev;
 	}
 
 }

@@ -20,6 +20,7 @@ CREATE TABLE COMPTE(
 #***************************************************************
 CREATE TABLE EXERCICE_MENSUEL(
 	ID            IDENTITY NOT NULL,
+	resultat_moyen_prevu	FLOAT NOT NULL,
 	date_debut    DATE  NOT NULL,
 	date_fin      DATE  NOT NULL,
 );

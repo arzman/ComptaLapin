@@ -26,12 +26,19 @@ public class ExerciceHeaderPane extends GridPane {
 	/** Pas de date défini */
 	private static final String NO_CONTENT_DATE_STR = "######";
 
+	/** résultat courant */
+	private double currentRes;
+	/** résultat previsionnel */
+	private double _prevRes;
+
 	/**
 	 * Le constructeur
 	 */
-	public ExerciceHeaderPane() {
+	public ExerciceHeaderPane(double prevRes) {
 
 		// le mois
+		_prevRes = prevRes;
+
 		_moisLbl = new Label();
 		_moisLbl.setFont(Font.font("Verdana", 18));
 		add(_moisLbl, 0, 0);
@@ -43,8 +50,8 @@ public class ExerciceHeaderPane extends GridPane {
 		colCons.setFillWidth(true);
 		colCons.setHgrow(Priority.ALWAYS);
 		colCons.setHalignment(HPos.CENTER);
-		
-		getColumnConstraints().addAll(colCons,colCons);
+
+		getColumnConstraints().addAll(colCons, colCons);
 	}
 
 	/**
@@ -65,17 +72,26 @@ public class ExerciceHeaderPane extends GridPane {
 
 	/**
 	 * Affiche le résultat
+	 * 
 	 * @param res
 	 */
 	public void setResutlat(double res) {
 
-		if (res < 0) {
+		currentRes = res;
+
+		if (currentRes < 0) {
 			_resultatLbl.setTextFill(Color.RED);
 		} else {
-			_resultatLbl.setTextFill(Color.GREEN);
+
+			if (currentRes > _prevRes) {
+				_resultatLbl.setTextFill(Color.GREEN);
+			} else {
+				_resultatLbl.setTextFill(Color.ORANGE);
+			}
+
 		}
 
-		_resultatLbl.setText(ApplicationFormatter.montantFormat.format(res));
+		_resultatLbl.setText(ApplicationFormatter.montantFormat.format(res)+" / "+ApplicationFormatter.montantFormat.format(_prevRes));
 
 	}
 

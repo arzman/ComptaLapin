@@ -67,7 +67,7 @@ public class ExerciceMensuelPane extends GridPane {
 		setId(id);
 		_numMois = numMois;
 
-		_title = new ExerciceHeaderPane();
+		_title = new ExerciceHeaderPane(TrimestreManager.getInstance().getResultatPrev(_numMois));
 		add(_title, 0, 0);
 
 		createContent();

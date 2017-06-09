@@ -134,6 +134,8 @@ public class TrimestreManager {
 				fin.setTime(ApplicationFormatter.databaseDateFormat.parse(infos[2]));
 				em.setDateFin(fin);
 
+				em.setResPrev(Double.parseDouble(infos[3]));
+
 				appEm = new AppExerciceMensuel(em);
 				appEm.setAppID(infos[0]);
 
@@ -210,6 +212,9 @@ public class TrimestreManager {
 	 * Crée un trimestre applicatif
 	 * 
 	 * @param dateDeb
+	 *            la date de début
+	 * @param resPrev
+	 *            le résultat prévisionnel
 	 * @return
 	 * @throws ComptaException
 	 */
@@ -227,6 +232,7 @@ public class TrimestreManager {
 			// création des exercice mensuel du trimestre
 			for (int i = 0; i < 3; i++) {
 
+				// création du modèle métier
 				final ExerciceMensuel em = new ExerciceMensuel();
 				// date de debut
 				final Calendar debut = Calendar.getInstance();
@@ -241,15 +247,23 @@ public class TrimestreManager {
 				fin.set(Calendar.YEAR, dateDeb.get(Calendar.YEAR) + ((i + numMoi) / 12));
 				em.setDateFin(fin);
 
+				
 				// insertion de l'exercice mensuel en base
-				String idEm = DBManager.getInstance().addExerciceMensuel(debut, fin);
-
+				double resPrev = TemplateService.getPrevFromtemplate();
+				String idEm = DBManager.getInstance().addExerciceMensuel(debut, fin, resPrev);
 				// création de l'exercice applicatif
 				AppExerciceMensuel appEm = new AppExerciceMensuel(em);
 				appEm.setAppID(idEm);
-				// ajout des opérations du templates
+				
+				
+
+				// ajout des opérations du templates et calcul du prévisionnel
 				TemplateService.applyTtemplate(appEm, i);
 
+				
+
+				// lien applicatif
+				
 				appTrim.setAppExerciceMensuel(i, appEm);
 
 			}
@@ -589,6 +603,24 @@ public class TrimestreManager {
 		if (_trimestreCourant.get() != null) {
 
 			res = _trimestreCourant.get().getAppExerciceMensuel(numMois).get().getTransferts();
+
+		}
+
+		return res;
+	}
+
+	/**
+	 * Retourne le résultat prévisionnel à la création de l'exercice
+	 * 
+	 * @param numMois
+	 * @return
+	 */
+	public double getResultatPrev(int numMois) {
+		double res = 0;
+
+		if (_trimestreCourant.get() != null) {
+
+			res = _trimestreCourant.get().getAppExerciceMensuel(numMois).get().getResultatPrev();
 
 		}
 

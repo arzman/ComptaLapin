@@ -316,7 +316,7 @@ public class DBManager {
 
 	/**
 	 * Récupère les champ en base d'un exercice mensuel [ ID , date_debut ,
-	 * date_fin]
+	 * date_fin,resultat_moyen_prevu]
 	 * 
 	 * @param id
 	 *            l'id de l'exercice
@@ -326,9 +326,9 @@ public class DBManager {
 	 */
 	public String[] getExMensuelInfos(String id) throws SQLException {
 
-		String[] res = new String[3];
+		String[] res = new String[4];
 		// création de la requete
-		String query = "SELECT ID ,date_debut,date_fin FROM EXERCICE_MENSUEL WHERE ID=?";
+		String query = "SELECT ID ,date_debut,date_fin,resultat_moyen_prevu FROM EXERCICE_MENSUEL WHERE ID=?";
 		PreparedStatement stmt = getConnexion().prepareStatement(query);
 		stmt.setInt(1, Integer.parseInt(id));
 		// exécution
@@ -339,6 +339,7 @@ public class DBManager {
 			res[0] = queryRes.getString("ID");
 			res[1] = ApplicationFormatter.databaseDateFormat.format(queryRes.getDate("date_debut"));
 			res[2] = ApplicationFormatter.databaseDateFormat.format(queryRes.getDate("date_fin"));
+			res[3] = String.valueOf(queryRes.getDouble("resultat_moyen_prevu"));
 
 		}
 
@@ -352,18 +353,21 @@ public class DBManager {
 	 *            date de début
 	 * @param fin
 	 *            date de fin
+	 * @param resPrevu
+	 *            : le gain moyen prévisionnel à la création
 	 * @return l'identifiant de l'exercice inséré
 	 * @throws SQLException
 	 *             Echec de l'insertion
 	 */
-	public String addExerciceMensuel(Calendar debut, Calendar fin) throws SQLException {
+	public String addExerciceMensuel(Calendar debut, Calendar fin, double resPrevu) throws SQLException {
 		String id = "";
 
 		// préparation de la requête
-		String query = "INSERT INTO EXERCICE_MENSUEL (date_debut,date_fin) VALUES (?,?);";
+		String query = "INSERT INTO EXERCICE_MENSUEL (date_debut,date_fin,resultat_moyen_prevu) VALUES (?,?,?);";
 		PreparedStatement stmt = getConnexion().prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 		stmt.setDate(1, new Date(debut.getTime().getTime()));
 		stmt.setDate(2, new Date(fin.getTime().getTime()));
+		stmt.setDouble(3, resPrevu);
 
 		// execution
 		stmt.executeUpdate();

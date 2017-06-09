@@ -12,6 +12,7 @@ import org.arthur.compta.lapin.presentation.common.cellfactory.MontantCellFactor
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import org.arthur.compta.lapin.presentation.template.cellfactory.CompteCellFactory;
+import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -21,12 +22,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DialogEvent;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.paint.Color;
 import javafx.util.Callback;
 
 /**
@@ -44,6 +47,8 @@ public class ConfigureTemplateDialog extends ComptaDialog<String> {
 	private TableView<TrimestreTemplateElement> _table;
 	/** bouton d'ajout d'element */
 	private Button _addBut;
+	/** Gain moyen des templates */
+	private Label _gainMoyenMensuelLbl;
 
 	/**
 	 * Constructeur
@@ -89,6 +94,8 @@ public class ConfigureTemplateDialog extends ComptaDialog<String> {
 	private void createContent() {
 		// racine des noeuds graphiques
 		GridPane root = new GridPane();
+		root.setVgap(15);
+		root.setHgap(15);
 		ColumnConstraints colConst = new ColumnConstraints();
 		colConst.setFillWidth(true);
 		colConst.setHgrow(Priority.ALWAYS);
@@ -99,9 +106,13 @@ public class ConfigureTemplateDialog extends ComptaDialog<String> {
 		createControlButton();
 		root.add(_addBut, 0, 0);
 
+		_gainMoyenMensuelLbl = new Label();
+		root.add(_gainMoyenMensuelLbl, 1, 0);
+		refreshGainMoyen();
+
 		// Tableau des élements de modèle
 		createTable();
-		root.add(_table, 0, 1);
+		root.add(_table, 0, 1, 2, 1);
 
 		// restaure les tailles sauvegardées
 		// sauvegarde de la taille de la fenetres
@@ -115,6 +126,23 @@ public class ConfigureTemplateDialog extends ComptaDialog<String> {
 			col.setPrefWidth(Double.parseDouble(
 					ConfigurationManager.getInstance().getProp("ConfigureTemplateDialog.col." + col.getId(), "50")));
 		}
+
+	}
+
+	/**
+	 * Raffraichit le gain moyen mensualisé
+	 */
+	private void refreshGainMoyen() {
+
+		double gain = TemplateService.getGainMoyen(_elementList);
+
+		if (gain > 0) {
+			_gainMoyenMensuelLbl.setTextFill(Color.GREEN);
+		} else {
+			_gainMoyenMensuelLbl.setTextFill(Color.RED);
+		}
+
+		_gainMoyenMensuelLbl.setText("Résultat moyen mensuel : "+ApplicationFormatter.montantFormat.format(gain));
 
 	}
 
@@ -138,6 +166,7 @@ public class ConfigureTemplateDialog extends ComptaDialog<String> {
 					_elementList.add(res.get());
 
 				}
+				refreshGainMoyen();
 			};
 		});
 	}

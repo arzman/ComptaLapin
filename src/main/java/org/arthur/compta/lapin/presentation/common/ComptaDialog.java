@@ -30,7 +30,6 @@ public class ComptaDialog<T> extends Dialog<T> {
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
 				ConfigurationManager.getInstance().setProp(id + ".size.width",
 						String.valueOf(getWidth()));
-				System.out.println("lol");
 
 			}
 		});

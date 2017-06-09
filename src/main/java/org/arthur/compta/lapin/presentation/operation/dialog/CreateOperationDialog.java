@@ -6,6 +6,7 @@ import org.arthur.compta.lapin.application.model.AppCompte;
 import org.arthur.compta.lapin.application.model.AppOperation;
 import org.arthur.compta.lapin.application.model.AppTransfert;
 import org.arthur.compta.lapin.application.service.OperationService;
+import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.trimestre.cellfactory.CompteCellComboFactory;
 
@@ -13,7 +14,6 @@ import javafx.scene.Node;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Border;
@@ -29,7 +29,7 @@ import javafx.util.Callback;
  * Fenêtre permettant la création et l'édition d'opération
  *
  */
-public class CreateOperationDialog extends Dialog<String> {
+public class CreateOperationDialog extends ComptaDialog<String> {
 
 	/** L'opération a créer ou éditer */
 	private AppOperation _operation;
@@ -59,6 +59,8 @@ public class CreateOperationDialog extends Dialog<String> {
 	 *            l'opération à éditer, null si création
 	 */
 	public CreateOperationDialog(AppOperation op, int numMois) {
+
+		super(CreateOperationDialog.class.getSimpleName());
 
 		_operation = op;
 		_numMois = numMois;
@@ -112,8 +114,6 @@ public class CreateOperationDialog extends Dialog<String> {
 				return res;
 			}
 		});
-		
-
 
 	}
 

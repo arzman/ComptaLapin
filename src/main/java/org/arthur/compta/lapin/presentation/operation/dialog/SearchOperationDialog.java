@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.model.OperationSearchResult;
 import org.arthur.compta.lapin.application.service.OperationService;
+import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.common.cellfactory.MoisCellFactory;
 import org.arthur.compta.lapin.presentation.common.cellfactory.MontantCellFactory;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
@@ -21,7 +22,6 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -40,7 +40,7 @@ import javafx.scene.paint.Color;
  * Fenetre de recherche d'opération
  *
  */
-public class SearchOperationDialog extends Dialog<String> {
+public class SearchOperationDialog extends ComptaDialog<String> {
 
 	/** champ de saisie du nom */
 	private TextField _libTxt;
@@ -62,8 +62,8 @@ public class SearchOperationDialog extends Dialog<String> {
 
 	public SearchOperationDialog() {
 
+		super(SearchOperationDialog.class.getSimpleName());
 		setTitle("Recherche une opération");
-		setResizable(true);
 		_allEmpty = true;
 
 		_resultatList = FXCollections.observableArrayList();

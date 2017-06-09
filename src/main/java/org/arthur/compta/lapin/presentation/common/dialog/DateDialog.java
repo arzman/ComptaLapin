@@ -4,19 +4,22 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Calendar;
 
+import org.arthur.compta.lapin.presentation.common.ComptaDialog;
+
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
 
 /**
  * Fenetre permettant de choisr une date
  */
-public class DateDialog extends Dialog<Calendar> {
+public class DateDialog extends ComptaDialog<Calendar> {
 
 	public DateDialog(Calendar date) {
+
+		super(DateDialog.class.getSimpleName());
 
 		setTitle("Choisissez une date");
 

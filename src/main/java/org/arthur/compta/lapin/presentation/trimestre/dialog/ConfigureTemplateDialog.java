@@ -7,6 +7,7 @@ import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.application.model.AppCompte;
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElement;
 import org.arthur.compta.lapin.application.service.TemplateService;
+import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.common.cellfactory.MontantCellFactory;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
@@ -19,7 +20,6 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogEvent;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -36,7 +36,7 @@ import javafx.util.Callback;
  * écraser le modèle sauvegardé.
  *
  */
-public class ConfigureTemplateDialog extends Dialog<String> {
+public class ConfigureTemplateDialog extends ComptaDialog<String> {
 
 	/** La liste des éléments de template */
 	private ObservableList<TrimestreTemplateElement> _elementList;
@@ -49,6 +49,8 @@ public class ConfigureTemplateDialog extends Dialog<String> {
 	 * Constructeur
 	 */
 	public ConfigureTemplateDialog() {
+
+		super(ConfigureTemplateDialog.class.getSimpleName());
 
 		_elementList = FXCollections.observableArrayList();
 		_elementList.addAll(TemplateService.getTrimestreTemplate().getElements());

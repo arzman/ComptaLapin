@@ -6,12 +6,12 @@ import java.util.Calendar;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.application.model.AppTrimestre;
+import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
@@ -22,7 +22,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 
-public class CreateTrimestreDialog extends Dialog<AppTrimestre> {
+public class CreateTrimestreDialog extends ComptaDialog<AppTrimestre> {
 
 	/**
 	 * Bouton ok
@@ -44,7 +44,7 @@ public class CreateTrimestreDialog extends Dialog<AppTrimestre> {
 			new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1)));
 
 	public CreateTrimestreDialog() {
-
+		super(CreateTrimestreDialog.class.getSimpleName());
 		setTitle("Création d'un trimestre");
 
 		// Création des champ de saisi
@@ -116,7 +116,7 @@ public class CreateTrimestreDialog extends Dialog<AppTrimestre> {
 					}
 
 				}
-				
+
 				// appuie sur Ok : on crée le trimestre
 				if (param.getButtonData().equals(ButtonData.APPLY)) {
 
@@ -126,10 +126,9 @@ public class CreateTrimestreDialog extends Dialog<AppTrimestre> {
 						deb.setTime(Date.valueOf(_dpick.getValue()));
 						// création
 						zeReturn = TrimestreManager.getInstance().createTrimestre(deb);
-						
-						//changement de trimestre courant
+
+						// changement de trimestre courant
 						TrimestreManager.getInstance().loadTrimestreCourant(zeReturn.getAppId());
-						
 
 					} catch (ComptaException e) {
 						ExceptionDisplayService.showException(e);

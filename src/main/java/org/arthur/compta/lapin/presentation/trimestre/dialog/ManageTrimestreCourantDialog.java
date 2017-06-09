@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
+import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import org.arthur.compta.lapin.presentation.trimestre.cellfactory.TrimestreListCellFactory;
@@ -16,7 +17,6 @@ import javafx.event.EventHandler;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
@@ -29,7 +29,7 @@ import javafx.util.Callback;
  * trimestre
  *
  */
-public class ManageTrimestreCourantDialog extends Dialog<String> {
+public class ManageTrimestreCourantDialog extends ComptaDialog<String> {
 
 	/**
 	 * Les id des trimestre à afficher ainsi que leur date de début.
@@ -41,6 +41,8 @@ public class ManageTrimestreCourantDialog extends Dialog<String> {
 	private ListView<String> _listV;
 
 	public ManageTrimestreCourantDialog() {
+
+		super(ManageTrimestreCourantDialog.class.getSimpleName());
 
 		setTitle("Sélection du trimestre courant");
 

@@ -7,6 +7,7 @@ import org.arthur.compta.lapin.application.model.template.TrimestreTemplateEleme
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElementFrequence;
 import org.arthur.compta.lapin.application.service.OperationService;
 import org.arthur.compta.lapin.application.service.TemplateService;
+import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.trimestre.cellfactory.CompteCellComboFactory;
 import org.arthur.compta.lapin.presentation.trimestre.cellfactory.OccurenceCellFactory;
 
@@ -14,7 +15,6 @@ import javafx.scene.Node;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Border;
@@ -30,7 +30,7 @@ import javafx.util.Callback;
  * Fenêtre de saisie d'un élément de template de trimestre
  *
  */
-public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
+public class EditTemplateEltDialog extends ComptaDialog<TrimestreTemplateElement> {
 
 	/** L'élément de template */
 	private TrimestreTemplateElement _templateElt;
@@ -63,6 +63,8 @@ public class EditTemplateEltDialog extends Dialog<TrimestreTemplateElement> {
 	 *            l'element a éditer , null si création
 	 */
 	public EditTemplateEltDialog(TrimestreTemplateElement elt) {
+
+		super(EditTemplateEltDialog.class.getSimpleName());
 
 		_templateElt = elt;
 

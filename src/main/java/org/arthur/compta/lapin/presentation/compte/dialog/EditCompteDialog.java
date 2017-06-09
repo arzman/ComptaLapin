@@ -3,13 +3,13 @@ package org.arthur.compta.lapin.presentation.compte.dialog;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.model.AppCompte;
+import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 
 import javafx.scene.Node;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
@@ -26,42 +26,30 @@ import javafx.util.Callback;
  * Fenêtre d'édition d'un compte
  *
  */
-public class EditCompteDialog extends Dialog<AppCompte> {
+public class EditCompteDialog extends ComptaDialog<AppCompte> {
 
-	/**
-	 * Le champ de saisi du nom
-	 */
+	/** Le champ de saisi du nom */
 	private TextField _nomTxt;
-	/**
-	 * Le champ de saisi du solde
-	 */
+	/** Le champ de saisi du solde */
 	private TextField _soldeTxt;
-	/**
-	 * Checkbox pour la saisie de : isLivret
-	 */
+	/** Checkbox pour la saisie de : isLivret */
 	private CheckBox _livretCheck;
-	/**
-	 * Checkbox pour la saisie de : isBudget
-	 */
+	/** Checkbox pour la saisie de : isBudget */
 	private CheckBox _budgetCheck;
 
-	/**
-	 * Le bouton OK
-	 */
+	/** Le bouton OK */
 	private ButtonType _buttonTypeOk;
 
-	/**
-	 * Id application du compte a éditié ( vide si création)
-	 */
+	/** Id application du compte a éditié ( vide si création) */
 	private AppCompte _appCompte;
 
-	/**
-	 * La bordure rouge en cas d'erreur de saisi
-	 */
+	/** La bordure rouge en cas d'erreur de saisi */
 	private final Border BORDER_ERROR = new Border(
 			new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1)));
 
 	public EditCompteDialog(AppCompte appCompte) {
+
+		super(EditCompteDialog.class.getSimpleName());
 
 		_appCompte = appCompte;
 

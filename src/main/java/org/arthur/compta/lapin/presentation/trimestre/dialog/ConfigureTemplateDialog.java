@@ -7,10 +7,10 @@ import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.application.model.AppCompte;
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElement;
 import org.arthur.compta.lapin.application.service.TemplateService;
+import org.arthur.compta.lapin.presentation.common.cellfactory.MontantCellFactory;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import org.arthur.compta.lapin.presentation.trimestre.cellfactory.CompteCellFactory;
-import org.arthur.compta.lapin.presentation.trimestre.cellfactory.MontantCellFactory;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

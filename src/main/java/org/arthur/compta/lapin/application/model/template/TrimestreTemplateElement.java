@@ -1,7 +1,6 @@
 package org.arthur.compta.lapin.application.model.template;
 
 import org.arthur.compta.lapin.application.model.AppCompte;
-import org.arthur.compta.lapin.application.model.IMontant;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -16,7 +15,7 @@ import javafx.beans.property.SimpleStringProperty;
  * trimestriel --> numéro du mois dans le trimestre
  *
  */
-public class TrimestreTemplateElement implements IMontant {
+public class TrimestreTemplateElement {
 
 	/** nom */
 	private SimpleStringProperty _nomProp;
@@ -232,6 +231,7 @@ public class TrimestreTemplateElement implements IMontant {
 
 	/**
 	 * Retourne le compte cible
+	 * 
 	 * @return
 	 */
 	public AppCompte getCompteCible() {

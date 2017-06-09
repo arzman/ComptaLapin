@@ -1,15 +1,21 @@
 package org.arthur.compta.lapin.application.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.model.AppCompte;
 import org.arthur.compta.lapin.application.model.AppOperation;
 import org.arthur.compta.lapin.application.model.AppTransfert;
+import org.arthur.compta.lapin.application.model.OperationSearchResult;
 import org.arthur.compta.lapin.dataaccess.db.DBManager;
 import org.arthur.compta.lapin.model.operation.EtatOperation;
 import org.arthur.compta.lapin.model.operation.Operation;
 import org.arthur.compta.lapin.model.operation.OperationType;
 import org.arthur.compta.lapin.model.operation.TransfertOperation;
+import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -162,8 +168,46 @@ public class OperationService {
 		// refresh du previsionnel
 		CompteManager.getInstance().calculateSoldePrev(newCompteSrc);
 		CompteManager.getInstance().calculateSoldePrev(newCompteCibles);
-		
+
 		return _operation;
+	}
+
+	/**
+	 * Effectue une recherche sur les opérations.
+	 * 
+	 * Retourne les operation dont le libellé contient lib et dont le montant
+	 * est égale à montant +- tolerance
+	 * 
+	 * Si un des champs est vide, alors il est ignoré
+	 * 
+	 * @param lib
+	 * @param montant
+	 * @param tolerance
+	 * @return
+	 * @throws ComptaException
+	 */
+	public static List<OperationSearchResult> doSearch(String lib, String montant, String tolerance)
+			throws ComptaException {
+
+		ArrayList<OperationSearchResult> res = new ArrayList<>();
+
+		try {
+
+			HashMap<String, String[]> infos = DBManager.getInstance().searchOperation(lib, montant, tolerance);
+
+			for (String idOp : infos.keySet()) {
+
+				String[] info = infos.get(idOp);
+				OperationSearchResult opRes = new OperationSearchResult(info[0], Double.parseDouble(info[1]),
+						ApplicationFormatter.databaseDateFormat.parse(info[2]));
+				res.add(opRes);
+
+			}
+		} catch (Exception e) {
+			throw new ComptaException("Echec de la recherche", e);
+		}
+
+		return res;
 	}
 
 }

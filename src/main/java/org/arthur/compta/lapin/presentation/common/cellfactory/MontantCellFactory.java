@@ -1,4 +1,4 @@
-package org.arthur.compta.lapin.presentation.trimestre.cellfactory;
+package org.arthur.compta.lapin.presentation.common.cellfactory;
 
 import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
@@ -9,18 +9,16 @@ import javafx.util.Callback;
 /**
  * Usine à cellule permettant de gérer l'affichage d'un somme monétaire dans un
  * tableau.
- *
  */
-public class MontantCellFactory<IMontant>
-		implements Callback<TableColumn<IMontant, Number>, TableCell<IMontant, Number>> {
+public class MontantCellFactory<T> implements Callback<TableColumn<T, Number>, TableCell<T, Number>> {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public TableCell<IMontant, Number> call(TableColumn<IMontant, Number> param) {
+	public TableCell<T, Number> call(TableColumn<T, Number> param) {
 
-		return new TableCell<IMontant, Number>() {
+		return new TableCell<T, Number>() {
 
 			@Override
 			protected void updateItem(Number item, boolean empty) {

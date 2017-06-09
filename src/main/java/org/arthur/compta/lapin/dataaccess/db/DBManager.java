@@ -881,4 +881,102 @@ public class DBManager {
 
 	}
 
+	/**
+	 * Effectue une recherche d'opération en base de donnée
+	 * 
+	 * @param lib
+	 *            le libelle a trouver
+	 * @param montant
+	 *            le montant
+	 * @param tolerance
+	 *            la tolérance sur le montant
+	 * @return
+	 * @throws ComptaException
+	 */
+	public HashMap<String, String[]> searchOperation(String lib, String montant, String tolerance)
+			throws ComptaException {
+
+		HashMap<String, String[]> res = new HashMap<>();
+
+		String query = "SELECT O.ID,O.nom,O.montant,O.mois_id,E.date_debut FROM OPERATION O INNER JOIN EXERCICE_MENSUEL E ON O.mois_id=E.ID";
+
+		// contiendra les critères
+		String[] crit = new String[3];
+		// permet la jonction entre le critere de nom et montant
+		String con = " AND ";
+		if (!lib.isEmpty()) {
+			crit[0] = " WHERE O.nom LIKE ?";
+		} else {
+			// pas de critere sur le libelle....pas de AND
+			con = " WHERE ";
+		}
+		if (!montant.isEmpty()) {
+
+			if (!tolerance.isEmpty()) {
+
+				crit[1] = con + "O.montant>?";
+				crit[2] = "AND O.montant<?";
+
+			} else {
+				crit[1] = con + "O.montant=?";
+			}
+
+		}
+
+		// concatenation des criteres
+		for (String st : crit) {
+
+			if (st != null) {
+				query = query + st;
+			}
+
+		}
+
+		query = query + ";";
+
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
+
+			int j = 1;
+
+			if (crit[0] != null) {
+				stmt.setString(j, "%" + lib + "%");
+				j++;
+			}
+			if (crit[1] != null) {
+				double d1 = Double.parseDouble(montant);
+				if (crit[2] != null) {
+					// encadrement
+
+					double d2 = Double.parseDouble(tolerance);
+
+					stmt.setDouble(j, d1 - d2);
+					j++;
+					stmt.setDouble(j, d1 + d2);
+
+				} else {
+					stmt.setDouble(j, d1);
+				}
+
+			}
+			ResultSet queryRes = stmt.executeQuery();
+
+			while (queryRes.next()) {
+				// parsing du résultat
+				String[] elt = new String[3];
+
+				elt[0] = queryRes.getString("nom");
+				elt[1] = queryRes.getString("montant");
+				elt[2] = ApplicationFormatter.databaseDateFormat.format(queryRes.getDate("date_debut"));
+
+				res.put(queryRes.getString("ID"), elt);
+			}
+		} catch (Exception e) {
+
+			throw new ComptaException("Echec de la recherche", e);
+
+		}
+
+		return res;
+	}
+
 }

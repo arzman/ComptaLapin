@@ -3,9 +3,9 @@ package org.arthur.compta.lapin.presentation.operation.table;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.model.AppOperation;
 import org.arthur.compta.lapin.application.service.OperationService;
+import org.arthur.compta.lapin.presentation.common.cellfactory.MontantCellFactory;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.trimestre.cellfactory.EtatCellFactory;
-import org.arthur.compta.lapin.presentation.trimestre.cellfactory.MontantCellFactory;
 
 import javafx.event.EventHandler;
 import javafx.scene.control.TableColumn;
@@ -18,6 +18,7 @@ public class OperationTableView<T extends AppOperation> extends TableView<T> {
 
 		// Colonne etat
 		TableColumn<T, String> colEtat = new TableColumn<>(" ");
+		colEtat.setId("etat");
 		colEtat.setResizable(true);
 		colEtat.setEditable(false);
 		// bind sur l etat
@@ -28,6 +29,7 @@ public class OperationTableView<T extends AppOperation> extends TableView<T> {
 		// Colonne du libelle
 		TableColumn<T, String> colNom = new TableColumn<>("Libellé");
 		colNom.setResizable(true);
+		colNom.setId("nom");
 		colNom.setEditable(false);
 		colNom.setSortable(true);
 		// bind sur la nom
@@ -37,6 +39,7 @@ public class OperationTableView<T extends AppOperation> extends TableView<T> {
 		// Colonne du solde
 		TableColumn<T, Number> colMontant = new TableColumn<>("Montant");
 		colMontant.setResizable(true);
+		colMontant.setId("montant");
 		colMontant.setEditable(false);
 		colMontant.setSortable(true);
 		colMontant.setCellValueFactory(cellData -> cellData.getValue().montantProperty());
@@ -59,7 +62,6 @@ public class OperationTableView<T extends AppOperation> extends TableView<T> {
 				}
 			}
 		});
-
 	}
 
 }

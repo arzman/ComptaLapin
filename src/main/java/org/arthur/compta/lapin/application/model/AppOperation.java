@@ -12,7 +12,7 @@ import javafx.beans.property.SimpleStringProperty;
  * Encapsulation applicative d'une opération
  *
  */
-public class AppOperation extends AppObject implements IMontant {
+public class AppOperation extends AppObject {
 
 	/**
 	 * L'operation

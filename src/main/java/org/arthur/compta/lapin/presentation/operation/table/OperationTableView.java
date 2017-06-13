@@ -54,6 +54,7 @@ public class OperationTableView<T extends AppOperation> extends TableView<T> {
 				if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
 
 					try {
+						//validation de l'opération
 						OperationService.switchEtatOperation(getSelectionModel().getSelectedItem());
 					} catch (ComptaException e) {
 						ExceptionDisplayService.showException(e);

@@ -21,8 +21,10 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.DialogEvent;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.image.ImageView;
@@ -67,6 +69,8 @@ public class ConfigureTemplateDialog extends ComptaDialog<String> {
 		// création des boutons
 		createButtonBar();
 
+		createContextMenu();
+
 		setOnCloseRequest(new EventHandler<DialogEvent>() {
 
 			@Override
@@ -85,6 +89,35 @@ public class ConfigureTemplateDialog extends ComptaDialog<String> {
 
 			}
 		});
+
+	}
+
+	/**
+	 * Crée le menu contextuel
+	 */
+	private void createContextMenu() {
+
+		// le menu contextuel
+		final ContextMenu menu = new ContextMenu();
+		_table.setContextMenu(menu);
+
+		// action de suppresion de l'elt
+		final MenuItem suppItem = new MenuItem("Supprimer");
+		suppItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.DEL_IMG)));
+		suppItem.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+
+				// recupperation de la selection
+				TrimestreTemplateElement elt = _table.getSelectionModel().getSelectedItem();
+				if (elt != null) {
+					_elementList.remove(elt);
+				}
+
+			}
+		});
+		menu.getItems().add(suppItem);
 
 	}
 
@@ -142,7 +175,7 @@ public class ConfigureTemplateDialog extends ComptaDialog<String> {
 			_gainMoyenMensuelLbl.setTextFill(Color.RED);
 		}
 
-		_gainMoyenMensuelLbl.setText("Résultat moyen mensuel : "+ApplicationFormatter.montantFormat.format(gain));
+		_gainMoyenMensuelLbl.setText("Résultat moyen mensuel : " + ApplicationFormatter.montantFormat.format(gain));
 
 	}
 

@@ -4,6 +4,8 @@ import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.BudgetManager;
 import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.application.model.AppBudget;
+import org.arthur.compta.lapin.presentation.budget.cellfactory.AvancementTableCell;
+import org.arthur.compta.lapin.presentation.budget.dialog.EditBudgetDialog;
 import org.arthur.compta.lapin.presentation.common.cellfactory.MontantCellFactory;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
@@ -19,8 +21,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.ProgressBarTableCell;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -80,7 +80,6 @@ public class BudgetPane extends GridPane {
 		TableColumn<AppBudget, String> colNom = new TableColumn<>("Nom");
 		colNom.setResizable(true);
 		colNom.setEditable(false);
-		colNom.setSortable(true);
 		colNom.setId("nom");
 		// bind sur la nom
 		colNom.setCellValueFactory(cellData -> cellData.getValue().nomProperty());
@@ -90,39 +89,38 @@ public class BudgetPane extends GridPane {
 		TableColumn<AppBudget, Number> colObj = new TableColumn<>("Objectif");
 		colObj.setResizable(true);
 		colObj.setEditable(false);
-		colObj.setSortable(true);
 		colObj.setCellValueFactory(cellData -> cellData.getValue().objectifProperty());
 		colObj.setCellFactory(new MontantCellFactory<AppBudget>());
 		colObj.setId("obj");
 		_table.getColumns().add(colObj);
 
 		// Colonne de l'avancement
-		TableColumn<AppBudget, Double> colAv = new TableColumn<>("Avancement");
+		TableColumn<AppBudget, Number> colAv = new TableColumn<>("Avancement");
 		colAv.setResizable(true);
 		colAv.setEditable(false);
 		colAv.setId("avance");
 		// binding crado avec le nom de la propriété
-		colAv.setCellValueFactory(new PropertyValueFactory<AppBudget, Double>("avancement"));
-		colAv.setCellFactory(ProgressBarTableCell.<AppBudget>forTableColumn());
+		colAv.setCellValueFactory(cellData -> cellData.getValue().avancementProperty());
+		colAv.setCellFactory(new AvancementTableCell());
 		_table.getColumns().add(colAv);
 
-		// Colonne du solde prevu à la fin du 2eme mois
-		TableColumn<AppBudget, Number> colprev2 = new TableColumn<>("CC");
-		colprev2.setResizable(true);
-		colprev2.setEditable(false);
-		colprev2.setId("prev2");
-		colprev2.setCellValueFactory(cellData -> cellData.getValue().montantCourantProperty());
-		colprev2.setCellFactory(new MontantCellFactory<AppBudget>());
-		_table.getColumns().add(colprev2);
+		// Colonne du montant sur compte livret
+		TableColumn<AppBudget, Number> collivret = new TableColumn<>("CL");
+		collivret.setResizable(true);
+		collivret.setEditable(false);
+		collivret.setId("prev3");
+		collivret.setCellValueFactory(cellData -> cellData.getValue().montantLivretProperty());
+		collivret.setCellFactory(new MontantCellFactory<AppBudget>());
+		_table.getColumns().add(collivret);
 
-		// Colonne du solde prévu à la fin du 3eme mois
-		TableColumn<AppBudget, Number> colprev3 = new TableColumn<>("CL");
-		colprev3.setResizable(true);
-		colprev3.setEditable(false);
-		colprev3.setId("prev3");
-		colprev3.setCellValueFactory(cellData -> cellData.getValue().montantLivretProperty());
-		colprev3.setCellFactory(new MontantCellFactory<AppBudget>());
-		_table.getColumns().add(colprev3);
+		// Colonne du montant sur compte courant
+		TableColumn<AppBudget, Number> colcourant = new TableColumn<>("CC");
+		colcourant.setResizable(true);
+		colcourant.setEditable(false);
+		colcourant.setId("prev2");
+		colcourant.setCellValueFactory(cellData -> cellData.getValue().montantCourantProperty());
+		colcourant.setCellFactory(new MontantCellFactory<AppBudget>());
+		_table.getColumns().add(colcourant);
 
 		// bind à la liste des comptes
 		_table.setItems(BudgetManager.getInstance().getBudgetList());
@@ -145,7 +143,24 @@ public class BudgetPane extends GridPane {
 		final ContextMenu menu = new ContextMenu();
 		_table.setContextMenu(menu);
 
-		// action de suppression des budgets
+		// action d'édition des budgets
+		final MenuItem editBudget = new MenuItem("Editer");
+		editBudget.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.EDIT_IMG)));
+		editBudget.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+
+				// récupération du budget applicatif
+				AppBudget appB = _table.getSelectionModel().getSelectedItems().get(0);
+				EditBudgetDialog dia = new EditBudgetDialog(appB);
+				dia.showAndWait();
+			}
+		});
+		// on désactive le menu si la selection est vide
+		editBudget.disableProperty().bind(Bindings.isEmpty(_table.getSelectionModel().getSelectedItems()));
+		menu.getItems().add(editBudget);
+
+		// action de désactivation des budgets
 		final MenuItem removeBudget = new MenuItem("Désactiver");
 		removeBudget.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.OFF_IMG)));
 		removeBudget.setOnAction(new EventHandler<ActionEvent>() {

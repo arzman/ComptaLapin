@@ -202,6 +202,8 @@ public class EditBudgetDialog extends Dialog<AppBudget> {
 		if (_budget != null) {
 
 			_nomTxt.setText(_budget.getNom());
+			_objTxt.setText(String.valueOf(_budget.getObjectif()));
+			_utilsTxt.setText(String.valueOf(_budget.getMontantUtilise()));
 
 		}
 

@@ -39,8 +39,8 @@ public class BudgetManager {
 				// création du modèle
 				Budget budget = new Budget();
 				budget.setNom(info[0]);
-				budget.setMontantUtilise(Double.parseDouble(info[1]));
-				budget.setObjectif(Double.parseDouble(info[2]));
+				budget.setMontantUtilise(Double.parseDouble(info[2]));
+				budget.setObjectif(Double.parseDouble(info[1]));
 
 				// encapsulation applicative
 				AppBudget appB = new AppBudget(budget);
@@ -194,8 +194,8 @@ public class BudgetManager {
 			// création du modèle
 			Budget budget = new Budget();
 			budget.setNom(nom);
-			budget.setMontantUtilise(objectif);
-			budget.setObjectif(utilise);
+			budget.setMontantUtilise(utilise);
+			budget.setObjectif(objectif);
 			budget.setIsActif(true);
 
 			// encapsulation applicative

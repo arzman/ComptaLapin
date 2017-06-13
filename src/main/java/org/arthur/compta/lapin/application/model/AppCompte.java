@@ -197,4 +197,13 @@ public class AppCompte extends AppObject {
 		return _soldePrev3;
 	}
 
+	/**
+	 * Retourne le solde prévisionnel à la fin du 3eme mois du trimestre
+	 * 
+	 * @return
+	 */
+	public double getSoldePrev3() {
+		return _soldePrev3.get();
+	}
+
 }

@@ -26,6 +26,8 @@ public class ImageLoader {
 	public static final String CALENDRIER_IMG = "calendrier.png";
 	// loupe
 	public static final String LOUPE_IMG = "search.png";
+	// bouton off
+	public static final String OFF_IMG = "power_off.png";
 
 	/**
 	 * Retourne une image

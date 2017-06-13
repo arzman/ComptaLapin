@@ -55,6 +55,7 @@ public class ExerciceMensuelPane extends GridPane {
 	private TitledPane resPane;
 	/** panneau des transfert */
 	private TitledPane transPane;
+	private double _prevRes;
 
 	/**
 	 * Constructeur
@@ -66,12 +67,12 @@ public class ExerciceMensuelPane extends GridPane {
 
 		setId(id);
 		_numMois = numMois;
+		_prevRes = TrimestreManager.getInstance().getResultatPrev(_numMois);
 
-		_title = new ExerciceHeaderPane(TrimestreManager.getInstance().getResultatPrev(_numMois));
+		_title = new ExerciceHeaderPane(_prevRes);
 		add(_title, 0, 0);
 
 		createContent();
-
 	}
 
 	/**
@@ -300,6 +301,7 @@ public class ExerciceMensuelPane extends GridPane {
 	public void changeBind() {
 
 		_title.setMois(TrimestreManager.getInstance().getDateDebut(_numMois));
+		_title.setResultatPrev(TrimestreManager.getInstance().getResultatPrev(_numMois));
 		_title.setResutlat(TrimestreManager.getInstance().getResultat(_numMois));
 
 		_depenseTable.setItems(TrimestreManager.getInstance().getDepenses(_numMois));

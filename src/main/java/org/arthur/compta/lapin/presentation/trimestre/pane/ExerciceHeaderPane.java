@@ -23,21 +23,16 @@ public class ExerciceHeaderPane extends GridPane {
 	private Label _moisLbl;
 	/** Label du resultat */
 	private Label _resultatLbl;
+	private double _prevRes;
 	/** Pas de date défini */
 	private static final String NO_CONTENT_DATE_STR = "######";
-
-	/** résultat courant */
-	private double currentRes;
-	/** résultat previsionnel */
-	private double _prevRes;
 
 	/**
 	 * Le constructeur
 	 */
-	public ExerciceHeaderPane(double prevRes) {
+	public ExerciceHeaderPane(double prev) {
 
-		// le mois
-		_prevRes = prevRes;
+		_prevRes = prev;
 
 		_moisLbl = new Label();
 		_moisLbl.setFont(Font.font("Verdana", 18));
@@ -77,13 +72,11 @@ public class ExerciceHeaderPane extends GridPane {
 	 */
 	public void setResutlat(double res) {
 
-		currentRes = res;
-
-		if (currentRes < 0) {
+		if (res < 0) {
 			_resultatLbl.setTextFill(Color.RED);
 		} else {
 
-			if (currentRes > _prevRes) {
+			if (res > _prevRes) {
 				_resultatLbl.setTextFill(Color.GREEN);
 			} else {
 				_resultatLbl.setTextFill(Color.ORANGE);
@@ -91,7 +84,18 @@ public class ExerciceHeaderPane extends GridPane {
 
 		}
 
-		_resultatLbl.setText(ApplicationFormatter.montantFormat.format(res)+" / "+ApplicationFormatter.montantFormat.format(_prevRes));
+		_resultatLbl.setText(ApplicationFormatter.montantFormat.format(res) + " / "
+				+ ApplicationFormatter.montantFormat.format(_prevRes));
+
+	}
+
+	/**
+	 * Positionne le résultat prévisionnel
+	 * 
+	 * @param resultatPrev
+	 */
+	public void setResultatPrev(double resultatPrev) {
+		_prevRes = resultatPrev;
 
 	}
 

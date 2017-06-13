@@ -26,6 +26,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
@@ -114,6 +115,20 @@ public class SearchOperationDialog extends ComptaDialog<String> {
 	 */
 	private void checkInput() {
 
+		// Vérif du nom
+		boolean nomOk = true;
+		if (!_libTxt.getText().trim().isEmpty()) {
+
+			if (_libTxt.getText().matches("[a-zA-Z123456789 ]+")) {
+				_libTxt.setBorder(null);
+				nomOk = true;
+			} else {
+				_libTxt.setBorder(BORDER_ERROR);
+				nomOk = false;
+			}
+
+		}
+
 		boolean montOk = true;
 		if (!_montantTxt.getText().trim().isEmpty()) {
 			try {
@@ -139,7 +154,7 @@ public class SearchOperationDialog extends ComptaDialog<String> {
 		_allEmpty = _montantTxt.getText().trim().isEmpty() && _libTxt.getText().trim().isEmpty()
 				&& _toleranceTxt.getText().trim().isEmpty();
 
-		searchBut.setDisable(!montOk && !tolOk);
+		searchBut.setDisable(!montOk && !tolOk && !nomOk);
 
 	}
 
@@ -152,6 +167,7 @@ public class SearchOperationDialog extends ComptaDialog<String> {
 
 		// saisie du nom
 		Label nomLdl = new Label("Libellé contient : ");
+		nomLdl.setTooltip(new Tooltip("Vide = pas de critère sur le libellé"));
 		subRoot.add(nomLdl, 0, 0);
 		_libTxt = new TextField();
 		subRoot.add(_libTxt, 1, 0);

@@ -155,13 +155,13 @@ public class EditCompteDialog extends ComptaDialog<AppCompte> {
 
 						if (_appCompte != null) {
 							// édition
-							zeReturn = CompteManager.getInstance().updateCompte(_appCompte, _nomTxt.getText().trim(),
+							zeReturn = CompteManager.getInstance().editCompte(_appCompte, _nomTxt.getText().trim(),
 									Double.parseDouble(_soldeTxt.getText().trim()), _livretCheck.isSelected(),
 									_budgetCheck.isSelected());
 
 						} else {
 							// création
-							zeReturn = CompteManager.getInstance().createCompte(_nomTxt.getText().trim(),
+							zeReturn = CompteManager.getInstance().addCompte(_nomTxt.getText().trim(),
 									Double.parseDouble(_soldeTxt.getText().trim()), _livretCheck.isSelected(),
 									_budgetCheck.isSelected());
 						}

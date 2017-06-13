@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.application.service.ComptaService;
+import org.arthur.compta.lapin.presentation.budget.dialog.EditBudgetDialog;
 import org.arthur.compta.lapin.presentation.common.dialog.DateDialog;
 import org.arthur.compta.lapin.presentation.compte.dialog.EditCompteDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
@@ -42,6 +43,8 @@ public class ComptaMenuBar extends MenuBar {
 		createTrimestreMenu();
 		// menu operation
 		createOperationMenu();
+		// menu Budget
+		createBudgetMenu();
 		// menu Compte
 		createCompteMenu();
 		// item date derniere vérif
@@ -162,6 +165,33 @@ public class ComptaMenuBar extends MenuBar {
 		opMenu.getItems().add(searchItem);
 
 		getMenus().add(opMenu);
+
+	}
+
+	/**
+	 * Crée le menu des budgets
+	 */
+	private void createBudgetMenu() {
+
+		// création du menu Trimestre
+		Menu budMenu = new Menu("Budget");
+
+		// ajout de l'action créé trimestre
+		MenuItem addItem = new MenuItem("Ajouter un budget");
+		addItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.ADD_IMG)));
+		addItem.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				// ouverture de la fenêtre de saisie
+				EditBudgetDialog dia = new EditBudgetDialog(null);
+				
+				dia.showAndWait();
+
+			}
+		});
+		budMenu.getItems().add(addItem);
+		getMenus().add(budMenu);
 
 	}
 

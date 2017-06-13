@@ -15,6 +15,18 @@ CREATE TABLE COMPTE(
 	CONSTRAINT COMPTE_Pk PRIMARY KEY (ID)
 );
 
+#**************************************************************
+# Table: BUDGET
+#***************************************************************
+CREATE TABLE BUDGET(
+	ID              IDENTITY NOT NULL,
+	nom             VARCHAR (25) NOT NULL,
+	objectif        FLOAT  NOT NULL,
+	utilise        	FLOAT  NOT NULL,
+	is_actif       	BOOLEAN  NOT NULL,
+	CONSTRAINT BUDGET_Pk PRIMARY KEY (ID)
+);
+
 #***************************************************************
 #  Table: EXERCICE_MENSUEL
 #***************************************************************

@@ -138,7 +138,7 @@ public class TemplateService {
 			// création
 			Operation dep = new Operation(OperationType.DEPENSE, elt.getCompteSource().getCompte(), elt.getNom(),
 					elt.getMontant(), EtatOperation.PREVISION);
-			String idOp = DBManager.getInstance().createOperation(dep, elt.getCompteSource().getAppId(), null,
+			String idOp = DBManager.getInstance().addOperation(dep, elt.getCompteSource().getAppId(), null,
 					exMen.getAppId());
 
 			// ajout dans l'application
@@ -153,7 +153,7 @@ public class TemplateService {
 			// création
 			Operation res = new Operation(OperationType.RESSOURCE, elt.getCompteSource().getCompte(), elt.getNom(),
 					elt.getMontant(), EtatOperation.PREVISION);
-			String idOp = DBManager.getInstance().createOperation(res, elt.getCompteSource().getAppId(), null,
+			String idOp = DBManager.getInstance().addOperation(res, elt.getCompteSource().getAppId(), null,
 					exMen.getAppId());
 			// ajout dans l'application
 			AppOperation appRes = new AppOperation(res);
@@ -166,7 +166,7 @@ public class TemplateService {
 			// création
 			TransfertOperation trans = new TransfertOperation(elt.getCompteSource().getCompte(), elt.getNom(),
 					elt.getMontant(), EtatOperation.PREVISION, elt.getCompteCible().getCompte());
-			String idOp = DBManager.getInstance().createOperation(trans, elt.getCompteSource().getAppId(),
+			String idOp = DBManager.getInstance().addOperation(trans, elt.getCompteSource().getAppId(),
 					elt.getCompteCible().getAppId(), exMen.getAppId());
 			// ajout dans l'application
 			AppTransfert apptr = new AppTransfert(trans);

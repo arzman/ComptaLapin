@@ -3,8 +3,6 @@
  */
 package org.arthur.compta.lapin.model;
 
-import java.util.ArrayList;
-
 /**
  * Modélise un Budget. Soit un montant à atteindre et qui peut être utilisé. On
  * doit garder en mémoire les Utilisation qui ont été faite.
@@ -14,25 +12,17 @@ import java.util.ArrayList;
  */
 public class Budget {
 
-	/**
-	 * Montant totale du bugdet
-	 */
+	/** Montant totale du bugdet */
 	private double _objectif;
 
-	/**
-	 * Montant déjà utilisé
-	 */
+	/** Montant déjà utilisé */
 	private double _montantUtilise;
 
-	/**
-	 * Le nom du budget
-	 */
+	/** Le nom du budget */
 	private String _nom;
 
-	/**
-	 * Les utilisations du budget
-	 */
-	private ArrayList<Utilisation> _utilisations;
+	/** Vrai si le budget est actif */
+	private boolean _isActif;
 
 	/**
 	 * Constructeur
@@ -42,7 +32,7 @@ public class Budget {
 		_objectif = 0;
 		_montantUtilise = 0;
 		_nom = "Nouveau Budget";
-		_utilisations = new ArrayList<>();
+		_isActif = true;
 	}
 
 	/**
@@ -89,17 +79,22 @@ public class Budget {
 	}
 
 	/**
-	 * Ajoute une Utilisation au budget
+	 * Retourne True si le budget est actif
 	 * 
-	 * @param util
-	 *            l'utilisation
+	 * @return
 	 */
-	public void ajouteUtilisation(Utilisation util) {
-		_utilisations.add(util);
+	public boolean isActif() {
+		return _isActif;
 	}
 
-	public ArrayList<Utilisation> getUtilisation() {
-		return _utilisations;
+	/**
+	 * Active ou non le budget
+	 * 
+	 * @param isActif
+	 */
+	public void setIsActif(boolean isActif) {
+		_isActif = isActif;
+
 	}
 
 }

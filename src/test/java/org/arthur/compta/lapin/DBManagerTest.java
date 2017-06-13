@@ -7,9 +7,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.sql.SQLException;
 import java.util.HashMap;
 
+import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.dataaccess.db.DBManager;
 
 import junit.extensions.TestSetup;
@@ -76,7 +76,6 @@ public class DBManagerTest extends TestCase {
 			String idLivret = DBManager.getInstance().addCompte("Livret", 1000, true, false);
 			assertNotNull(idLivret);
 			assertFalse(idLivret.isEmpty());
-			
 
 			// récupération du compte
 			HashMap<String, String[]> map = DBManager.getInstance().getAllCompte();
@@ -88,16 +87,16 @@ public class DBManagerTest extends TestCase {
 			assertEquals("100.0", infoCompte[1]);
 			assertEquals("false", infoCompte[2]);
 			assertEquals("false", infoCompte[3]);
-			
+
 			String[] infoCompte2 = map.get(idLivret);
 			assertNotNull(infoCompte2);
 			assertTrue(infoCompte2.length == 4);
 			assertEquals("Livret", infoCompte2[0]);
-			assertEquals("1000.0",infoCompte2[1]);
+			assertEquals("1000.0", infoCompte2[1]);
 			assertEquals("true", infoCompte2[2]);
 			assertEquals("false", infoCompte2[3]);
 
-		} catch (SQLException e) {
+		} catch (ComptaException e) {
 			fail("Echec dans le cas nominal");
 		}
 	}

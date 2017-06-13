@@ -38,7 +38,7 @@ public class OperationService {
 		// re-calcul du solde du compte
 		CompteManager.getInstance().operationSwitched(appOp);
 		// sauvegarde en base
-		DBManager.getInstance().updateOperation(appOp);
+		DBManager.getInstance().editOperation(appOp);
 
 	}
 
@@ -80,7 +80,7 @@ public class OperationService {
 
 		AppOperation appop = new AppOperation(op);
 		appop.setCompteSrc(compteSrc);
-		String id = DBManager.getInstance().createOperation(op, appop.getCompteSource().getAppId(), null, appMoisId);
+		String id = DBManager.getInstance().addOperation(op, appop.getCompteSource().getAppId(), null, appMoisId);
 		appop.setAppID(id);
 
 		return appop;
@@ -108,7 +108,7 @@ public class OperationService {
 
 		AppOperation appop = new AppOperation(op);
 		appop.setCompteSrc(compteSrc);
-		String id = DBManager.getInstance().createOperation(op, appop.getCompteSource().getAppId(), null, appId);
+		String id = DBManager.getInstance().addOperation(op, appop.getCompteSource().getAppId(), null, appId);
 		appop.setAppID(id);
 
 		return appop;
@@ -122,7 +122,7 @@ public class OperationService {
 		AppTransfert appop = new AppTransfert(trans);
 		appop.setCompteSrc(compteSrc);
 		((AppTransfert) appop).setCompteCible(compteCible);
-		String id = DBManager.getInstance().createOperation(trans, compteSrc.getAppId(), compteCible.getAppId(), appId);
+		String id = DBManager.getInstance().addOperation(trans, compteSrc.getAppId(), compteCible.getAppId(), appId);
 		appop.setAppID(id);
 
 		return appop;
@@ -159,7 +159,7 @@ public class OperationService {
 		}
 
 		// enregistrement en base
-		DBManager.getInstance().updateOperation(_operation);
+		DBManager.getInstance().editOperation(_operation);
 
 		if (toSwitch) {
 			switchEtatOperation(_operation);
@@ -192,7 +192,7 @@ public class OperationService {
 		ArrayList<OperationSearchResult> res = new ArrayList<>();
 
 		try {
-
+			
 			HashMap<String, String[]> infos = DBManager.getInstance().searchOperation(lib, montant, tolerance);
 
 			for (String idOp : infos.keySet()) {

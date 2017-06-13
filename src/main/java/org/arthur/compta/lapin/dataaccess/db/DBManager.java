@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
+import org.arthur.compta.lapin.application.model.AppBudget;
 import org.arthur.compta.lapin.application.model.AppCompte;
 import org.arthur.compta.lapin.application.model.AppOperation;
 import org.arthur.compta.lapin.application.model.AppTransfert;
@@ -146,29 +147,28 @@ public class DBManager {
 	 * @throws SQLException
 	 *             Exception en cas de problème lors de l'insertion
 	 */
-	public String addCompte(String nom, double solde, boolean livret, boolean budgetAllowed) throws SQLException {
+	public String addCompte(String nom, double solde, boolean livret, boolean budgetAllowed) throws ComptaException {
 
 		String id = "";
 
 		// préparation de la requête
 		String query = "INSERT INTO COMPTE (nom,solde,is_livret,budget_allowed) VALUES (?,?,?,?);";
-		PreparedStatement stmt = getConnexion().prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-		stmt.setString(1, nom);
-		stmt.setDouble(2, solde);
-		stmt.setBoolean(3, livret);
-		stmt.setBoolean(4, budgetAllowed);
-		// execution
-		stmt.executeUpdate();
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+			stmt.setString(1, nom);
+			stmt.setDouble(2, solde);
+			stmt.setBoolean(3, livret);
+			stmt.setBoolean(4, budgetAllowed);
+			// execution
+			stmt.executeUpdate();
 
-		// récupération de l'id en base du compte créé
-		ResultSet res = stmt.getGeneratedKeys();
-		if (res.getMetaData().getColumnCount() == 1 && res.next()) {
-			id = res.getString(1).trim();
+			// récupération de l'id en base du compte créé
+			ResultSet res = stmt.getGeneratedKeys();
+			if (res.getMetaData().getColumnCount() == 1 && res.next()) {
+				id = res.getString(1).trim();
+			}
+		} catch (Exception e) {
+			throw new ComptaException("Impossible d'ajouter le compte", e);
 		}
-
-		// libération des ressources JDBC
-		stmt.close();
-		res.close();
 
 		return id;
 	}
@@ -177,34 +177,36 @@ public class DBManager {
 	 * Récupère toutes les informations comptes de la base de donnée
 	 * 
 	 * @return couple clé : identifiant et valeurs [nom,solde,livret,budget]
-	 * @throws SQLException
+	 * @throws ComptaException
 	 *             Exception sur la récupération en base
 	 */
-	public HashMap<String, String[]> getAllCompte() throws SQLException {
+	public HashMap<String, String[]> getAllCompte() throws ComptaException {
 
 		HashMap<String, String[]> infos = new HashMap<String, String[]>();
 
 		// requête sur la table COMPTE
-		Statement stmt = getConnexion().createStatement();
-		ResultSet res = stmt.executeQuery("SELECT ID,nom,solde,is_livret,budget_allowed FROM COMPTE;");
+		String query = "SELECT ID,nom,solde,is_livret,budget_allowed FROM COMPTE;";
 
-		if (res.getMetaData().getColumnCount() == 5) {
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 
-			while (res.next()) {
-				// récupération des champs
-				String[] values = new String[4];
-				values[0] = res.getString("nom").trim();
-				values[1] = String.valueOf(res.getDouble("solde")).trim();
-				values[2] = String.valueOf(res.getBoolean("is_livret")).trim();
-				values[3] = String.valueOf(res.getBoolean("budget_allowed")).trim();
+			ResultSet res = stmt.executeQuery();
 
-				infos.put(String.valueOf(res.getInt("ID")).trim(), values);
+			if (res.getMetaData().getColumnCount() == 5) {
+
+				while (res.next()) {
+					// récupération des champs
+					String[] values = new String[4];
+					values[0] = res.getString("nom").trim();
+					values[1] = String.valueOf(res.getDouble("solde")).trim();
+					values[2] = String.valueOf(res.getBoolean("is_livret")).trim();
+					values[3] = String.valueOf(res.getBoolean("budget_allowed")).trim();
+
+					infos.put(String.valueOf(res.getInt("ID")).trim(), values);
+				}
 			}
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de récupérer les comptes", e);
 		}
-
-		// libération des ressources JDBC
-		res.close();
-		stmt.close();
 
 		return infos;
 	}
@@ -237,7 +239,7 @@ public class DBManager {
 	 * @throws ComptaException
 	 *             Exception si la requête en base échoue
 	 */
-	public void updateCompte(AppCompte compte) throws ComptaException {
+	public void editCompte(AppCompte compte) throws ComptaException {
 
 		// préparation de la requête
 		String query = "UPDATE COMPTE SET nom=?,solde=?,is_livret=?,budget_allowed=? WHERE ID = ?";
@@ -698,7 +700,7 @@ public class DBManager {
 	 * @return l'id de la depense
 	 * @throws ComptaException
 	 */
-	public String createOperation(Operation dep, String compteSrcId, String compteCibleId, String appEmId)
+	public String addOperation(Operation dep, String compteSrcId, String compteCibleId, String appEmId)
 			throws ComptaException {
 
 		String id = null;
@@ -785,7 +787,7 @@ public class DBManager {
 	 * @param appOp
 	 * @throws ComptaException
 	 */
-	public void updateOperation(AppOperation appOp) throws ComptaException {
+	public void editOperation(AppOperation appOp) throws ComptaException {
 
 		// création de la requete
 		String query = "UPDATE OPERATION SET nom=?,montant=?,type_ope=?,etat=?,compte_source_id=?,compte_cible_id=? WHERE ID=?;";
@@ -917,27 +919,26 @@ public class DBManager {
 		if (!montant.isEmpty()) {
 
 			if (!tolerance.isEmpty()) {
-
-				crit[1] = con + "O.montant>?";
-				crit[2] = "AND O.montant<?";
+				// encadrement du montant
+				crit[1] = con + "O.montant>=?";
+				crit[2] = "AND O.montant<=?";
 
 			} else {
+				// égalité du montant
 				crit[1] = con + "O.montant=?";
 			}
 
 		}
 
-		// concatenation des criteres
+		// concatenation des criteres pour faire la requete
 		for (String st : crit) {
-
 			if (st != null) {
 				query = query + st;
 			}
-
 		}
-
 		query = query + ";";
 
+		// lancement de la requête
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 
 			int j = 1;
@@ -981,6 +982,107 @@ public class DBManager {
 		}
 
 		return res;
+	}
+
+	/**
+	 * Récupère les comptes actifs
+	 * 
+	 * @return couple clé : identifiant et valeurs [nom,objectif,utilise]
+	 * @throws ComptaException
+	 *             Echec de la récupération
+	 */
+	public HashMap<String, String[]> getActiveBudget() throws ComptaException {
+
+		HashMap<String, String[]> res = new HashMap<>();
+
+		String query = "SELECT 	ID,nom,objectif,utilise FROM BUDGET WHERE is_actif=True;";
+
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
+
+			ResultSet queryRes = stmt.executeQuery();
+
+			while (queryRes.next()) {
+				// parsing du résultat
+				String[] elt = new String[3];
+
+				elt[0] = queryRes.getString("nom");
+				elt[1] = String.valueOf(queryRes.getDouble("objectif"));
+				elt[2] = String.valueOf(queryRes.getDouble("utilise"));
+
+				res.put(queryRes.getString("ID"), elt);
+			}
+
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de récupérer les comptes", e);
+		}
+
+		return res;
+	}
+
+	/**
+	 * Ajoute un budget dans la base de donnée
+	 * 
+	 * @param nom
+	 *            le nom
+	 * @param objectif
+	 *            l'objectif
+	 * @param utilise
+	 *            le montant utilise
+	 * @param isActif
+	 *            est actif ?
+	 * @return l'id applicatif
+	 * @throws ComptaException
+	 *             Echec de l'ajout
+	 */
+	public String addBudget(String nom, double objectif, double utilise, boolean isActif) throws ComptaException {
+		String id = "";
+
+		// préparation de la requête
+		String query = "INSERT INTO BUDGET (nom,objectif,utilise,is_actif) VALUES (?,?,?,?);";
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+			stmt.setString(1, nom);
+			stmt.setDouble(2, objectif);
+			stmt.setDouble(3, utilise);
+			stmt.setBoolean(4, isActif);
+			// execution
+			stmt.executeUpdate();
+
+			// récupération de l'id en base du compte créé
+			ResultSet res = stmt.getGeneratedKeys();
+			if (res.getMetaData().getColumnCount() == 1 && res.next()) {
+				id = res.getString(1).trim();
+			}
+		} catch (Exception e) {
+			throw new ComptaException("Impossible d'ajouter le budget", e);
+		}
+
+		return id;
+	}
+
+	/**
+	 * Met à jour le budget en base de donnée
+	 * 
+	 * @param budget
+	 *            le budget
+	 * @throws ComptaException
+	 *             Echec de la mise à jour
+	 */
+	public void editBudget(AppBudget budget) throws ComptaException {
+
+		// préparation de la requête
+		String query = "UPDATE BUDGET SET nom=?,objectif=?,utilise=?,is_actif=? WHERE ID = ?";
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
+			stmt.setString(1, budget.getNom());
+			stmt.setDouble(2, budget.getObjectif());
+			stmt.setDouble(3, budget.getMontantUtilise());
+			stmt.setBoolean(4, budget.isActif());
+			stmt.setString(5, budget.getAppId());
+			// execution
+			stmt.executeUpdate();
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de mettre à jour le budget", e);
+		}
+
 	}
 
 }

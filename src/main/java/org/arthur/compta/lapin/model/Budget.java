@@ -24,6 +24,9 @@ public class Budget {
 	/** Vrai si le budget est actif */
 	private boolean _isActif;
 
+	/** La priorité du budget */
+	private int _priority;
+
 	/**
 	 * Constructeur
 	 */
@@ -33,6 +36,7 @@ public class Budget {
 		_montantUtilise = 0;
 		_nom = "Nouveau Budget";
 		_isActif = true;
+		_priority = 0;
 	}
 
 	/**
@@ -95,6 +99,26 @@ public class Budget {
 	public void setIsActif(boolean isActif) {
 		_isActif = isActif;
 
+	}
+
+	/**
+	 * Positionne la priorité du budget
+	 * 
+	 * @param prio
+	 */
+	public void setPriority(int prio) {
+		_priority = prio;
+
+	}
+
+	/**
+	 * Retourne la priorité
+	 * 
+	 * @return
+	 */
+	public int getPriority() {
+
+		return _priority;
 	}
 
 }

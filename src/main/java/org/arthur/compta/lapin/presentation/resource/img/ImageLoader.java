@@ -28,6 +28,26 @@ public class ImageLoader {
 	public static final String LOUPE_IMG = "search.png";
 	// bouton off
 	public static final String OFF_IMG = "power_off.png";
+	// fleche haut
+	public static final String UP_IMG = "up_icon.png";
+	// fleche bas
+	public static final String DOWN_IMG = "down_icon.png";
+	// buget
+	public static final String BUDGET_IMG = "budget_icon.png";
+	// compte
+	public static final String COMPTE_IMG = "compte_icon.png";
+	// compte
+	public static final String TRIMESTRE_IMG = "trimestre_icon.png";
+	// operation
+	public static final String OPERATION_IMG = "operation.gif";
+	// system
+	public static final String SYSTEM_IMG = "system.png";
+	// validation
+	public static final String VERIF_IMG = "accept.png";
+	// lapin
+	public static final String LAPIN_IMG = "lapin.png";
+	// lapin en 32
+	public static final String LAPIN32_IMG = "lapin_32x32.png";
 
 	/**
 	 * Retourne une image

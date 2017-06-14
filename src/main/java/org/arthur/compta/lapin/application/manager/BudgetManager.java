@@ -1,5 +1,6 @@
 package org.arthur.compta.lapin.application.manager;
 
+import java.util.Comparator;
 import java.util.HashMap;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
@@ -22,6 +23,8 @@ public class BudgetManager {
 	/** La liste des budgets actifs */
 	private ObservableList<AppBudget> _budgetList;
 
+	/** Comparateur de budget */
+
 	/**
 	 * Constructeur par défaut
 	 */
@@ -41,6 +44,7 @@ public class BudgetManager {
 				budget.setNom(info[0]);
 				budget.setMontantUtilise(Double.parseDouble(info[2]));
 				budget.setObjectif(Double.parseDouble(info[1]));
+				budget.setPriority(Integer.parseInt(info[3]));
 
 				// encapsulation applicative
 				AppBudget appB = new AppBudget(budget);
@@ -50,6 +54,9 @@ public class BudgetManager {
 				_budgetList.add(appB);
 
 			}
+
+			pleaseSort();
+
 		} catch (ComptaException e) {
 			e.printStackTrace();
 		}
@@ -120,54 +127,57 @@ public class BudgetManager {
 
 		for (final AppBudget budget : _budgetList) {
 
-			double cour = 0;
-			double liv = 0;
+			if (budget.isActif()) {
 
-			// montant déjà utilisé on le comptabilise comme faisant déjà
-			// partie du budget
-			double inBudget = budget.getMontantUtilise();
+				double cour = 0;
+				double liv = 0;
 
-			// on vérifie si les livrets peuvent remplir le budget
-			if ((dispoCL - (budget.getObjectif() - inBudget)) >= 0) {
-				// oui , on déduit le montant du budget
-				dispoCL = dispoCL - (budget.getObjectif() - inBudget);
-				// calcul du montant sur compte livret ( tout le restant)
-				liv = budget.getObjectif() - inBudget;
-				// calcul du montant dans le budget
-				inBudget = inBudget + liv;
-			} else {
-				// non, le montant sur livret est donc le solde restant sur
-				// les livrets
-				liv = dispoCL;
-				// on complète avec les comptes courants
-				dispoCL = 0;
-				// solde de départ dans le budget
-				inBudget = inBudget + liv;
+				// montant déjà utilisé on le comptabilise comme faisant déjà
+				// partie du budget
+				double inBudget = budget.getMontantUtilise();
 
-				// on vérifie si les courant peuvent remplir le budget
-				if ((dispoCC - (budget.getObjectif() - inBudget)) >= 0) {
-					// oui, on déduit le montant du budget au solde des
-					// courants
-					dispoCC = dispoCC - (budget.getObjectif() - inBudget);
-					// calcul du montant sur compte livret ( tout le
-					// restant)
-					cour = budget.getObjectif() - inBudget;
+				// on vérifie si les livrets peuvent remplir le budget
+				if ((dispoCL - (budget.getObjectif() - inBudget)) >= 0) {
+					// oui , on déduit le montant du budget
+					dispoCL = dispoCL - (budget.getObjectif() - inBudget);
+					// calcul du montant sur compte livret ( tout le restant)
+					liv = budget.getObjectif() - inBudget;
 					// calcul du montant dans le budget
-					inBudget = inBudget + cour;
+					inBudget = inBudget + liv;
 				} else {
+					// non, le montant sur livret est donc le solde restant sur
+					// les livrets
+					liv = dispoCL;
+					// on complète avec les comptes courants
+					dispoCL = 0;
+					// solde de départ dans le budget
+					inBudget = inBudget + liv;
 
-					// on mets le reste du solde des courants dans le solde
-					// sur courant du budget
-					cour = dispoCC;
-					dispoCC = 0;
-					inBudget = inBudget + cour;
+					// on vérifie si les courant peuvent remplir le budget
+					if ((dispoCC - (budget.getObjectif() - inBudget)) >= 0) {
+						// oui, on déduit le montant du budget au solde des
+						// courants
+						dispoCC = dispoCC - (budget.getObjectif() - inBudget);
+						// calcul du montant sur compte livret ( tout le
+						// restant)
+						cour = budget.getObjectif() - inBudget;
+						// calcul du montant dans le budget
+						inBudget = inBudget + cour;
+					} else {
+
+						// on mets le reste du solde des courants dans le solde
+						// sur courant du budget
+						cour = dispoCC;
+						dispoCC = 0;
+						inBudget = inBudget + cour;
+					}
+
 				}
 
+				budget.setAvancement(inBudget / budget.getObjectif());
+				budget.setMontantCourant(cour);
+				budget.setMontantLivret(liv);
 			}
-
-			budget.setAvancement(inBudget / budget.getObjectif());
-			budget.setMontantCourant(cour);
-			budget.setMontantLivret(liv);
 
 		}
 
@@ -197,10 +207,11 @@ public class BudgetManager {
 			budget.setMontantUtilise(utilise);
 			budget.setObjectif(objectif);
 			budget.setIsActif(true);
+			budget.setPriority(_budgetList.size());
 
 			// encapsulation applicative
 			appB = new AppBudget(budget);
-			String id = DBManager.getInstance().addBudget(nom, objectif, utilise, true);
+			String id = DBManager.getInstance().addBudget(nom, objectif, utilise, true, _budgetList.size());
 			appB.setAppID(id);
 
 			// ajout dans l'application
@@ -240,10 +251,10 @@ public class BudgetManager {
 				appBudget.setObjectif(objectif);
 				appBudget.setMontantUtilise(utilise);
 				appBudget.setIsActif(isActif);
-				// modif du prévisionnel  des Budgets
+				// modif du prévisionnel des Budgets
 				calculateData();
 				// écriture en base
-				DBManager.getInstance().editBudget(appBudget);
+				DBManager.getInstance().updateBudget(appBudget);
 
 			} catch (Exception e) {
 				throw new ComptaException("Impossible de mettre à jour le budget", e);
@@ -251,6 +262,21 @@ public class BudgetManager {
 		}
 
 		return appBudget;
+
+	}
+
+	/**
+	 * Tri la liste des budgets
+	 */
+	public void pleaseSort() {
+		_budgetList.sort(new Comparator<AppBudget>() {
+
+			@Override
+			public int compare(AppBudget o1, AppBudget o2) {
+
+				return Integer.compare(o1.getPriority(), o2.getPriority());
+			}
+		});
 
 	}
 

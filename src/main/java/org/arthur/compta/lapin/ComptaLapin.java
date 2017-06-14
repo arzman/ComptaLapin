@@ -5,6 +5,7 @@ import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.dataaccess.db.DBManager;
 import org.arthur.compta.lapin.dataaccess.files.FilesManager;
+import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import org.arthur.compta.lapin.presentation.scene.MainScene;
 
 import com.sun.javafx.application.LauncherImpl;
@@ -47,6 +48,9 @@ public class ComptaLapin extends Application {
 
 		// mise en place du titre de la fenêtre
 		primaryStage.setTitle("Compta Du Lapin 2.0");
+		primaryStage.getIcons().add(ImageLoader.getImage(ImageLoader.LAPIN_IMG));
+		primaryStage.getIcons().add(ImageLoader.getImage(ImageLoader.LAPIN32_IMG));
+
 		// remplissage de la fenetre
 		MainScene sc = new MainScene();
 		primaryStage.setScene(sc);

@@ -239,7 +239,7 @@ public class DBManager {
 	 * @throws ComptaException
 	 *             Exception si la requête en base échoue
 	 */
-	public void editCompte(AppCompte compte) throws ComptaException {
+	public void updateCompte(AppCompte compte) throws ComptaException {
 
 		// préparation de la requête
 		String query = "UPDATE COMPTE SET nom=?,solde=?,is_livret=?,budget_allowed=? WHERE ID = ?";
@@ -787,7 +787,7 @@ public class DBManager {
 	 * @param appOp
 	 * @throws ComptaException
 	 */
-	public void editOperation(AppOperation appOp) throws ComptaException {
+	public void updateOperation(AppOperation appOp) throws ComptaException {
 
 		// création de la requete
 		String query = "UPDATE OPERATION SET nom=?,montant=?,type_ope=?,etat=?,compte_source_id=?,compte_cible_id=? WHERE ID=?;";
@@ -995,7 +995,7 @@ public class DBManager {
 
 		HashMap<String, String[]> res = new HashMap<>();
 
-		String query = "SELECT 	ID,nom,objectif,utilise FROM BUDGET WHERE is_actif=True;";
+		String query = "SELECT 	ID,nom,objectif,utilise,priority FROM BUDGET WHERE is_actif=True;";
 
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 
@@ -1003,11 +1003,12 @@ public class DBManager {
 
 			while (queryRes.next()) {
 				// parsing du résultat
-				String[] elt = new String[3];
+				String[] elt = new String[4];
 
 				elt[0] = queryRes.getString("nom");
 				elt[1] = String.valueOf(queryRes.getDouble("objectif"));
 				elt[2] = String.valueOf(queryRes.getDouble("utilise"));
+				elt[3] = String.valueOf(queryRes.getInt("priority"));
 
 				res.put(queryRes.getString("ID"), elt);
 			}
@@ -1034,16 +1035,18 @@ public class DBManager {
 	 * @throws ComptaException
 	 *             Echec de l'ajout
 	 */
-	public String addBudget(String nom, double objectif, double utilise, boolean isActif) throws ComptaException {
+	public String addBudget(String nom, double objectif, double utilise, boolean isActif, int priority)
+			throws ComptaException {
 		String id = "";
 
 		// préparation de la requête
-		String query = "INSERT INTO BUDGET (nom,objectif,utilise,is_actif) VALUES (?,?,?,?);";
+		String query = "INSERT INTO BUDGET (nom,objectif,utilise,is_actif,priority) VALUES (?,?,?,?,?);";
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 			stmt.setString(1, nom);
 			stmt.setDouble(2, objectif);
 			stmt.setDouble(3, utilise);
 			stmt.setBoolean(4, isActif);
+			stmt.setInt(5, priority);
 			// execution
 			stmt.executeUpdate();
 
@@ -1067,16 +1070,17 @@ public class DBManager {
 	 * @throws ComptaException
 	 *             Echec de la mise à jour
 	 */
-	public void editBudget(AppBudget budget) throws ComptaException {
+	public void updateBudget(AppBudget budget) throws ComptaException {
 
 		// préparation de la requête
-		String query = "UPDATE BUDGET SET nom=?,objectif=?,utilise=?,is_actif=? WHERE ID = ?";
+		String query = "UPDATE BUDGET SET nom=?,objectif=?,utilise=?,is_actif=?,priority=? WHERE ID = ?";
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 			stmt.setString(1, budget.getNom());
 			stmt.setDouble(2, budget.getObjectif());
 			stmt.setDouble(3, budget.getMontantUtilise());
 			stmt.setBoolean(4, budget.isActif());
-			stmt.setString(5, budget.getAppId());
+			stmt.setInt(5, budget.getPriority());
+			stmt.setString(6, budget.getAppId());
 			// execution
 			stmt.executeUpdate();
 		} catch (Exception e) {

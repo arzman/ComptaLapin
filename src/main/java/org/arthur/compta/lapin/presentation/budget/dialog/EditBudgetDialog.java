@@ -107,6 +107,9 @@ public class EditBudgetDialog extends ComptaDialog<AppBudget> {
 			}
 		});
 
+		// vérif initiale
+		checkInput();
+
 	}
 
 	/**
@@ -159,6 +162,9 @@ public class EditBudgetDialog extends ComptaDialog<AppBudget> {
 				nomError = true;
 			}
 
+		} else {
+			_nomTxt.setBorder(BORDER_ERROR);
+			nomError = true;
 		}
 
 		// Vérif de l'objectif
@@ -178,14 +184,14 @@ public class EditBudgetDialog extends ComptaDialog<AppBudget> {
 
 		// Vérif du montant utilisé
 		boolean utilEsrror = true;
-		if (!_objTxt.getText().trim().isEmpty()) {
+		if (!_utilsTxt.getText().trim().isEmpty()) {
 
 			try {
-				Double.parseDouble(_objTxt.getText().trim());
-				_objTxt.setBorder(null);
+				Double.parseDouble(_utilsTxt.getText().trim());
+				_utilsTxt.setBorder(null);
 				utilEsrror = false;
 			} catch (NumberFormatException e) {
-				_objTxt.setBorder(BORDER_ERROR);
+				_utilsTxt.setBorder(BORDER_ERROR);
 				utilEsrror = true;
 			}
 

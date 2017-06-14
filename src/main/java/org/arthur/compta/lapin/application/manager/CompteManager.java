@@ -188,7 +188,7 @@ public class CompteManager {
 				// modif du prévisionnel et notification des Budgets
 				calculateSoldePrev(appCompte);
 				// écriture en base
-				DBManager.getInstance().editCompte(appCompte);
+				DBManager.getInstance().updateCompte(appCompte);
 
 			} catch (Exception e) {
 				throw new ComptaException("Impossible de mettre à jour le compte", e);
@@ -285,13 +285,13 @@ public class CompteManager {
 		double delta = etatMod * typeMode * appOp.getMontant();
 		appOp.getCompteSource().setSolde(soldeSrcInit + delta);
 
-		DBManager.getInstance().editCompte(appOp.getCompteSource());
+		DBManager.getInstance().updateCompte(appOp.getCompteSource());
 
 		// compte cible si transfert
 		if (appOp instanceof AppTransfert) {
 			double soldeCibleInit = ((AppTransfert) appOp).getCompteCible().getSolde();
 			((AppTransfert) appOp).getCompteCible().setSolde(soldeCibleInit - delta);
-			DBManager.getInstance().editCompte(((AppTransfert) appOp).getCompteCible());
+			DBManager.getInstance().updateCompte(((AppTransfert) appOp).getCompteCible());
 		}
 
 	}

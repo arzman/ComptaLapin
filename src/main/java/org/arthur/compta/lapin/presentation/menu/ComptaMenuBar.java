@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.application.service.ComptaService;
+import org.arthur.compta.lapin.presentation.budget.dialog.ConfigBudgetDialog;
 import org.arthur.compta.lapin.presentation.budget.dialog.EditBudgetDialog;
 import org.arthur.compta.lapin.presentation.common.dialog.DateDialog;
 import org.arthur.compta.lapin.presentation.compte.dialog.EditCompteDialog;
@@ -58,6 +59,7 @@ public class ComptaMenuBar extends MenuBar {
 
 		// création du menu Trimestre
 		Menu sysMenu = new Menu("Système");
+		sysMenu.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.SYSTEM_IMG)));
 
 		// ajout de l'action créé trimestre
 		MenuItem prefItem = new MenuItem("Sauver taille");
@@ -83,6 +85,7 @@ public class ComptaMenuBar extends MenuBar {
 
 		// création du menu Trimestre
 		Menu trimMenu = new Menu("Trimestre");
+		trimMenu.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.TRIMESTRE_IMG)));
 
 		// ajout de l'action créé trimestre
 		MenuItem addItem = new MenuItem("Créer un trimestre");
@@ -148,6 +151,7 @@ public class ComptaMenuBar extends MenuBar {
 
 		// création du menu Trimestre
 		Menu opMenu = new Menu("Opération");
+		opMenu.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.OPERATION_IMG)));
 
 		// ajout de l'action créé trimestre
 		MenuItem searchItem = new MenuItem("Rechercher");
@@ -175,9 +179,11 @@ public class ComptaMenuBar extends MenuBar {
 
 		// création du menu Trimestre
 		Menu budMenu = new Menu("Budget");
+		budMenu.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.BUDGET_IMG)));
+		getMenus().add(budMenu);
 
 		// ajout de l'action créé trimestre
-		MenuItem addItem = new MenuItem("Ajouter un budget");
+		MenuItem addItem = new MenuItem("Créer un budget");
 		addItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.ADD_IMG)));
 		addItem.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -185,13 +191,28 @@ public class ComptaMenuBar extends MenuBar {
 			public void handle(ActionEvent event) {
 				// ouverture de la fenêtre de saisie
 				EditBudgetDialog dia = new EditBudgetDialog(null);
-				
+
 				dia.showAndWait();
 
 			}
 		});
 		budMenu.getItems().add(addItem);
-		getMenus().add(budMenu);
+
+		// configuration des budget
+		MenuItem gestItem = new MenuItem("Gestion des budgets");
+		gestItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.CONFIG_TMP_IMG)));
+		gestItem.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				// ouverture de la fenêtre de configuration
+				ConfigBudgetDialog dia = new ConfigBudgetDialog();
+
+				dia.showAndWait();
+
+			}
+		});
+		budMenu.getItems().add(gestItem);
 
 	}
 
@@ -201,6 +222,7 @@ public class ComptaMenuBar extends MenuBar {
 	private void createCompteMenu() {
 
 		Menu compteMenu = new Menu("Compte");
+		compteMenu.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.COMPTE_IMG)));
 
 		MenuItem addItem = new MenuItem("Créer un compte");
 		addItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.ADD_IMG)));
@@ -230,6 +252,7 @@ public class ComptaMenuBar extends MenuBar {
 
 			Menu datMenu = new Menu();
 			datMenu.setText("Vérif : " + dat);
+			datMenu.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.VERIF_IMG)));
 
 			// vérifier tout de suite
 			MenuItem verifNow = new MenuItem("Vérifier");

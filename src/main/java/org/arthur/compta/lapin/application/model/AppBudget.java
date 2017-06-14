@@ -4,6 +4,7 @@ import org.arthur.compta.lapin.model.Budget;
 
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 public class AppBudget extends AppObject {
@@ -25,6 +26,8 @@ public class AppBudget extends AppObject {
 	private SimpleBooleanProperty _isActifProp;
 	/** Le montant utilise */
 	private SimpleDoubleProperty _montantUtiliseProp;
+	/** La priorité 0 =priorite la plus haute */
+	private SimpleIntegerProperty _priorityProp;
 
 	/**
 	 * Consructeur par défaut
@@ -38,6 +41,7 @@ public class AppBudget extends AppObject {
 		_objectifProp = new SimpleDoubleProperty(budget.getObjectif());
 		_montantUtiliseProp = new SimpleDoubleProperty(budget.getMontantUtilise());
 		_isActifProp = new SimpleBooleanProperty(budget.isActif());
+		_priorityProp = new SimpleIntegerProperty(budget.getPriority());
 
 		// a calculer par l'application
 		_avancementProp = new SimpleDoubleProperty();
@@ -203,6 +207,37 @@ public class AppBudget extends AppObject {
 		_isActifProp.set(isActif);
 		_budget.setIsActif(isActif);
 
+	}
+
+	/**
+	 * Retourne la priorité
+	 * 
+	 * @return
+	 */
+	public int getPriority() {
+
+		return _priorityProp.get();
+	}
+
+	/**
+	 * Positionne la priorité
+	 * 
+	 * @param prio
+	 */
+	public void setPriority(int prio) {
+
+		_priorityProp.set(prio);
+		_budget.setPriority(prio);
+
+	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+
+		return getNom() + " " + String.valueOf(getObjectif()) + "€";
 	}
 
 }

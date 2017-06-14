@@ -38,7 +38,7 @@ public class OperationService {
 		// re-calcul du solde du compte
 		CompteManager.getInstance().operationSwitched(appOp);
 		// sauvegarde en base
-		DBManager.getInstance().editOperation(appOp);
+		DBManager.getInstance().updateOperation(appOp);
 
 	}
 
@@ -159,7 +159,7 @@ public class OperationService {
 		}
 
 		// enregistrement en base
-		DBManager.getInstance().editOperation(_operation);
+		DBManager.getInstance().updateOperation(_operation);
 
 		if (toSwitch) {
 			switchEtatOperation(_operation);

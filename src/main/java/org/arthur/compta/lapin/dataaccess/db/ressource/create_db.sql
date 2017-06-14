@@ -24,6 +24,7 @@ CREATE TABLE BUDGET(
 	objectif        FLOAT  NOT NULL,
 	utilise        	FLOAT  NOT NULL,
 	is_actif       	BOOLEAN  NOT NULL,
+	priority		INTEGER NOT NULL,
 	CONSTRAINT BUDGET_Pk PRIMARY KEY (ID)
 );
 

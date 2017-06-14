@@ -247,23 +247,18 @@ public class TrimestreManager {
 				fin.set(Calendar.YEAR, dateDeb.get(Calendar.YEAR) + ((i + numMoi) / 12));
 				em.setDateFin(fin);
 
-				
 				// insertion de l'exercice mensuel en base
 				double resPrev = TemplateService.getPrevFromtemplate();
 				String idEm = DBManager.getInstance().addExerciceMensuel(debut, fin, resPrev);
 				// création de l'exercice applicatif
 				AppExerciceMensuel appEm = new AppExerciceMensuel(em);
 				appEm.setAppID(idEm);
-				
-				
 
 				// ajout des opérations du templates et calcul du prévisionnel
 				TemplateService.applyTtemplate(appEm, i);
 
-				
-
 				// lien applicatif
-				
+
 				appTrim.setAppExerciceMensuel(i, appEm);
 
 			}

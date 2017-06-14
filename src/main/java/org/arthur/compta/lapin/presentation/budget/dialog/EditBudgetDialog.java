@@ -95,7 +95,8 @@ public class EditBudgetDialog extends ComptaDialog<AppBudget> {
 						try {
 							_budget = BudgetManager.getInstance().editBudget(_budget, _nomTxt.getText().trim(),
 									Double.parseDouble(_objTxt.getText().trim()),
-									Double.parseDouble(_utilsTxt.getText().trim()), _budget.isActif());
+									Double.parseDouble(_utilsTxt.getText().trim()), _budget.isActif(),
+									_budget.getPriority());
 						} catch (Exception e) {
 							ExceptionDisplayService.showException(e);
 						}

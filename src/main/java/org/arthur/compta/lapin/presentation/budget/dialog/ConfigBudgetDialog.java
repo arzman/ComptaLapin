@@ -1,8 +1,11 @@
 package org.arthur.compta.lapin.presentation.budget.dialog;
 
+import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.BudgetManager;
 import org.arthur.compta.lapin.application.model.AppBudget;
+import org.arthur.compta.lapin.dataaccess.db.DBManager;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
+import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 
 import javafx.collections.FXCollections;
@@ -17,6 +20,8 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TitledPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.RowConstraints;
 import javafx.util.Callback;
 
 /**
@@ -30,20 +35,41 @@ public class ConfigBudgetDialog extends ComptaDialog<ButtonData> {
 	private ButtonType _buttonTypeOk;
 	/** Les budgets actifs ordonnés */
 	private ObservableList<AppBudget> _activesBudgets;
+	/** Listview des budgets actids */
 	private ListView<AppBudget> list;
+	/** Tous les budgets */
+	private ObservableList<AppBudget> _allBudgets;
 
 	public ConfigBudgetDialog() {
 		super(ConfigBudgetDialog.class.getSimpleName());
 
+		setTitle("Gestion des budgets");
+
 		GridPane root = new GridPane();
+		root.setHgap(5);
 		getDialogPane().setContent(root);
+
+		RowConstraints rowCons = new RowConstraints();
+		rowCons.setFillHeight(true);
+		rowCons.setVgrow(Priority.ALWAYS);
+		root.getRowConstraints().add(rowCons);
 
 		// récupération des budgets actifs
 		_activesBudgets = FXCollections.observableArrayList();
 		_activesBudgets.addAll(BudgetManager.getInstance().getBudgetList());
 
+		// récupérations de tout les budgets
+		_allBudgets = FXCollections.observableArrayList();
+		try {
+			_allBudgets.addAll(BudgetManager.getInstance().getAllBudgets());
+		} catch (ComptaException e) {
+			ExceptionDisplayService.showException(e);
+		}
+
 		// zone ré-organisation
 		root.add(createReOrg(), 0, 0);
+		// de suppression
+		root.add(createSuppr(), 1, 0);
 
 		// bouton Ok et Fermer
 		createButtonBar();
@@ -64,6 +90,12 @@ public class ConfigBudgetDialog extends ComptaDialog<ButtonData> {
 
 					// ordre modifié, on demande au manager de retrier sa liste
 					BudgetManager.getInstance().pleaseSort();
+					// on sauve les budgets
+					try {
+						DBManager.getInstance().updateBudgets(_activesBudgets);
+					} catch (ComptaException e) {
+						ExceptionDisplayService.showException(e);
+					}
 
 				}
 
@@ -136,9 +168,34 @@ public class ConfigBudgetDialog extends ComptaDialog<ButtonData> {
 
 		TitledPane borPa = new TitledPane("Ré-organisation", subRoot);
 		borPa.setCollapsible(false);
+		borPa.setMaxHeight(Double.MAX_VALUE);
 
 		return borPa;
 
+	}
+
+	/**
+	 * Crée la liste permettant de supprimer les budgets
+	 * 
+	 * @return
+	 */
+	private Node createSuppr() {
+
+		GridPane subRoot = new GridPane();
+		subRoot.setHgap(5);
+		subRoot.setVgap(5);
+
+		// la liste de tous les budgets
+		ListView<AppBudget> listAllBud = new ListView<AppBudget>();
+		listAllBud.setItems(_allBudgets);
+
+		subRoot.add(listAllBud, 0, 0);
+
+		TitledPane borPa = new TitledPane("Historique", subRoot);
+		borPa.setCollapsible(false);
+		borPa.setMaxHeight(Double.MAX_VALUE);
+
+		return borPa;
 	}
 
 	/**

@@ -987,7 +987,8 @@ public class DBManager {
 	/**
 	 * Récupère les comptes actifs
 	 * 
-	 * @return couple clé : identifiant et valeurs [nom,objectif,utilise]
+	 * @return couple clé : identifiant et valeurs
+	 *         [nom,objectif,utilise,priority]
 	 * @throws ComptaException
 	 *             Echec de la récupération
 	 */
@@ -1087,6 +1088,79 @@ public class DBManager {
 			throw new ComptaException("Impossible de mettre à jour le budget", e);
 		}
 
+	}
+
+	/**
+	 * Met à jour les budgets en base de donnée
+	 * 
+	 * @param budgets
+	 *            les budgets
+	 * @throws ComptaException
+	 *             Echec de la mise à jour
+	 */
+	public void updateBudgets(List<AppBudget> budgets) throws ComptaException {
+
+		// préparation de la requête
+		String query = "UPDATE BUDGET SET nom=?,objectif=?,utilise=?,is_actif=?,priority=? WHERE ID = ?";
+
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
+
+			for (AppBudget budget : budgets) {
+
+				stmt.setString(1, budget.getNom());
+				stmt.setDouble(2, budget.getObjectif());
+				stmt.setDouble(3, budget.getMontantUtilise());
+				stmt.setBoolean(4, budget.isActif());
+				stmt.setInt(5, budget.getPriority());
+				stmt.setString(6, budget.getAppId());
+
+				stmt.addBatch();
+			}
+			// execution
+			stmt.executeBatch();
+
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de mettre à jour les budgets", e);
+		}
+
+	}
+
+	/**
+	 * Récupère les comptes
+	 * 
+	 * @return couple clé : identifiant et valeurs
+	 *         [nom,objectif,utilise,priority,is_actif]
+	 * @throws ComptaException
+	 *             Echec de la récupération
+	 */
+	public HashMap<String, String[]> getAllBudget() throws ComptaException {
+
+		HashMap<String, String[]> res = new HashMap<>();
+
+		String query = "SELECT ID,nom,objectif,utilise,priority,is_actif FROM BUDGET;";
+
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
+
+			ResultSet queryRes = stmt.executeQuery();
+
+			while (queryRes.next()) {
+				// parsing du résultat
+				String[] elt = new String[5];
+
+				elt[0] = queryRes.getString("nom");
+				elt[1] = String.valueOf(queryRes.getDouble("objectif"));
+				elt[2] = String.valueOf(queryRes.getDouble("utilise"));
+				elt[3] = String.valueOf(queryRes.getInt("priority"));
+				elt[4] = String.valueOf(queryRes.getInt("is_actif"));
+
+				res.put(queryRes.getString("ID"), elt);
+			}
+
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de récupérer tous les comptes de la base");
+		}
+
+		return res;
 	}
 
 }

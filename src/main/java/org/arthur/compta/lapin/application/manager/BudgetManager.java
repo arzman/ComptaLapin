@@ -1,7 +1,9 @@
 package org.arthur.compta.lapin.application.manager;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.model.AppBudget;
@@ -45,6 +47,7 @@ public class BudgetManager {
 				budget.setMontantUtilise(Double.parseDouble(info[2]));
 				budget.setObjectif(Double.parseDouble(info[1]));
 				budget.setPriority(Integer.parseInt(info[3]));
+				budget.setIsActif(true);
 
 				// encapsulation applicative
 				AppBudget appB = new AppBudget(budget);
@@ -60,10 +63,6 @@ public class BudgetManager {
 		} catch (ComptaException e) {
 			e.printStackTrace();
 		}
-
-		// on calcule les avancements
-		calculateData();
-
 	}
 
 	/**
@@ -99,7 +98,7 @@ public class BudgetManager {
 	public void desactivateBudget(AppBudget appB) throws ComptaException {
 
 		_budgetList.remove(appB);
-		editBudget(appB, appB.getNom(), appB.getObjectif(), appB.getMontantUtilise(), appB.isActif());
+		editBudget(appB, appB.getNom(), appB.getObjectif(), appB.getMontantUtilise(), false, appB.getPriority());
 
 	}
 
@@ -237,11 +236,13 @@ public class BudgetManager {
 	 *            le nouveau montant utilise
 	 * @param isActif
 	 *            la nouvelle valeur actif
+	 * @param prio
+	 *            la nouvelle priorité
 	 * @return
 	 * @throws ComptaException
 	 */
-	public AppBudget editBudget(AppBudget appBudget, String nom, double objectif, double utilise, boolean isActif)
-			throws ComptaException {
+	public AppBudget editBudget(AppBudget appBudget, String nom, double objectif, double utilise, boolean isActif,
+			int prio) throws ComptaException {
 
 		if (appBudget != null) {
 
@@ -251,6 +252,7 @@ public class BudgetManager {
 				appBudget.setObjectif(objectif);
 				appBudget.setMontantUtilise(utilise);
 				appBudget.setIsActif(isActif);
+				appBudget.setPriority(prio);
 				// modif du prévisionnel des Budgets
 				calculateData();
 				// écriture en base
@@ -278,6 +280,45 @@ public class BudgetManager {
 			}
 		});
 
+		// on calcule les avancements
+		calculateData();
+
+	}
+
+	/**
+	 * Retourne tous les budgets
+	 * 
+	 * @return
+	 * @throws ComptaException
+	 *             Echec de la récupération
+	 */
+	public List<AppBudget> getAllBudgets() throws ComptaException {
+
+		ArrayList<AppBudget> list = new ArrayList<>();
+
+		// récupération en base des métadonnée des budget
+		HashMap<String, String[]> fromPersistancy = DBManager.getInstance().getAllBudget();
+
+		for (String id : fromPersistancy.keySet()) {
+
+			String[] info = fromPersistancy.get(id);
+			// création du modèle
+			Budget budget = new Budget();
+			budget.setNom(info[0]);
+			budget.setMontantUtilise(Double.parseDouble(info[2]));
+			budget.setObjectif(Double.parseDouble(info[1]));
+			budget.setPriority(Integer.parseInt(info[3]));
+			budget.setIsActif(Boolean.parseBoolean(info[4]));
+
+			// encapsulation applicative
+			AppBudget appB = new AppBudget(budget);
+			appB.setAppID(id);
+
+			// ajout dans la liste
+			list.add(appB);
+		}
+
+		return list;
 	}
 
 }

@@ -3,9 +3,14 @@ package org.arthur.compta.lapin.presentation.budget.cellfactory;
 import org.arthur.compta.lapin.application.model.AppBudget;
 import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
 import javafx.util.Callback;
 
 public class AvancementTableCell implements Callback<TableColumn<AppBudget, Number>, TableCell<AppBudget, Number>> {
@@ -26,34 +31,80 @@ public class AvancementTableCell implements Callback<TableColumn<AppBudget, Numb
 					double val = item.doubleValue();
 
 					// on format le texte comme une valeur monnaitaire
-					ProgressBar progress = new ProgressBar();
-					String style;
-
-					if (val < 0.25) {
-						style = "-fx-accent: red;";
-					} else {
-						if (val < 0.5) {
-							style = "-fx-accent: orange;";
-						} else {
-							if (val < 0.75) {
-								style = "-fx-accent: yellow;";
-							} else {
-								style = "-fx-accent: green;";
-							}
-						}
-					}
-					
-					progress.setStyle(style);
-					progress.setProgress(val);
+					CustomizedProgressBar progress = new CustomizedProgressBar();
+					// progress.setStyle(style);
+					progress._percentProp.set(val);
 					setGraphic(progress);
-					
-					setText(ApplicationFormatter.pourcentFormat.format(val));
 
 				}
 			}
 
 		};
 
+	}
+
+	private class CustomizedProgressBar extends StackPane {
+
+		final private ProgressBar bar = new ProgressBar();
+		final private Text text = new Text();
+		final SimpleDoubleProperty _percentProp;
+
+		final private static int DEFAULT_LABEL_PADDING = 5;
+
+		public CustomizedProgressBar() {
+
+			_percentProp = new SimpleDoubleProperty(0);
+
+			syncProgress();
+			_percentProp.addListener(new ChangeListener<Number>() {
+
+				@Override
+				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+					syncProgress();
+
+				}
+			});
+
+			bar.setMaxWidth(Double.MAX_VALUE); // allows the progress bar to
+												// expand to fill available
+												// horizontal space.
+
+			getChildren().setAll(bar, text);
+		}
+
+		// synchronizes the progress indicated with the work done.
+		private void syncProgress() {
+
+			double val = _percentProp.doubleValue();
+
+			if (val < 0) {
+				text.setText("");
+				bar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+			} else {
+				text.setText(ApplicationFormatter.pourcentFormat.format(val));
+				bar.setProgress(val);
+			}
+
+			String style;
+
+			if (val < 0.25) {
+				style = "-fx-accent: red;";
+			} else {
+				if (val < 0.5) {
+					style = "-fx-accent: orange;";
+				} else {
+					if (val < 0.75) {
+						style = "-fx-accent: yellow;";
+					} else {
+						style = "-fx-accent: #3AF24B;";
+					}
+				}
+			}
+			bar.setStyle(style);
+
+			bar.setMinHeight(text.getBoundsInLocal().getHeight() + DEFAULT_LABEL_PADDING * 2);
+			bar.setMinWidth(text.getBoundsInLocal().getWidth() + DEFAULT_LABEL_PADDING * 2);
+		}
 	}
 
 }

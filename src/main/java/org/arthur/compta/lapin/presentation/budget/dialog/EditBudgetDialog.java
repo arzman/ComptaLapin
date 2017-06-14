@@ -2,12 +2,12 @@ package org.arthur.compta.lapin.presentation.budget.dialog;
 
 import org.arthur.compta.lapin.application.manager.BudgetManager;
 import org.arthur.compta.lapin.application.model.AppBudget;
+import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 
 import javafx.scene.Node;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
@@ -24,7 +24,7 @@ import javafx.util.Callback;
  * Fenetre de création ou édition de budget
  *
  */
-public class EditBudgetDialog extends Dialog<AppBudget> {
+public class EditBudgetDialog extends ComptaDialog<AppBudget> {
 
 	/** Le budget créé ou édité */
 	private AppBudget _budget;
@@ -50,6 +50,8 @@ public class EditBudgetDialog extends Dialog<AppBudget> {
 	 *            le budget a éditer, null si création
 	 */
 	public EditBudgetDialog(AppBudget budget) {
+
+		super(EditBudgetDialog.class.getSimpleName());
 
 		_budget = budget;
 		if (_budget == null) {

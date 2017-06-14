@@ -42,7 +42,12 @@ public class AvancementTableCell implements Callback<TableColumn<AppBudget, Numb
 		};
 
 	}
-
+	/**
+	 * 
+	 * ProgressBar customisée : affichage de la progression en % et changement de couleur suivant la valeur
+	 * 
+	 *
+	 */
 	private class CustomizedProgressBar extends StackPane {
 
 		final private ProgressBar bar = new ProgressBar();
@@ -65,10 +70,7 @@ public class AvancementTableCell implements Callback<TableColumn<AppBudget, Numb
 				}
 			});
 
-			bar.setMaxWidth(Double.MAX_VALUE); // allows the progress bar to
-												// expand to fill available
-												// horizontal space.
-
+			bar.setMaxWidth(Double.MAX_VALUE); 
 			getChildren().setAll(bar, text);
 		}
 

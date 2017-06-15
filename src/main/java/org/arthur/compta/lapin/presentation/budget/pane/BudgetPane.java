@@ -6,6 +6,7 @@ import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.application.model.AppBudget;
 import org.arthur.compta.lapin.presentation.budget.cellfactory.AvancementTableCell;
 import org.arthur.compta.lapin.presentation.budget.dialog.EditBudgetDialog;
+import org.arthur.compta.lapin.presentation.budget.dialog.UseBudgetDialog;
 import org.arthur.compta.lapin.presentation.common.cellfactory.MontantCellFactory;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
@@ -142,6 +143,22 @@ public class BudgetPane extends GridPane {
 		// le menu contextuel
 		final ContextMenu menu = new ContextMenu();
 		_table.setContextMenu(menu);
+
+		// action d'édition des budgets
+		final MenuItem useBudget = new MenuItem("Utiliser");
+		useBudget.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.USE_BUDGET_IMG)));
+		useBudget.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+
+				// récupération du budget applicatif
+				AppBudget appB = _table.getSelectionModel().getSelectedItems().get(0);
+				
+				UseBudgetDialog dia = new UseBudgetDialog(appB);
+				dia.showAndWait();
+			}
+		});
+		menu.getItems().add(useBudget);
 
 		// action d'édition des budgets
 		final MenuItem editBudget = new MenuItem("Editer");

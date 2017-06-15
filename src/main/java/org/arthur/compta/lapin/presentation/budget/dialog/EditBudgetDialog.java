@@ -11,13 +11,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
-import javafx.scene.paint.Color;
 import javafx.util.Callback;
 
 /**
@@ -38,10 +32,6 @@ public class EditBudgetDialog extends ComptaDialog<AppBudget> {
 
 	/** Le bouton OK */
 	private ButtonType _buttonTypeOk;
-
-	/** La bordure rouge en cas d'erreur de saisi */
-	private final Border BORDER_ERROR = new Border(
-			new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1)));
 
 	/**
 	 * Constructeur

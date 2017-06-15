@@ -48,6 +48,8 @@ public class ImageLoader {
 	public static final String LAPIN_IMG = "lapin.png";
 	// lapin en 32
 	public static final String LAPIN32_IMG = "lapin_32x32.png";
+	// liasse de billet
+	public static final String USE_BUDGET_IMG = "use_budget_icon.gif";
 
 	/**
 	 * Retourne une image

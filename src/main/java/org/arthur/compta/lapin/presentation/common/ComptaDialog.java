@@ -6,6 +6,12 @@ import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Dialog;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 /**
@@ -14,15 +20,19 @@ import javafx.stage.Stage;
  */
 public class ComptaDialog<T> extends Dialog<T> {
 
+	/** La bordure rouge en cas d'erreur de saisi */
+	protected final Border BORDER_ERROR = new Border(
+			new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1)));
+
 	public ComptaDialog(String id) {
 
+		// on peut redimensionner la fenetre
 		setResizable(true);
-		
-		
-		Stage stage = (Stage) getDialogPane().getScene().getWindow(); 
+
+		// ajout des icones de la fenetre = meme que l'appli
+		Stage stage = (Stage) getDialogPane().getScene().getWindow();
 		stage.getIcons().add(ImageLoader.getImage(ImageLoader.LAPIN_IMG));
 		stage.getIcons().add(ImageLoader.getImage(ImageLoader.LAPIN32_IMG));
-		
 
 		// valeur initial
 		getDialogPane().setPrefSize(

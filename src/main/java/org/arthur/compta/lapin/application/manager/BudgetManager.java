@@ -1,6 +1,7 @@
 package org.arthur.compta.lapin.application.manager;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -319,6 +320,36 @@ public class BudgetManager {
 		}
 
 		return list;
+	}
+
+	/**
+	 * Ajoute une utilisation pour le budget
+	 * 
+	 * @param appB
+	 *            le budget
+	 * @param nom
+	 *            le nom de l'utilisation
+	 * @param montat
+	 *            le montant
+	 * @param date
+	 *            la date
+	 * @throws ComptaException
+	 */
+	public void addUtilisationForBudget(AppBudget appB, String nom, double montat, Calendar date)
+			throws ComptaException {
+
+		// enregistrement de l'utilisation
+		String id = DBManager.getInstance().addUtilisationForBudget(appB.getAppId(), nom, montat, date);
+
+		if (id != null && !id.trim().isEmpty()) {
+			// modification du montant utilisé
+			appB.setMontantUtilise(appB.getMontantUtilise() + montat);
+			// sauvegarde du budget
+			DBManager.getInstance().updateBudget(appB);
+			// MaJ des avancements
+			calculateData();
+		}
+
 	}
 
 }

@@ -5,6 +5,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -12,6 +14,7 @@ import java.util.Enumeration;
 import java.util.Properties;
 import java.util.TreeSet;
 
+import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.dataaccess.files.FilesManager;
 
 public class ConfigurationManager {
@@ -33,7 +36,7 @@ public class ConfigurationManager {
 
 		// chargement de la configuration
 		_config = new Properties() {
-			/**generated */
+			/** generated */
 			private static final long serialVersionUID = 3700533144616449180L;
 
 			@Override
@@ -110,6 +113,43 @@ public class ConfigurationManager {
 	 */
 	public String getProp(String key, String defaultValue) {
 		return _config.getProperty(key, defaultValue);
+	}
+
+	/**
+	 * Positionne une feuille de style si aucune n'est présente
+	 * 
+	 * @throws ComptaException
+	 *             Echec de l'écriture de la feuille de style
+	 */
+	public Path installStyleSheet() throws ComptaException {
+
+		Path confPath = FilesManager.getInstance().getConfFolder();
+
+		Path stylePath = Paths.get(confPath.toString(), "StyleSheet.css");
+
+		if (!Files.exists(stylePath, new LinkOption[] {})) {
+
+			try (InputStream io = getClass().getClassLoader()
+					.getResourceAsStream("org/arthur/compta/lapin/presentation/resource/css/StyleSheet.css");
+					FileOutputStream fos = new FileOutputStream(stylePath.toFile());
+
+			) {
+
+				int b = io.read();
+				while (b != -1) {
+
+					fos.write(b);
+					b = io.read();
+
+				}
+			} catch (Exception e) {
+				throw new ComptaException("Impossible d'ecrire la feuille de style", e);
+			}
+
+		}
+
+		return stylePath;
+
 	}
 
 }

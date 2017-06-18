@@ -1,7 +1,12 @@
 package org.arthur.compta.lapin.presentation.budget.dialog;
 
+import java.sql.Date;
+import java.util.Calendar;
+
+import org.arthur.compta.lapin.application.manager.BudgetManager;
 import org.arthur.compta.lapin.application.model.AppBudget;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
+import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
@@ -9,8 +14,12 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.util.Callback;
 
 public class UseBudgetDialog extends ComptaDialog<ButtonData> {
+
+	/** Le budget */
+	private AppBudget _budget;
 
 	/** Le bouton OK */
 	private ButtonType _buttonTypeOk;
@@ -29,6 +38,7 @@ public class UseBudgetDialog extends ComptaDialog<ButtonData> {
 	public UseBudgetDialog(AppBudget appB) {
 
 		super(UseBudgetDialog.class.getSimpleName());
+		_budget = appB;
 
 		setTitle("Utiliser le budget");
 
@@ -60,6 +70,32 @@ public class UseBudgetDialog extends ComptaDialog<ButtonData> {
 
 		// création des boutons
 		createButtonBar();
+
+		// vérif initiale
+		checkInput();
+
+		setResultConverter(new Callback<ButtonType, ButtonData>() {
+
+			@Override
+			public ButtonData call(ButtonType param) {
+
+				if (param == _buttonTypeOk) {
+
+					Calendar date = Calendar.getInstance();
+					date.setTime(Date.valueOf(_datePck.getValue()));
+
+					try {
+						BudgetManager.getInstance().addUtilisationForBudget(_budget, _nomTxt.getText().trim(),
+								Double.parseDouble(_montantTxt.getText().trim()), date);
+					} catch (Exception e) {
+						ExceptionDisplayService.showException(e);
+					}
+				}
+
+				return param.getButtonData();
+			}
+		});
+
 	}
 
 	/**

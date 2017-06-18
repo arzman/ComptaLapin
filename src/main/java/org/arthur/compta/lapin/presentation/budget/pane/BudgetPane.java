@@ -6,6 +6,7 @@ import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.application.model.AppBudget;
 import org.arthur.compta.lapin.presentation.budget.cellfactory.AvancementTableCell;
 import org.arthur.compta.lapin.presentation.budget.dialog.EditBudgetDialog;
+import org.arthur.compta.lapin.presentation.budget.dialog.HistoryBudgetDialog;
 import org.arthur.compta.lapin.presentation.budget.dialog.UseBudgetDialog;
 import org.arthur.compta.lapin.presentation.common.cellfactory.MontantCellFactory;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
@@ -144,7 +145,7 @@ public class BudgetPane extends GridPane {
 		final ContextMenu menu = new ContextMenu();
 		_table.setContextMenu(menu);
 
-		// action d'édition des budgets
+		// action d'utilisation d'un budget
 		final MenuItem useBudget = new MenuItem("Utiliser");
 		useBudget.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.USE_BUDGET_IMG)));
 		useBudget.setOnAction(new EventHandler<ActionEvent>() {
@@ -153,12 +154,28 @@ public class BudgetPane extends GridPane {
 
 				// récupération du budget applicatif
 				AppBudget appB = _table.getSelectionModel().getSelectedItems().get(0);
-				
+
 				UseBudgetDialog dia = new UseBudgetDialog(appB);
 				dia.showAndWait();
 			}
 		});
 		menu.getItems().add(useBudget);
+
+		// action de visualisation d'historique d'un budget
+		final MenuItem showHistBudget = new MenuItem("Historique");
+		showHistBudget.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.USE_BUDGET_IMG)));
+		showHistBudget.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+
+				// récupération du budget applicatif
+				AppBudget appB = _table.getSelectionModel().getSelectedItems().get(0);
+
+				HistoryBudgetDialog dia = new HistoryBudgetDialog(appB);
+				dia.showAndWait();
+			}
+		});
+		menu.getItems().add(showHistBudget);
 
 		// action d'édition des budgets
 		final MenuItem editBudget = new MenuItem("Editer");

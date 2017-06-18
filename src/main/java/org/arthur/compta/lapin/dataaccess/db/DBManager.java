@@ -1163,4 +1163,58 @@ public class DBManager {
 		return res;
 	}
 
+	/**
+	 * Ajoute une utilisation en base de donnée
+	 * 
+	 * @param budId
+	 *            l'id du budget utilisé
+	 * @param nom
+	 *            le nom de l'utilisation
+	 * @param montat
+	 *            le montant de l'utilisation
+	 * @param date
+	 *            la date
+	 * @throws ComptaException
+	 */
+	public String addUtilisationForBudget(String budId, String nom, double montat, Calendar date)
+			throws ComptaException {
+		String id = "";
+
+		// préparation de la requête
+		String query = "INSERT INTO UTILISATION (nom,montant,date_util,budget_id) VALUES (?,?,?,?);";
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+			stmt.setString(1, nom);
+			stmt.setDouble(2, montat);
+			stmt.setDate(3, new Date(date.getTimeInMillis()));
+			stmt.setInt(4, Integer.parseInt(budId));
+			// execution
+			stmt.executeUpdate();
+
+			// récupération de l'id en base du compte créé
+			ResultSet res = stmt.getGeneratedKeys();
+			if (res.getMetaData().getColumnCount() == 1 && res.next()) {
+				id = res.getString(1).trim();
+			}
+		} catch (Exception e) {
+			throw new ComptaException("Impossible d'ajouter l'utilisation", e);
+		}
+
+		return id;
+	}
+
+	/**
+	 * Ferme la base de donnée
+	 */
+	public void stop() {
+
+		String query = "SHUTDOWN;";
+
+		try {
+			getConnexion().createStatement().executeQuery(query);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+	}
+
 }

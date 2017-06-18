@@ -36,6 +36,7 @@ CREATE TABLE EXERCICE_MENSUEL(
 	resultat_moyen_prevu	FLOAT NOT NULL,
 	date_debut    DATE  NOT NULL,
 	date_fin      DATE  NOT NULL,
+	CONSTRAINT EM_Pk PRIMARY KEY (ID)
 );
 
 #***************************************************************
@@ -96,6 +97,19 @@ CREATE TABLE OPERATION(
 	CONSTRAINT mois_id_fk FOREIGN KEY (mois_id) REFERENCES EXERCICE_MENSUEL(ID),
 	CONSTRAINT op_compte_source_id_fk FOREIGN KEY (compte_source_id) REFERENCES COMPTE(ID),
 	CONSTRAINT op_compte_cible_id_fk FOREIGN KEY (compte_cible_id) REFERENCES COMPTE(ID)
+);
+
+#***************************************************************
+#   Table: UTILISATION
+#***************************************************************
+CREATE TABLE UTILISATION (
+	ID  			IDENTITY NOT NULL ,
+	nom				VARCHAR (25) NOT NULL,
+	montant     	FLOAT  NOT NULL,
+	budget_id		INTEGER,
+	date_util    	DATE  ,
+	CONSTRAINT UTILISATION_Pk PRIMARY KEY (ID),
+	CONSTRAINT budget_id_fk FOREIGN KEY (budget_id) REFERENCES BUDGET(ID)
 );
 
 

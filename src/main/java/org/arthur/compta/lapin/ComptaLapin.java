@@ -1,9 +1,5 @@
 package org.arthur.compta.lapin;
 
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-
 import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
@@ -71,25 +67,18 @@ public class ComptaLapin extends Application {
 			}
 		});
 
-		// positionnement de la feuille de style
-		Path url = ConfigurationManager.getInstance().installStyleSheet();
-
-		if (Files.exists(url, new LinkOption[] {})) {
-			setUserAgentStylesheet("file:///" + url.toString().replace("\\", "/"));
-		} else {
-			setUserAgentStylesheet(STYLESHEET_MODENA);
-		}
+		setUserAgentStylesheet(STYLESHEET_MODENA);
 
 		// ouverture de la fenetre
 		primaryStage.show();
 
 	}
-	
+
 	@Override
 	public void stop() throws Exception {
-		
+
 		super.stop();
-		
+
 		DBManager.getInstance().stop();
 	}
 

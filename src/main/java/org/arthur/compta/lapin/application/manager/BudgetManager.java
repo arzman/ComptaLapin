@@ -9,8 +9,11 @@ import java.util.List;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.model.AppBudget;
 import org.arthur.compta.lapin.application.model.AppCompte;
+import org.arthur.compta.lapin.application.model.AppUtilisation;
 import org.arthur.compta.lapin.dataaccess.db.DBManager;
 import org.arthur.compta.lapin.model.Budget;
+import org.arthur.compta.lapin.model.Utilisation;
+import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -350,6 +353,44 @@ public class BudgetManager {
 			calculateData();
 		}
 
+	}
+
+	/**
+	 * Retourne les utilisations du budget
+	 * 
+	 * @param appId
+	 *            l'id du budget
+	 * @return
+	 * @throws ComptaException
+	 */
+	public List<AppUtilisation> getUtilisation(String appId) throws ComptaException {
+
+		ArrayList<AppUtilisation> listeRes = new ArrayList<>();
+		// récupération des champs en base
+		try {
+
+			HashMap<String, String[]> infos = DBManager.getInstance().getUtilisationInfos(appId);
+
+			for (String id : infos.keySet()) {
+				// pour l'utilisation
+				String[] info = infos.get(id);
+
+				// parsing de la date et création du modèle métier
+				Calendar date = Calendar.getInstance();
+				date.setTime(ApplicationFormatter.databaseDateFormat.parse(info[2]));
+				Utilisation util = new Utilisation(Double.parseDouble(info[1]), info[0], date);
+				// Création de l'utilisation applicative
+				AppUtilisation appUtil = new AppUtilisation(util);
+				appUtil.setAppID(id);
+				// ajout au resultat
+				listeRes.add(appUtil);
+
+			}
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de récupérer les utilisations", e);
+		}
+
+		return listeRes;
 	}
 
 }

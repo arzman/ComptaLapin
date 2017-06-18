@@ -2,11 +2,14 @@ package org.arthur.compta.lapin.presentation.budget.dialog;
 
 import java.util.Calendar;
 
+import org.arthur.compta.lapin.application.exception.ComptaException;
+import org.arthur.compta.lapin.application.manager.BudgetManager;
 import org.arthur.compta.lapin.application.model.AppBudget;
 import org.arthur.compta.lapin.application.model.AppUtilisation;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.common.cellfactory.DateCellFactory;
 import org.arthur.compta.lapin.presentation.common.cellfactory.MontantCellFactory;
+import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
 import javafx.collections.FXCollections;
@@ -40,6 +43,12 @@ public class HistoryBudgetDialog extends ComptaDialog<ButtonData> {
 
 		_appBudget = app;
 		_useList = FXCollections.observableArrayList();
+
+		try {
+			_useList.addAll(BudgetManager.getInstance().getUtilisation(_appBudget.getAppId()));
+		} catch (ComptaException e) {
+			ExceptionDisplayService.showException(e);
+		}
 
 		setTitle("Historique du budget");
 

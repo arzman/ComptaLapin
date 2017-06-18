@@ -1217,4 +1217,43 @@ public class DBManager {
 
 	}
 
+	/**
+	 * Retourne les champs en base des utilisations du budget
+	 * 
+	 * @param id
+	 *            l'id du budget
+	 * @return
+	 * @throws ComptaException
+	 *             Echec de la recupération
+	 */
+	public HashMap<String, String[]> getUtilisationInfos(String id) throws ComptaException {
+
+		HashMap<String, String[]> res = new HashMap<>();
+
+		// création de la requete
+		String query = "SELECT ID,nom,montant,date_util FROM UTILISATION WHERE budget_id=?";
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
+
+			stmt.setString(1, id);
+
+			ResultSet queryRes = stmt.executeQuery();
+
+			while (queryRes.next()) {
+				// parsing du résultat
+				String[] elt = new String[3];
+
+				elt[0] = queryRes.getString("nom");
+				elt[1] = String.valueOf(queryRes.getDouble("montant"));
+				elt[2] = ApplicationFormatter.databaseDateFormat.format(queryRes.getDate("date_util"));
+
+				res.put(queryRes.getString("ID"), elt);
+			}
+
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de récupérer les utilisations du budget", e);
+		}
+
+		return res;
+	}
+
 }

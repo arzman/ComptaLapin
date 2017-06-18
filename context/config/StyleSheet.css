@@ -92,7 +92,7 @@ is being used to size a border should also be in pixels.
      * -fx-base directly, the sections in this file will typically use -fx-color.
      #ececec
      */
-	-fx-base: green;
+	-fx-base: #efefef;
 	/* A very light grey used for the background of windows.  See also
      * -fx-text-background-color, which should be used as the -fx-text-fill
      * value for text painted on top of backgrounds colored with -fx-background.
@@ -2476,8 +2476,8 @@ is being used to size a border should also be in pixels.
 }
 /* Header Sort Arrows */
 .table-view /*> column-header-background > nested-column-header >*/ .arrow,
-	.tree-table-view
-	/*> column-header-background > nested-column-header >*/ .arrow {
+	.tree-table-view{
+	/*> column-header-background > nested-column-header >*/ 
 	-fx-background-color: -fx-mark-color;
 	-fx-padding: 0.25em 0.3125em 0.25em 0.3125em; /* 3 3.75 3 3.75 */
 	-fx-shape: "M 0 0 h 7 l -3.5 4 z";

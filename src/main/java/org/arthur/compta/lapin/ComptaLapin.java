@@ -75,8 +75,7 @@ public class ComptaLapin extends Application {
 		Path url = ConfigurationManager.getInstance().installStyleSheet();
 
 		if (Files.exists(url, new LinkOption[] {})) {
-			setUserAgentStylesheet("file://" + url.toString());
-			setUserAgentStylesheet(STYLESHEET_MODENA);
+			setUserAgentStylesheet("file:///" + url.toString().replace("\\", "/"));
 		} else {
 			setUserAgentStylesheet(STYLESHEET_MODENA);
 		}

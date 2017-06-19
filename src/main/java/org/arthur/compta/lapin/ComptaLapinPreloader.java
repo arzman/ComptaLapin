@@ -28,6 +28,7 @@ public class ComptaLapinPreloader extends Preloader {
 
 		this.preloaderStage = primaryStage;
 		primaryStage.setResizable(false);
+		primaryStage.setTitle("Chargement");
 		primaryStage.getIcons().add(ImageLoader.getImage(ImageLoader.LAPIN32_IMG));
 
 		GridPane gridPane = new GridPane();

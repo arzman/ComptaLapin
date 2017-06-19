@@ -23,6 +23,7 @@ import org.arthur.compta.lapin.application.model.AppBudget;
 import org.arthur.compta.lapin.application.model.AppCompte;
 import org.arthur.compta.lapin.application.model.AppOperation;
 import org.arthur.compta.lapin.application.model.AppTransfert;
+import org.arthur.compta.lapin.application.model.AppUtilisation;
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElement;
 import org.arthur.compta.lapin.dataaccess.files.FilesManager;
 import org.arthur.compta.lapin.model.operation.Operation;
@@ -1254,6 +1255,33 @@ public class DBManager {
 		}
 
 		return res;
+	}
+
+	/**
+	 * Mets à jour l'utilisation en base de donnée
+	 * 
+	 * @param utilisation
+	 * @throws ComptaException
+	 *             Echec de la mise à jour
+	 */
+	public void upDateUtilisation(AppUtilisation utilisation) throws ComptaException {
+		// préparation de la requête
+		String query = "UPDATE UTILISATION SET nom=?,montant=?,date_util=? WHERE ID = ?";
+
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
+
+			stmt.setString(1, utilisation.getNom());
+			stmt.setDouble(2, utilisation.getMontant());
+			stmt.setDate(3, new Date(utilisation.getDate().getTimeInMillis()));
+			stmt.setString(4, utilisation.getAppId());
+
+			// execution
+			stmt.executeUpdate();
+
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de mettre à jour l'utilisation", e);
+		}
+
 	}
 
 }

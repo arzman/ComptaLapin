@@ -64,4 +64,64 @@ public class AppUtilisation extends AppObject {
 		return _montantProp;
 	}
 
+	/**
+	 * Positionne le nom
+	 * 
+	 * @param nom
+	 */
+	public void setNom(String nom) {
+
+		_nomProp.set(nom);
+		_utilisation.setLibelle(nom);
+	}
+
+	/**
+	 * Positionne le montant
+	 * 
+	 * @param montant
+	 */
+	public void setMontant(double montant) {
+		_montantProp.set(montant);
+		_utilisation.setMontant(montant);
+
+	}
+
+	/**
+	 * Positionne la date
+	 * 
+	 * @param date
+	 */
+	public void setDate(Calendar date) {
+		_dateProp.set(date);
+		_utilisation.setDate(date);
+
+	}
+
+	/**
+	 * Retourne le nom
+	 * 
+	 * @return
+	 */
+	public String getNom() {
+		return _nomProp.get();
+	}
+
+	/**
+	 * Retourne le montant
+	 * 
+	 * @return
+	 */
+	public double getMontant() {
+		return _montantProp.get();
+	}
+
+	/**
+	 * Retourne la date
+	 * 
+	 * @return
+	 */
+	public Calendar getDate() {
+		return _dateProp.get();
+	}
+
 }

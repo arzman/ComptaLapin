@@ -393,4 +393,26 @@ public class BudgetManager {
 		return listeRes;
 	}
 
+	/**
+	 * Edite une utilisation
+	 * 
+	 * @param utilisation
+	 * @param nom
+	 * @param montant
+	 * @param date
+	 * @throws ComptaException
+	 */
+	public void editUtilisation(AppUtilisation utilisation, String nom, double montant, Calendar date)
+			throws ComptaException {
+
+		// affectation des nouvelles valeurs
+		utilisation.setNom(nom);
+		utilisation.setMontant(montant);
+		utilisation.setDate(date);
+
+		// MaJ en base
+		DBManager.getInstance().upDateUtilisation(utilisation);
+
+	}
+
 }

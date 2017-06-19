@@ -10,16 +10,23 @@ import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.common.cellfactory.DateCellFactory;
 import org.arthur.compta.lapin.presentation.common.cellfactory.MontantCellFactory;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
+import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 
 /**
@@ -32,6 +39,8 @@ public class HistoryBudgetDialog extends ComptaDialog<ButtonData> {
 	private AppBudget _appBudget;
 	/** La liste des utilisations du budget */
 	private ObservableList<AppUtilisation> _useList;
+	/** presentation de la liste */
+	private TableView<AppUtilisation> _table;
 
 	/**
 	 * Constructeur
@@ -54,6 +63,9 @@ public class HistoryBudgetDialog extends ComptaDialog<ButtonData> {
 
 		// création du contenu
 		createContent();
+
+		// création du menu contextuel
+		createCtxMenu();
 
 		// creation des bouton
 		createButtonBar();
@@ -89,7 +101,7 @@ public class HistoryBudgetDialog extends ComptaDialog<ButtonData> {
 		Label utilsTxt = new Label(ApplicationFormatter.montantFormat.format(_appBudget.getMontantUtilise()));
 		root.add(utilsTxt, 1, 2);
 
-		TableView<AppUtilisation> _table = new TableView<>();
+		_table = new TableView<>();
 		root.add(_table, 0, 3, 2, 1);
 		_table.setItems(_useList);
 
@@ -115,6 +127,34 @@ public class HistoryBudgetDialog extends ComptaDialog<ButtonData> {
 		_table.getColumns().add(colMontant);
 		colMontant.setCellValueFactory(value -> value.getValue().montantProperyt());
 		colMontant.setCellFactory(new MontantCellFactory<>());
+	}
+
+	/**
+	 * Création des actions contextuelles sur le tableau
+	 */
+	private void createCtxMenu() {
+
+		ContextMenu menu = new ContextMenu();
+		_table.setContextMenu(menu);
+
+		MenuItem editItem = new MenuItem("Editer");
+		editItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.EDIT_IMG)));
+		editItem.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+
+				AppUtilisation util = _table.getSelectionModel().getSelectedItem();
+
+				EditUtilisationDialog dia = new EditUtilisationDialog(util);
+				dia.showAndWait();
+
+			}
+		});
+		editItem.disableProperty().bind(Bindings.isEmpty(_table.getSelectionModel().getSelectedItems()));
+
+		_table.getContextMenu().getItems().add(editItem);
+
 	}
 
 	/**

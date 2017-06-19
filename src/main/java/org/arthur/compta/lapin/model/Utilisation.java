@@ -45,11 +45,50 @@ public class Utilisation {
 		return _montant;
 	}
 
+	/**
+	 * Retourne le libellé de l'utilisation
+	 * 
+	 * @return
+	 */
 	public String getLibelle() {
 		return _libelle;
 	}
 
+	/**
+	 * Retourne la date de l'utilisation
+	 * 
+	 * @return
+	 */
 	public Calendar getDate() {
 		return _date;
+	}
+
+	/**
+	 * Positionne le libelle
+	 * 
+	 * @param nom
+	 */
+	public void setLibelle(String nom) {
+		_libelle = nom;
+
+	}
+
+	/**
+	 * Positionne le montant
+	 * 
+	 * @param montant
+	 */
+	public void setMontant(double montant) {
+		_montant = montant;
+
+	}
+
+	/**
+	 * Positionne la date
+	 * 
+	 * @param date
+	 */
+	public void setDate(Calendar date) {
+		_date = date;
 	}
 }

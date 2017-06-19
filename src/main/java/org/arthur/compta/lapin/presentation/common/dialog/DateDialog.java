@@ -27,7 +27,7 @@ public class DateDialog extends ComptaDialog<Calendar> {
 
 		if (date != null) {
 			datPick.setValue(
-					LocalDate.of(date.get(Calendar.YEAR), date.get(Calendar.MONTH), date.get(Calendar.DAY_OF_MONTH)));
+					LocalDate.of(date.get(Calendar.YEAR), date.get(Calendar.MONTH)+1, date.get(Calendar.DAY_OF_MONTH)));
 		} else {
 
 			datPick.setValue(LocalDate.now());

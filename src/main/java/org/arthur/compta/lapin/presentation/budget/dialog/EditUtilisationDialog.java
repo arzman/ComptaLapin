@@ -1,10 +1,11 @@
 package org.arthur.compta.lapin.presentation.budget.dialog;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Calendar;
 
 import org.arthur.compta.lapin.application.manager.BudgetManager;
-import org.arthur.compta.lapin.application.model.AppBudget;
+import org.arthur.compta.lapin.application.model.AppUtilisation;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 
@@ -17,12 +18,12 @@ import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
 
 /**
- * Fenetre permettant d'utiliser un budget
+ * Fenêtre permettant l'édition d'une utilisation de budget
  */
-public class UseBudgetDialog extends ComptaDialog<ButtonData> {
+public class EditUtilisationDialog extends ComptaDialog<ButtonData> {
 
 	/** Le budget */
-	private AppBudget _budget;
+	private AppUtilisation _utilisation;
 
 	/** Le bouton OK */
 	private ButtonType _buttonTypeOk;
@@ -36,12 +37,12 @@ public class UseBudgetDialog extends ComptaDialog<ButtonData> {
 	/**
 	 * Le constructeur
 	 * 
-	 * @param appB
+	 * @param appU
 	 */
-	public UseBudgetDialog(AppBudget appB) {
+	public EditUtilisationDialog(AppUtilisation appU) {
 
-		super(UseBudgetDialog.class.getSimpleName());
-		_budget = appB;
+		super(EditUtilisationDialog.class.getSimpleName());
+		_utilisation = appU;
 
 		setTitle("Utiliser le budget");
 
@@ -74,6 +75,9 @@ public class UseBudgetDialog extends ComptaDialog<ButtonData> {
 		// création des boutons
 		createButtonBar();
 
+		// initialisation des valeurs
+		initValue();
+
 		// vérif initiale
 		checkInput();
 
@@ -88,7 +92,7 @@ public class UseBudgetDialog extends ComptaDialog<ButtonData> {
 					date.setTime(Date.valueOf(_datePck.getValue()));
 
 					try {
-						BudgetManager.getInstance().addUtilisationForBudget(_budget, _nomTxt.getText().trim(),
+						BudgetManager.getInstance().editUtilisation(_utilisation, _nomTxt.getText().trim(),
 								Double.parseDouble(_montantTxt.getText().trim()), date);
 					} catch (Exception e) {
 						ExceptionDisplayService.showException(e);
@@ -98,6 +102,19 @@ public class UseBudgetDialog extends ComptaDialog<ButtonData> {
 				return param.getButtonData();
 			}
 		});
+
+	}
+
+	/**
+	 * Initialise la valeur des champs
+	 */
+	private void initValue() {
+
+		_nomTxt.setText(_utilisation.getNom());
+		_montantTxt.setText(String.valueOf(_utilisation.getMontant()));
+		Calendar date = _utilisation.getDate();
+		_datePck.setValue(
+				LocalDate.of(date.get(Calendar.YEAR), date.get(Calendar.MONTH)+1, date.get(Calendar.DAY_OF_MONTH)));
 
 	}
 

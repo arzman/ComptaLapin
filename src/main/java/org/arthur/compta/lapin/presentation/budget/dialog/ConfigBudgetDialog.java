@@ -1,5 +1,7 @@
 package org.arthur.compta.lapin.presentation.budget.dialog;
 
+import java.util.Iterator;
+
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.BudgetManager;
 import org.arthur.compta.lapin.application.model.AppBudget;
@@ -16,7 +18,9 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TitledPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -175,7 +179,7 @@ public class ConfigBudgetDialog extends ComptaDialog<ButtonData> {
 	}
 
 	/**
-	 * Crée la liste permettant de supprimer les budgets
+	 * Crée la liste permettant de visualiser et supprimer les budgets
 	 * 
 	 * @return
 	 */
@@ -191,9 +195,47 @@ public class ConfigBudgetDialog extends ComptaDialog<ButtonData> {
 
 		subRoot.add(listAllBud, 0, 0);
 
-		TitledPane borPa = new TitledPane("Historique", subRoot);
+		TitledPane borPa = new TitledPane("Historique des budgets", subRoot);
 		borPa.setCollapsible(false);
 		borPa.setMaxHeight(Double.MAX_VALUE);
+
+		ContextMenu menu = new ContextMenu();
+		listAllBud.setContextMenu(menu);
+
+		MenuItem delItem = new MenuItem("Supprimer");
+		delItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.DEL_IMG)));
+		delItem.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+
+				AppBudget appB = listAllBud.getSelectionModel().getSelectedItem();
+
+				try {
+					BudgetManager.getInstance().removeBudget(appB);
+					listAllBud.getItems().remove(appB);
+
+					// suppression de la liste ( le remove ne marche pas)
+					Iterator<AppBudget> iter = _activesBudgets.iterator();
+					boolean goOn = true;
+					while (iter.hasNext() && goOn) {
+
+						AppBudget bud = iter.next();
+						if (bud.getAppId().equals(appB.getAppId())) {
+							iter.remove();
+							goOn = false;
+						}
+
+					}
+
+				} catch (ComptaException e) {
+					ExceptionDisplayService.showException(e);
+				}
+
+			}
+		});
+
+		menu.getItems().add(delItem);
 
 		return borPa;
 	}

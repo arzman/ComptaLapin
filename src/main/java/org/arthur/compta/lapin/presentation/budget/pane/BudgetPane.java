@@ -163,7 +163,7 @@ public class BudgetPane extends GridPane {
 
 		// action de visualisation d'historique d'un budget
 		final MenuItem showHistBudget = new MenuItem("Historique");
-		showHistBudget.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.USE_BUDGET_IMG)));
+		showHistBudget.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.HISTORY_IMG)));
 		showHistBudget.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {

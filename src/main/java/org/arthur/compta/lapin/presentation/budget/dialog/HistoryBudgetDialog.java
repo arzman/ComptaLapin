@@ -137,6 +137,7 @@ public class HistoryBudgetDialog extends ComptaDialog<ButtonData> {
 		ContextMenu menu = new ContextMenu();
 		_table.setContextMenu(menu);
 
+		// Edition
 		MenuItem editItem = new MenuItem("Editer");
 		editItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.EDIT_IMG)));
 		editItem.setOnAction(new EventHandler<ActionEvent>() {
@@ -154,6 +155,29 @@ public class HistoryBudgetDialog extends ComptaDialog<ButtonData> {
 		editItem.disableProperty().bind(Bindings.isEmpty(_table.getSelectionModel().getSelectedItems()));
 
 		_table.getContextMenu().getItems().add(editItem);
+
+		// Suppression
+		MenuItem delItem = new MenuItem("Supprimer");
+		delItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.DEL_IMG)));
+		delItem.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+
+				AppUtilisation util = _table.getSelectionModel().getSelectedItem();
+
+				try {
+					BudgetManager.getInstance().removeUtilisation(util);
+					_useList.remove(util);
+				} catch (ComptaException e) {
+					ExceptionDisplayService.showException(e);
+				}
+
+			}
+		});
+		delItem.disableProperty().bind(Bindings.isEmpty(_table.getSelectionModel().getSelectedItems()));
+
+		_table.getContextMenu().getItems().add(delItem);
 
 	}
 

@@ -1284,4 +1284,53 @@ public class DBManager {
 
 	}
 
+	/**
+	 * Supprime l'utilisation en base
+	 * 
+	 * @param util
+	 * @throws ComptaException
+	 */
+	public void removeUtilisation(AppUtilisation util) throws ComptaException {
+
+		String query = "DELETE FROM UTILISATION WHERE ID=?;";
+
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
+
+			stmt.setString(1, util.getAppId());
+
+			stmt.executeUpdate();
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de supprimer l'utilisation", e);
+		}
+
+	}
+
+	/**
+	 * Supprime un budget de la base de donnée
+	 * 
+	 * @param appB
+	 * @throws ComptaException
+	 */
+	public void removeBudget(AppBudget appB) throws ComptaException {
+		// suppression des utilisations
+		String query = "DELETE FROM UTILISATION WHERE budget_id=?;";
+
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
+			// suppression des utilisations
+			stmt.setString(1, appB.getAppId());
+			stmt.executeUpdate();
+
+			// suppression du budget
+			String query2 = "DELETE FROM BUDGET WHERE ID=?;";
+			PreparedStatement stmt2 = getConnexion().prepareStatement(query2);
+
+			stmt2.setString(1, appB.getAppId());
+			stmt2.executeUpdate();
+
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de supprimer les utilisations", e);
+		}
+
+	}
+
 }

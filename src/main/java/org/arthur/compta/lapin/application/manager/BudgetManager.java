@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
@@ -412,6 +413,43 @@ public class BudgetManager {
 
 		// MaJ en base
 		DBManager.getInstance().upDateUtilisation(utilisation);
+
+	}
+
+	/**
+	 * Supprime une utilisation
+	 * 
+	 * @param util
+	 * @throws ComptaException
+	 */
+	public void removeUtilisation(AppUtilisation util) throws ComptaException {
+
+		DBManager.getInstance().removeUtilisation(util);
+
+	}
+
+	/**
+	 * Supprime un budget et ses utilisations
+	 * 
+	 * @param appB
+	 * @throws ComptaException
+	 */
+	public void removeBudget(AppBudget appB) throws ComptaException {
+
+		DBManager.getInstance().removeBudget(appB);
+
+		// suppression de la liste ( le remove ne marche pas)
+		Iterator<AppBudget> iter = _budgetList.iterator();
+		boolean goOn = true;
+		while (iter.hasNext() && goOn) {
+
+			AppBudget bud = iter.next();
+			if (bud.getAppId().equals(appB.getAppId())) {
+				iter.remove();
+				goOn = false;
+			}
+
+		}
 
 	}
 

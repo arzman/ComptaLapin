@@ -16,6 +16,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.scene.control.Accordion;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
@@ -30,6 +31,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.RowConstraints;
 import javafx.scene.paint.Color;
 
 /**
@@ -71,7 +73,7 @@ public class ExerciceMensuelPane extends GridPane {
 
 		_title = new ExerciceHeaderPane(_prevRes);
 		add(_title, 0, 0);
-
+		getRowConstraints().add(new RowConstraints());
 		createContent();
 	}
 
@@ -91,12 +93,18 @@ public class ExerciceMensuelPane extends GridPane {
 		_depenseTable.setMaxWidth(Double.MAX_VALUE);
 		_depenseTable.setMaxHeight(Double.MAX_VALUE);
 		_depenseTable.setId("depTable");
+		_depenseTable.setMaxHeight(Double.MAX_VALUE);
 		createContextMenu(_depenseTable);
 		depPane = new TitledPane("Dépenses", _depenseTable);
 		depPane.setMaxHeight(Double.MAX_VALUE);
 		depPane.setMaxWidth(Double.MAX_VALUE);
 		depPane.setId("depPane");
-		add(depPane, 0, 1);
+
+		RowConstraints depconst = new RowConstraints();
+		depconst.setVgrow(Priority.SOMETIMES);
+		getRowConstraints().add(depconst);
+
+	//	add(depPane, 0, 1);
 		// tableau des ressources
 		_ressourceTable = new OperationTableView<AppOperation>();
 		_ressourceTable.setMaxWidth(Double.MAX_VALUE);
@@ -105,7 +113,9 @@ public class ExerciceMensuelPane extends GridPane {
 		createContextMenu(_ressourceTable);
 		resPane = new TitledPane("Ressources", _ressourceTable);
 		resPane.setId("resPane");
-		add(resPane, 0, 2);
+		resPane.setMaxHeight(Double.MAX_VALUE);
+	//	add(resPane, 0, 2);
+
 		// tableau des transferts
 		_transfertTable = new TransfertTableView();
 		_transfertTable.setMaxWidth(Double.MAX_VALUE);
@@ -114,7 +124,10 @@ public class ExerciceMensuelPane extends GridPane {
 		createContextMenu(_transfertTable);
 		transPane = new TitledPane("Transfert", _transfertTable);
 		transPane.setId("transPane");
-		add(transPane, 0, 3);
+		//add(transPane, 0, 3);
+
+		Accordion accordion = new Accordion(depPane, resPane, transPane);
+		add(accordion, 0, 1);
 
 		// ajout d'une borduer
 		Border bord = new Border(new BorderStroke(Color.LIGHTBLUE, BorderStrokeStyle.SOLID, new CornerRadii(5),

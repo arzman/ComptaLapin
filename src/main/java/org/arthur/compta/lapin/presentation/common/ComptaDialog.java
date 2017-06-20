@@ -44,8 +44,8 @@ public class ComptaDialog<T> extends Dialog<T> {
 
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				ConfigurationManager.getInstance().setProp(id + ".size.width", String.valueOf(getWidth()));
-
+				ConfigurationManager.getInstance().setProp(id + ".size.width",
+						String.valueOf(getDialogPane().getBoundsInLocal().getWidth()));
 			}
 		});
 
@@ -54,7 +54,8 @@ public class ComptaDialog<T> extends Dialog<T> {
 
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				ConfigurationManager.getInstance().setProp(id + ".size.heigth", String.valueOf(getHeight()));
+				ConfigurationManager.getInstance().setProp(id + ".size.heigth",
+						String.valueOf(getDialogPane().getBoundsInLocal().getHeight()));
 
 			}
 		});

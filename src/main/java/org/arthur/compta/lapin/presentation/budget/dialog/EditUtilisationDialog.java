@@ -114,7 +114,7 @@ public class EditUtilisationDialog extends ComptaDialog<ButtonData> {
 		_montantTxt.setText(String.valueOf(_utilisation.getMontant()));
 		Calendar date = _utilisation.getDate();
 		_datePck.setValue(
-				LocalDate.of(date.get(Calendar.YEAR), date.get(Calendar.MONTH)+1, date.get(Calendar.DAY_OF_MONTH)));
+				LocalDate.of(date.get(Calendar.YEAR), date.get(Calendar.MONTH) + 1, date.get(Calendar.DAY_OF_MONTH)));
 
 	}
 
@@ -139,13 +139,8 @@ public class EditUtilisationDialog extends ComptaDialog<ButtonData> {
 		boolean nomError = true;
 		if (!_nomTxt.getText().trim().isEmpty()) {
 
-			if (_nomTxt.getText().matches("[a-zA-Z123456789 ]+")) {
-				_nomTxt.setBorder(null);
-				nomError = false;
-			} else {
-				_nomTxt.setBorder(BORDER_ERROR);
-				nomError = true;
-			}
+			_nomTxt.setBorder(null);
+			nomError = false;
 
 		} else {
 			_nomTxt.setBorder(BORDER_ERROR);

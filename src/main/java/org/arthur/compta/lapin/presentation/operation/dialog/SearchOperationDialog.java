@@ -119,13 +119,8 @@ public class SearchOperationDialog extends ComptaDialog<String> {
 		boolean nomOk = true;
 		if (!_libTxt.getText().trim().isEmpty()) {
 
-			if (_libTxt.getText().matches("[a-zA-Z123456789 ]+")) {
-				_libTxt.setBorder(null);
-				nomOk = true;
-			} else {
-				_libTxt.setBorder(BORDER_ERROR);
-				nomOk = false;
-			}
+			_libTxt.setBorder(null);
+			nomOk = true;
 
 		}
 

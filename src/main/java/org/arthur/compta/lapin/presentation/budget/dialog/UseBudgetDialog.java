@@ -122,13 +122,8 @@ public class UseBudgetDialog extends ComptaDialog<ButtonData> {
 		boolean nomError = true;
 		if (!_nomTxt.getText().trim().isEmpty()) {
 
-			if (_nomTxt.getText().matches("[a-zA-Z123456789 ]+")) {
-				_nomTxt.setBorder(null);
-				nomError = false;
-			} else {
-				_nomTxt.setBorder(BORDER_ERROR);
-				nomError = true;
-			}
+			_nomTxt.setBorder(null);
+			nomError = false;
 
 		} else {
 			_nomTxt.setBorder(BORDER_ERROR);

@@ -262,7 +262,7 @@ public class EditTemplateEltDialog extends ComptaDialog<TrimestreTemplateElement
 		// Vérif du nom
 		boolean nomError = true;
 
-		if (!_nomTxt.getText().trim().isEmpty() && _nomTxt.getText().matches("[a-zA-Z123456789 ]+")) {
+		if (!_nomTxt.getText().trim().isEmpty()) {
 			_nomTxt.setBorder(null);
 			nomError = false;
 		} else {

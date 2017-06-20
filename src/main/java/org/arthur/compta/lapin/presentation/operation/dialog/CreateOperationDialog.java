@@ -62,6 +62,7 @@ public class CreateOperationDialog extends ComptaDialog<String> {
 
 		super(CreateOperationDialog.class.getSimpleName());
 
+		setTitle("Création d'un opération");
 		_operation = op;
 		_numMois = numMois;
 		// création du contenu
@@ -236,7 +237,7 @@ public class CreateOperationDialog extends ComptaDialog<String> {
 		// Vérif du libellé
 		boolean nomError = true;
 
-		if (!_libTxt.getText().trim().isEmpty() && _libTxt.getText().matches("[a-zA-Z123456789 ]+")) {
+		if (!_libTxt.getText().trim().isEmpty()) {
 			_libTxt.setBorder(null);
 			nomError = false;
 		} else {

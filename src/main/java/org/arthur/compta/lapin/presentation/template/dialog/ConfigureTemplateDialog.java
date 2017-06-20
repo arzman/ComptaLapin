@@ -31,6 +31,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.RowConstraints;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 
@@ -100,6 +101,25 @@ public class ConfigureTemplateDialog extends ComptaDialog<String> {
 		// le menu contextuel
 		final ContextMenu menu = new ContextMenu();
 		_table.setContextMenu(menu);
+		_table.setMaxHeight(Double.MAX_VALUE);
+
+		// action d'edition de l'elt
+		final MenuItem editItem = new MenuItem("Editer");
+		editItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.EDIT_IMG)));
+		editItem.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+
+				// recupperation de la selection
+				TrimestreTemplateElement elt = _table.getSelectionModel().getSelectedItem();
+				EditTemplateEltDialog dia = new EditTemplateEltDialog(elt);
+
+				dia.showAndWait();
+
+			}
+		});
+		menu.getItems().add(editItem);
 
 		// action de suppresion de l'elt
 		final MenuItem suppItem = new MenuItem("Supprimer");
@@ -134,6 +154,14 @@ public class ConfigureTemplateDialog extends ComptaDialog<String> {
 		colConst.setHgrow(Priority.ALWAYS);
 		getDialogPane().setContent(root);
 		root.getColumnConstraints().add(colConst);
+
+		RowConstraints row1c = new RowConstraints();
+		root.getRowConstraints().add(row1c);
+
+		RowConstraints row2c = new RowConstraints();
+		row2c.setFillHeight(true);
+		row2c.setVgrow(Priority.ALWAYS);
+		root.getRowConstraints().add(row2c);
 
 		// création des actions sur la liste
 		createControlButton();

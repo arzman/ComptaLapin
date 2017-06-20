@@ -83,7 +83,11 @@ public class EditTemplateEltDialog extends ComptaDialog<TrimestreTemplateElement
 		// mise en place des listener sur les modifications
 		hookListeners();
 		// vérif initiale
-		checkInput(true);
+		if (_templateElt == null) {
+			checkInput(true);
+		} else {
+			checkInput(false);
+		}
 
 		// crée l'élement de template après appuis sur Ok
 		setResultConverter(new Callback<ButtonType, TrimestreTemplateElement>() {
@@ -91,11 +95,13 @@ public class EditTemplateEltDialog extends ComptaDialog<TrimestreTemplateElement
 			@Override
 			public TrimestreTemplateElement call(ButtonType param) {
 
-				TrimestreTemplateElement elt = null;
+				TrimestreTemplateElement elt = _templateElt;
 				// appuis sur ok
 				if (param.equals(_okButton)) {
 
-					elt = new TrimestreTemplateElement();
+					if (elt == null) {
+						elt = new TrimestreTemplateElement();
+					}
 					elt.setNom(_nomTxt.getText());
 					elt.setMontant(Double.parseDouble(_montantTxt.getText()));
 					elt.setType(_typeCombo.getSelectionModel().getSelectedItem());
@@ -184,7 +190,9 @@ public class EditTemplateEltDialog extends ComptaDialog<TrimestreTemplateElement
 			_nomTxt.setText(_templateElt.getNom());
 			_montantTxt.setText(String.valueOf(_templateElt.getMontant()));
 			_typeCombo.getSelectionModel().select(String.valueOf(_templateElt.getType()));
-			_freqCombo.getSelectionModel().select(String.valueOf(_templateElt.getType()));
+			_freqCombo.getSelectionModel().select(String.valueOf(_templateElt.getFreq()));
+			_occComb.getItems()
+					.addAll(TemplateService.getOccurenceForFreq(_freqCombo.getSelectionModel().getSelectedItem()));
 			_occComb.getSelectionModel().select(new Integer(_templateElt.getOccurence()));
 			_srcCombo.getSelectionModel().select(_templateElt.getCompteSource());
 			_cibleCombo.getSelectionModel().select(_templateElt.getCompteCible());

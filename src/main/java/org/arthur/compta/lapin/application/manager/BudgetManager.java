@@ -63,7 +63,7 @@ public class BudgetManager {
 
 			}
 
-			pleaseSort();
+			calculateData();
 
 		} catch (ComptaException e) {
 			e.printStackTrace();
@@ -115,8 +115,23 @@ public class BudgetManager {
 		double dispoCC = 0;
 		double dispoCL = 0;
 
+		// tri de la liste des bugdets par ordre de priorité
+		List<AppBudget> tmp = new ArrayList<>();
+		tmp.addAll(_budgetList);
+			
+		tmp.sort(new Comparator<AppBudget>() {
+
+			@Override
+			public int compare(AppBudget o1, AppBudget o2) {
+
+				return Integer.compare(o1.getPriority(), o2.getPriority());
+			}
+		});
+		
+		
 		// on calcul le solde disponible sur les différents comptes à la fin du
 		// trimestre
+
 		for (final AppCompte compte : CompteManager.getInstance().getCompteList()) {
 
 			if (compte.isBudget()) {
@@ -129,7 +144,7 @@ public class BudgetManager {
 
 		}
 
-		for (final AppBudget budget : _budgetList) {
+		for (final AppBudget budget : tmp) {
 
 			if (budget.isActif()) {
 
@@ -269,24 +284,6 @@ public class BudgetManager {
 		}
 
 		return appBudget;
-
-	}
-
-	/**
-	 * Tri la liste des budgets
-	 */
-	public void pleaseSort() {
-		_budgetList.sort(new Comparator<AppBudget>() {
-
-			@Override
-			public int compare(AppBudget o1, AppBudget o2) {
-
-				return Integer.compare(o1.getPriority(), o2.getPriority());
-			}
-		});
-
-		// on calcule les avancements
-		calculateData();
 
 	}
 

@@ -27,6 +27,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.RowConstraints;
 
 /**
  * Panneau d'affichage des bugets
@@ -46,6 +47,11 @@ public class BudgetPane extends GridPane {
 		getColumnConstraints().add(colCons);
 		setVgap(2);
 		setPadding(new Insets(2, 2, 2, 2));
+
+		RowConstraints rcons = new RowConstraints();
+		rcons.setFillHeight(true);
+		rcons.setVgrow(Priority.ALWAYS);
+		getRowConstraints().add(rcons);
 
 		// Création du tableau des budgets
 		createBudgetTable();
@@ -76,6 +82,7 @@ public class BudgetPane extends GridPane {
 		// Création de la table des comptes
 		_table = new TableView<>();
 		_table.setMaxWidth(Double.MAX_VALUE);
+		_table.setMaxHeight(Double.MAX_VALUE);
 		add(_table, 0, 0);
 
 		// Colonne du nom

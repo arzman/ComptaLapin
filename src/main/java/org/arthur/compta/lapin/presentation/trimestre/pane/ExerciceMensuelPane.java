@@ -58,7 +58,6 @@ public class ExerciceMensuelPane extends GridPane {
 	/** panneau des transfert */
 	private TitledPane transPane;
 	private double _prevRes;
-	private Accordion accordion;
 
 	/**
 	 * Constructeur
@@ -105,7 +104,7 @@ public class ExerciceMensuelPane extends GridPane {
 		depconst.setVgrow(Priority.SOMETIMES);
 		getRowConstraints().add(depconst);
 
-		// add(depPane, 0, 1);
+	//	add(depPane, 0, 1);
 		// tableau des ressources
 		_ressourceTable = new OperationTableView<AppOperation>();
 		_ressourceTable.setMaxWidth(Double.MAX_VALUE);
@@ -115,7 +114,7 @@ public class ExerciceMensuelPane extends GridPane {
 		resPane = new TitledPane("Ressources", _ressourceTable);
 		resPane.setId("resPane");
 		resPane.setMaxHeight(Double.MAX_VALUE);
-		// add(resPane, 0, 2);
+	//	add(resPane, 0, 2);
 
 		// tableau des transferts
 		_transfertTable = new TransfertTableView();
@@ -125,9 +124,9 @@ public class ExerciceMensuelPane extends GridPane {
 		createContextMenu(_transfertTable);
 		transPane = new TitledPane("Transfert", _transfertTable);
 		transPane.setId("transPane");
-		// add(transPane, 0, 3);
+		//add(transPane, 0, 3);
 
-		accordion = new Accordion(depPane, resPane, transPane);
+		Accordion accordion = new Accordion(depPane, resPane, transPane);
 		add(accordion, 0, 1);
 
 		// ajout d'une borduer
@@ -145,45 +144,42 @@ public class ExerciceMensuelPane extends GridPane {
 	 */
 	private void hookStateListener() {
 
-		// restauration
-		int idExp = Integer
-				.parseInt(ConfigurationManager.getInstance().getProp("ExerciceMensuelPane." + getId() + ".exp", "0"));
-
-		switch (idExp) {
-
-		case 0:
-			accordion.setExpandedPane(depPane);
-			break;
-		case 1:
-			accordion.setExpandedPane(resPane);
-			break;
-		case 2:
-			accordion.setExpandedPane(transPane);
-			break;
-		default:
-			accordion.setExpandedPane(depPane);
-
-		}
-
-		// écoute du changement d'état
-		accordion.expandedPaneProperty().addListener(new ChangeListener<TitledPane>() {
+		// restauration de l'état
+		depPane.setExpanded(Boolean.parseBoolean(ConfigurationManager.getInstance()
+				.getProp("ExerciceMensuelPane." + getId() + "." + depPane.getId() + ".exp", Boolean.toString(true))));
+		depPane.expandedProperty().addListener(new ChangeListener<Boolean>() {
 
 			@Override
-			public void changed(ObservableValue<? extends TitledPane> observable, TitledPane oldValue,
-					TitledPane newValue) {
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
 
-				if (newValue == depPane) {
-					ConfigurationManager.getInstance().setProp("ExerciceMensuelPane." + getId() + ".exp", "0");
-				}
-				if (newValue == resPane) {
-					ConfigurationManager.getInstance().setProp("ExerciceMensuelPane." + getId() + ".exp", "1");
-				}
-				if (newValue == transPane) {
-					ConfigurationManager.getInstance().setProp("ExerciceMensuelPane." + getId() + ".exp", "2");
-				}
-
+				ConfigurationManager.getInstance().setProp(
+						"ExerciceMensuelPane." + getId() + "." + depPane.getId() + ".exp",
+						Boolean.toString(depPane.isExpanded()));
 			}
+		});
+		resPane.setExpanded(Boolean.parseBoolean(ConfigurationManager.getInstance()
+				.getProp("ExerciceMensuelPane." + getId() + "." + resPane.getId() + ".exp", Boolean.toString(true))));
+		resPane.expandedProperty().addListener(new ChangeListener<Boolean>() {
 
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+
+				ConfigurationManager.getInstance().setProp(
+						"ExerciceMensuelPane." + getId() + "." + resPane.getId() + ".exp",
+						Boolean.toString(resPane.isExpanded()));
+			}
+		});
+		transPane.setExpanded(Boolean.parseBoolean(ConfigurationManager.getInstance()
+				.getProp("ExerciceMensuelPane." + getId() + "." + transPane.getId() + ".exp", Boolean.toString(true))));
+		transPane.expandedProperty().addListener(new ChangeListener<Boolean>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+
+				ConfigurationManager.getInstance().setProp(
+						"ExerciceMensuelPane." + getId() + "." + transPane.getId() + ".exp",
+						Boolean.toString(transPane.isExpanded()));
+			}
 		});
 
 		// restitution des largeur de colonnes

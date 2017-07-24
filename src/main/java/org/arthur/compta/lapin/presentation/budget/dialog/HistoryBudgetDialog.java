@@ -27,7 +27,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 
 /**
  * Fênetre de visualisation de l'historique d'un budget
@@ -82,6 +84,17 @@ public class HistoryBudgetDialog extends ComptaDialog<ButtonData> {
 		getDialogPane().setContent(root);
 		root.setVgap(2.0);
 
+		// constraint col1
+		ColumnConstraints col1 = new ColumnConstraints();
+
+		// constraint col2
+		ColumnConstraints col2 = new ColumnConstraints();
+		col2.setFillWidth(true);
+		col2.setHgrow(Priority.ALWAYS);
+
+		root.getColumnConstraints().add(col1);
+		root.getColumnConstraints().add(col2);
+
 		// affichage du nom
 		Label nomLbl = new Label("Nom : ");
 		root.add(nomLbl, 0, 0);
@@ -104,6 +117,7 @@ public class HistoryBudgetDialog extends ComptaDialog<ButtonData> {
 		_table = new TableView<>();
 		root.add(_table, 0, 3, 2, 1);
 		_table.setItems(_useList);
+		_table.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
 		// la colonne du nom
 		TableColumn<AppUtilisation, String> colnom = new TableColumn<>("Libellé");

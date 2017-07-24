@@ -1,5 +1,6 @@
 package org.arthur.compta.lapin.presentation.budget.dialog;
 
+import java.util.Comparator;
 import java.util.Iterator;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
@@ -61,6 +62,14 @@ public class ConfigBudgetDialog extends ComptaDialog<ButtonData> {
 		// récupération des budgets actifs
 		_activesBudgets = FXCollections.observableArrayList();
 		_activesBudgets.addAll(BudgetManager.getInstance().getBudgetList());
+		_activesBudgets.sort(new Comparator<AppBudget>() {
+
+			@Override
+			public int compare(AppBudget o1, AppBudget o2) {
+
+				return Integer.compare(o1.getPriority(), o2.getPriority());
+			}
+		});
 
 		// récupérations de tout les budgets
 		_allBudgets = FXCollections.observableArrayList();
@@ -93,7 +102,7 @@ public class ConfigBudgetDialog extends ComptaDialog<ButtonData> {
 					}
 
 					// ordre modifié, on demande au manager de retrier sa liste
-					BudgetManager.getInstance().pleaseSort();
+					BudgetManager.getInstance().calculateData();
 					// on sauve les budgets
 					try {
 						DBManager.getInstance().updateBudgets(_activesBudgets);

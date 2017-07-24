@@ -1333,4 +1333,69 @@ public class DBManager {
 
 	}
 
+	/**
+	 * Retourne une liste des années des exercices
+	 * 
+	 * @return la liste
+	 * @throws ComptaException
+	 *             la récupération a échouée
+	 */
+	public List<String> getAllAnnees() throws ComptaException {
+
+		ArrayList<String> res = new ArrayList<>();
+
+		String query = "SELECT DISTINCT YEAR(date_debut) as y FROM EXERCICE_MENSUEL;";
+
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
+
+			ResultSet queryRes = stmt.executeQuery();
+
+			while (queryRes.next()) {
+
+				res.add(queryRes.getString("y"));
+
+			}
+
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de récupérer toutes les années des exercices");
+		}
+
+		return res;
+
+	}
+
+	/**
+	 * Retourne la liste des montants des opérations pour le mois passé en
+	 * paramètre
+	 * 
+	 * @param date
+	 * @return
+	 * @throws ComptaException
+	 */
+	public List<Double> getOperationForMonth(String type, Calendar date) throws ComptaException {
+
+		ArrayList<Double> res = new ArrayList<>();
+
+		String query = "SELECT O.montant as mont,O.mois_id FROM OPERATION O INNER JOIN EXERCICE_MENSUEL E ON O.mois_id=E.ID WHERE E.date_debut=? AND O.type_ope=?;";
+
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
+
+			stmt.setDate(1, new Date(date.getTimeInMillis()));
+			stmt.setString(2, type);
+
+			ResultSet queryRes = stmt.executeQuery();
+
+			while (queryRes.next()) {
+
+				res.add(queryRes.getDouble("mont"));
+
+			}
+
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de récupérer tous les montant des dépenses");
+		}
+
+		return res;
+	}
+
 }

@@ -14,6 +14,7 @@ import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.operation.dialog.SearchOperationDialog;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import org.arthur.compta.lapin.presentation.scene.MainScene;
+import org.arthur.compta.lapin.presentation.synth.SynthAnnuelleDialog;
 import org.arthur.compta.lapin.presentation.template.dialog.ConfigureTemplateDialog;
 import org.arthur.compta.lapin.presentation.trimestre.dialog.CreateTrimestreDialog;
 import org.arthur.compta.lapin.presentation.trimestre.dialog.ManageTrimestreCourantDialog;
@@ -48,8 +49,34 @@ public class ComptaMenuBar extends MenuBar {
 		createBudgetMenu();
 		// menu Compte
 		createCompteMenu();
+		// menu synthèse
+		createSynthMenu();
 		// item date derniere vérif
 		createDerVerifItem();
+
+	}
+
+	private void createSynthMenu() {
+
+		Menu synthMenu = new Menu("Synthèse");
+		synthMenu.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.CHART_IMG)));
+		getMenus().add(synthMenu);
+
+		// ajout de l'action de synthèse annuelle
+		MenuItem syAn = new MenuItem("Synthèse annuelle");
+		syAn.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.CALENDRIER_IMG)));
+		synthMenu.getItems().add(syAn);
+		syAn.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+
+				SynthAnnuelleDialog sad = new SynthAnnuelleDialog();
+				sad.showAndWait();
+
+			}
+		});
+
 	}
 
 	/**

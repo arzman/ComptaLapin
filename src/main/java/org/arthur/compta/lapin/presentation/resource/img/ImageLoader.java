@@ -52,6 +52,8 @@ public class ImageLoader {
 	public static final String USE_BUDGET_IMG = "use_budget_icon.gif";
 	// une horloge
 	public static final String HISTORY_IMG = "historique.png";
+	// un pie chart
+	public static final String CHART_IMG = "synth_icon.png";
 
 	/**
 	 * Retourne une image

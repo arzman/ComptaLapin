@@ -14,6 +14,7 @@ import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.operation.dialog.SearchOperationDialog;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import org.arthur.compta.lapin.presentation.scene.MainScene;
+import org.arthur.compta.lapin.presentation.synth.RapportTrimDialog;
 import org.arthur.compta.lapin.presentation.synth.SynthAnnuelleDialog;
 import org.arthur.compta.lapin.presentation.template.dialog.ConfigureTemplateDialog;
 import org.arthur.compta.lapin.presentation.trimestre.dialog.CreateTrimestreDialog;
@@ -63,7 +64,7 @@ public class ComptaMenuBar extends MenuBar {
 		getMenus().add(synthMenu);
 
 		// ajout de l'action de synthèse annuelle
-		MenuItem syAn = new MenuItem("Synthèse annuelle");
+		MenuItem syAn = new MenuItem("Graphique annuel");
 		syAn.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.CALENDRIER_IMG)));
 		synthMenu.getItems().add(syAn);
 		syAn.setOnAction(new EventHandler<ActionEvent>() {
@@ -73,6 +74,20 @@ public class ComptaMenuBar extends MenuBar {
 
 				SynthAnnuelleDialog sad = new SynthAnnuelleDialog();
 				sad.showAndWait();
+
+			}
+		});
+
+		// ajout de l'action de synthèse annuelle
+		MenuItem trimRap = new MenuItem("Rapport Trimesriel");
+		synthMenu.getItems().add(trimRap);
+		trimRap.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+
+				RapportTrimDialog rtd = new RapportTrimDialog();
+				rtd.showAndWait();
 
 			}
 		});

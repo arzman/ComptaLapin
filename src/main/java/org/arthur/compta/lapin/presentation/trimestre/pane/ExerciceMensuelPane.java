@@ -108,7 +108,6 @@ public class ExerciceMensuelPane extends GridPane {
 		depconst.setVgrow(Priority.SOMETIMES);
 		getRowConstraints().add(depconst);
 
-		// add(depPane, 0, 1);
 		// tableau des ressources
 		_ressourceTable = new OperationTableView<AppOperation>();
 		_ressourceTable.setMaxWidth(Double.MAX_VALUE);
@@ -118,7 +117,6 @@ public class ExerciceMensuelPane extends GridPane {
 		resPane = new TitledPane("Ressources", _ressourceTable);
 		resPane.setId("resPane");
 		resPane.setMaxHeight(Double.MAX_VALUE);
-		// add(resPane, 0, 2);
 
 		// tableau des transferts
 		_transfertTable = new TransfertTableView();
@@ -128,7 +126,6 @@ public class ExerciceMensuelPane extends GridPane {
 		createContextMenu(_transfertTable);
 		transPane = new TitledPane("Transfert", _transfertTable);
 		transPane.setId("transPane");
-		// add(transPane, 0, 3);
 
 		accordion = new Accordion(depPane, resPane, transPane);
 		add(accordion, 0, 1);

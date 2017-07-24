@@ -80,7 +80,7 @@ public class CreateOperationDialog extends ComptaDialog<String> {
 			@Override
 			public String call(ButtonType param) {
 
-				String res = "Cancel";
+				String res = null;
 
 				// appuis sur ok
 				if (param.equals(_okButton)) {
@@ -109,6 +109,8 @@ public class CreateOperationDialog extends ComptaDialog<String> {
 							ExceptionDisplayService.showException(e);
 						}
 					}
+					
+					res = _operation.getType().toString();
 
 				}
 

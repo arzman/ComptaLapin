@@ -1,5 +1,7 @@
 package org.arthur.compta.lapin.presentation.trimestre.pane;
 
+import java.util.Optional;
+
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
@@ -259,7 +261,20 @@ public class ExerciceMensuelPane extends GridPane {
 
 				// remonte l'ihm de saisie
 				CreateOperationDialog cod = new CreateOperationDialog(null, _numMois);
-				cod.showAndWait();
+
+				Optional<String> st = cod.showAndWait();
+				if (st.isPresent()) {
+
+					if (st.get().equals("DEPENSE")) {
+						_depenseTable.sort();
+					} else if (st.get().equals("RESSOURCE")) {
+						_ressourceTable.sort();
+					} else if (st.get().equals("TRASNFERT")) {
+						_transfertTable.sort();
+					}
+
+				}
+
 				_title.setResutlat(TrimestreManager.getInstance().getResultat(_numMois));
 
 			}
@@ -278,7 +293,17 @@ public class ExerciceMensuelPane extends GridPane {
 
 				// remonte l'ihm de saisie
 				CreateOperationDialog cod = new CreateOperationDialog(appOp, _numMois);
-				cod.showAndWait();
+				Optional<String> st = cod.showAndWait();
+				if (st.isPresent()) {
+
+					if (st.get().equals("DEPENSE")) {
+						_depenseTable.sort();
+					} else if (st.get().equals("RESSOURCE")) {
+						_ressourceTable.sort();
+					} else if (st.get().equals("TRASNFERT")) {
+						_transfertTable.sort();
+					}
+				}
 				_title.setResutlat(TrimestreManager.getInstance().getResultat(_numMois));
 
 			}

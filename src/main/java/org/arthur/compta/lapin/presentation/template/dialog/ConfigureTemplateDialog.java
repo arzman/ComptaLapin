@@ -76,11 +76,6 @@ public class ConfigureTemplateDialog extends ComptaDialog<String> {
 
 			@Override
 			public void handle(DialogEvent event) {
-				// sauvegarde de la taille de la fenetres
-				ConfigurationManager.getInstance().setProp("ConfigureTemplateDialog.dialog.width",
-						String.valueOf(getWidth()));
-				ConfigurationManager.getInstance().setProp("ConfigureTemplateDialog.dialog.height",
-						String.valueOf(getHeight()));
 				// sauvegarde de la taille des colonnes
 				for (TableColumn<?, ?> col : _table.getColumns()) {
 
@@ -176,11 +171,6 @@ public class ConfigureTemplateDialog extends ComptaDialog<String> {
 		root.add(_table, 0, 1, 2, 1);
 
 		// restaure les tailles sauvegardées
-		// sauvegarde de la taille de la fenetres
-		setWidth(Double.parseDouble(
-				ConfigurationManager.getInstance().getProp("ConfigureTemplateDialog.dialog.width", "500")));
-		setHeight(Double.parseDouble(
-				ConfigurationManager.getInstance().getProp("ConfigureTemplateDialog.dialog.height", "500")));
 		// sauvegarde de la taille des colonnes
 		for (TableColumn<?, ?> col : _table.getColumns()) {
 

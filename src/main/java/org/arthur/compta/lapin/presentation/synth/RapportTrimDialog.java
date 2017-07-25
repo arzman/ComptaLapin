@@ -110,8 +110,12 @@ public class RapportTrimDialog extends ComptaDialog<ButtonData> {
 					File file = fc.showSaveDialog(getOwner());
 
 					if (file != null) {
-
-						SyntheseService.writeRapportForTrim(idTrim, file);
+						// création du rapport
+						try {
+							SyntheseService.writeRapportForTrim(idTrim, file);
+						} catch (ComptaException e) {
+							ExceptionDisplayService.showException(e);
+						}
 
 					}
 

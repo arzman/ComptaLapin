@@ -80,6 +80,7 @@ public class ComptaMenuBar extends MenuBar {
 
 		// ajout de l'action de synthèse annuelle
 		MenuItem trimRap = new MenuItem("Rapport Trimesriel");
+		trimRap.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.BOOK_IMG)));
 		synthMenu.getItems().add(trimRap);
 		trimRap.setOnAction(new EventHandler<ActionEvent>() {
 

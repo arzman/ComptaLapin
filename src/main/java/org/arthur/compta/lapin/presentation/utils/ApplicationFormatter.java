@@ -10,24 +10,15 @@ import java.util.Locale;
  */
 public class ApplicationFormatter {
 
-	/**
-	 * Formateur de monnaie
-	 */
+	/** Formateur de monnaie */
 	public static NumberFormat montantFormat = NumberFormat.getCurrencyInstance(Locale.FRANCE);
-
-	/**
-	 * Formateur "pourcent"
-	 */
+	/** Formateur "pourcent" */
 	public static NumberFormat pourcentFormat = NumberFormat.getPercentInstance(Locale.FRANCE);
-
-	/**
-	 * Formateur moi/année
-	 */
+	/** Formateur moi/année */
 	public static SimpleDateFormat moiAnneedateFormat = new SimpleDateFormat("MMMM yyyy");
-	
-	/**
-	 * Formattage de la date venant de la base
-	 */
+	/** Formattage de la date venant de la base */
 	public static final SimpleDateFormat databaseDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	/** Formatteur mois */
+	public static final SimpleDateFormat moisFormat = new SimpleDateFormat("MMMM", Locale.FRANCE);
 
 }

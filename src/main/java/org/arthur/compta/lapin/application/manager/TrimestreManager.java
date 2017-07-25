@@ -72,8 +72,36 @@ public class TrimestreManager {
 	 */
 	public void loadTrimestreCourant(String appId) throws ComptaException {
 
+		try {
+
+			AppTrimestre appTrimestre = loadTrimestre(appId);
+
+			_trimestreCourant.set(appTrimestre);
+			DBManager.getInstance().setTrimestreCourant(appId);
+
+			// avertit le CompteManager de mettre a jour les prévisions
+			CompteManager.getInstance().refreshAllPrev();
+
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de charger le trimestre courant", e);
+		}
+
+	}
+
+	/**
+	 * Extrait de la base un trimestre
+	 * 
+	 * @param appId
+	 *            L'id du trimestre
+	 * @return
+	 * @throws ComptaException
+	 *             Echec dans la récupération
+	 */
+	public AppTrimestre loadTrimestre(String appId) throws ComptaException {
+
 		// recup des infos en base
 		String[] info;
+		AppTrimestre appTrimestre = null;
 
 		try {
 			// chargmement du trimestre
@@ -82,7 +110,7 @@ public class TrimestreManager {
 			if (info != null) {
 
 				// création du trimestre applicatif
-				AppTrimestre appTrimestre = new AppTrimestre(new Trimestre());
+				appTrimestre = new AppTrimestre(new Trimestre());
 				appTrimestre.setAppID(info[0]);
 
 				// chargement du 1er mois
@@ -91,17 +119,12 @@ public class TrimestreManager {
 				appTrimestre.deuxiemeMoisProperty().set(loadExerciceMensuel(info[2]));
 				// chargement du 3eme mois
 				appTrimestre.troisiemeMoisProperty().set(loadExerciceMensuel(info[3]));
-
-				_trimestreCourant.set(appTrimestre);
-				DBManager.getInstance().setTrimestreCourant(appId);
-
-				// avertit le CompteManager de mettre a jour les prévisions
-				CompteManager.getInstance().refreshAllPrev();
-
 			}
 		} catch (Exception e) {
-			throw new ComptaException("Impossible de charger le trimestre courant", e);
+			throw new ComptaException("Impossible de charger le trimestre", e);
 		}
+
+		return appTrimestre;
 
 	}
 

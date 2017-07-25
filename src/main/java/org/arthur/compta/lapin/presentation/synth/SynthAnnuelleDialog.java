@@ -1,13 +1,12 @@
 package org.arthur.compta.lapin.presentation.synth;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Locale;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.service.SyntheseService;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
+import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -128,8 +127,6 @@ public class SynthAnnuelleDialog extends ComptaDialog<ButtonData> {
 		Series<String, Number> ressourceSerie = new Series<String, Number>();
 		ressourceSerie.setName("Ressource");
 
-		SimpleDateFormat format = new SimpleDateFormat("MMMM", Locale.FRANCE);
-
 		for (int month = 0; month < 12; month++) {
 
 			Calendar date = Calendar.getInstance();
@@ -138,8 +135,10 @@ public class SynthAnnuelleDialog extends ComptaDialog<ButtonData> {
 			double dep = SyntheseService.getDepenseForMonth(date);
 			double res = SyntheseService.getRessourceForMonth(date);
 
-			depenseSerie.getData().add(new Data<String, Number>(format.format(date.getTime()), dep));
-			ressourceSerie.getData().add(new Data<String, Number>(format.format(date.getTime()), res));
+			depenseSerie.getData()
+					.add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(date.getTime()), dep));
+			ressourceSerie.getData()
+					.add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(date.getTime()), res));
 
 		}
 

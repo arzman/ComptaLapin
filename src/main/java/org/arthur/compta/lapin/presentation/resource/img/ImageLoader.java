@@ -54,6 +54,8 @@ public class ImageLoader {
 	public static final String HISTORY_IMG = "historique.png";
 	// un pie chart
 	public static final String CHART_IMG = "synth_icon.png";
+	// un livre
+	public static final String BOOK_IMG = "book.png";
 
 	/**
 	 * Retourne une image

@@ -180,4 +180,13 @@ public class AppTrimestre extends AppObject {
 		}
 	}
 
+	/**
+	 * Retourne la date de fin du trimestre
+	 * 
+	 * @return
+	 */
+	public Calendar getDateFin() {
+		return _trimeste.getDateFin();
+	}
+
 }

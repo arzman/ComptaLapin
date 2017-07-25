@@ -147,11 +147,13 @@ public class ExerciceMensuel implements Comparable<ExerciceMensuel> {
 	}
 
 	public void setDateDebut(Calendar dateDebut) {
+
 		_dateDebut = dateDebut;
 	}
 
 	public void setDateFin(Calendar dateFin) {
 		_dateFin = dateFin;
+
 	}
 
 	/**

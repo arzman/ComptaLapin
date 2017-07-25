@@ -143,20 +143,26 @@ public class RapportTrimWriter {
 		depenseSerie.setName("Dépenses");
 		Series<String, Number> ressourceSerie = new Series<String, Number>();
 		ressourceSerie.setName("Ressource");
+		Series<String, Number> budgetUseSerie = new Series<String, Number>();
+		budgetUseSerie.setName("Budget utilisé");
 		for (int month = 0; month < 3; month++) {
 
 			double dep = SyntheseService.getDepenseForMonth(_appTrim.getAppExerciceMensuel(month).get().getDateDebut());
-			double res = SyntheseService
-					.getRessourceForMonth(_appTrim.getAppExerciceMensuel(month).get().getDateDebut());
+			double res = SyntheseService.getRessourceForMonth(_appTrim.getAppExerciceMensuel(month).get().getDateDebut());
+			double bud = SyntheseService.getBudgetUsageForMonth(_appTrim.getAppExerciceMensuel(month).get().getDateDebut());
 
-			depenseSerie.getData().add(new Data<String, Number>(ApplicationFormatter.moisFormat
-					.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut().getTime()), dep));
-			ressourceSerie.getData().add(new Data<String, Number>(ApplicationFormatter.moisFormat
-					.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut().getTime()), res));
+			depenseSerie.getData()
+					.add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut().getTime()), dep));
+			ressourceSerie.getData()
+					.add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut().getTime()), res));
+			budgetUseSerie.getData()
+					.add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut().getTime()), bud));
+
 
 		}
 		_lineChart.getData().add(depenseSerie);
 		_lineChart.getData().add(ressourceSerie);
+		_lineChart.getData().add(budgetUseSerie);
 
 		final SnapshotParameters spa = new SnapshotParameters();
 		spa.setTransform(javafx.scene.transform.Transform.scale(2, 2));

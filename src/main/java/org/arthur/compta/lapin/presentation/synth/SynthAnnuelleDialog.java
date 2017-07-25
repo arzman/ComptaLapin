@@ -127,6 +127,9 @@ public class SynthAnnuelleDialog extends ComptaDialog<ButtonData> {
 		Series<String, Number> ressourceSerie = new Series<String, Number>();
 		ressourceSerie.setName("Ressource");
 
+		Series<String, Number> budgetUseSerie = new Series<String, Number>();
+		budgetUseSerie.setName("Budget utilisé");
+
 		for (int month = 0; month < 12; month++) {
 
 			Calendar date = Calendar.getInstance();
@@ -134,16 +137,20 @@ public class SynthAnnuelleDialog extends ComptaDialog<ButtonData> {
 
 			double dep = SyntheseService.getDepenseForMonth(date);
 			double res = SyntheseService.getRessourceForMonth(date);
+			double bud = SyntheseService.getBudgetUsageForMonth(date);
 
 			depenseSerie.getData()
 					.add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(date.getTime()), dep));
 			ressourceSerie.getData()
 					.add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(date.getTime()), res));
+			budgetUseSerie.getData()
+					.add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(date.getTime()), bud));
 
 		}
 
 		_lineChart.getData().add(depenseSerie);
 		_lineChart.getData().add(ressourceSerie);
+		_lineChart.getData().add(budgetUseSerie);
 
 	}
 

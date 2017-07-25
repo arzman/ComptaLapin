@@ -49,6 +49,24 @@ public class SyntheseService {
 	}
 
 	/**
+	 * Retourne la somme des utilisations de budget pour le mois donné
+	 * 
+	 * @param date
+	 * @return
+	 * @throws ComptaException
+	 */
+	public static double getBudgetUsageForMonth(Calendar date) throws ComptaException {
+
+		double res = 0;
+		// on récupère les ressources...et on somme
+		for (double dou : DBManager.getInstance().getBudgetUsageForMonth( date)) {
+			res = res + dou;
+		}
+
+		return res;
+	}
+
+	/**
 	 * Retourne la somme des dépenses pour le mois donné
 	 * 
 	 * @param date

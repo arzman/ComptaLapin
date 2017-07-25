@@ -1398,4 +1398,34 @@ public class DBManager {
 		return res;
 	}
 
+	public List<Double> getBudgetUsageForMonth(Calendar date) throws ComptaException {
+		ArrayList<Double> res = new ArrayList<>();
+
+		String query = "SELECT montant FROM UTILISATION WHERE date_util>=? AND date_util<=?;";
+
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
+
+			date.set(Calendar.DAY_OF_MONTH, 1);
+			stmt.setDate(1, new Date(date.getTimeInMillis()));
+
+			Calendar dateF = Calendar.getInstance();
+			dateF.set(date.get(Calendar.YEAR), date.get(Calendar.MONTH), date.getActualMaximum(Calendar.DAY_OF_MONTH),
+					23, 59, 59);
+			stmt.setDate(2, new Date(dateF.getTimeInMillis()));
+
+			ResultSet queryRes = stmt.executeQuery();
+
+			while (queryRes.next()) {
+
+				res.add(queryRes.getDouble("montant"));
+
+			}
+
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de récupérer tous les montant des utilisations", e);
+		}
+
+		return res;
+	}
+
 }

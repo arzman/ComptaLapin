@@ -262,12 +262,19 @@ public class TrimestreManager {
 				debut.set(Calendar.DAY_OF_MONTH, 1);
 				debut.set(Calendar.MONTH, (i + numMoi) % 12);
 				debut.set(Calendar.YEAR, dateDeb.get(Calendar.YEAR) + ((i + numMoi) / 12));
+				debut.set(Calendar.HOUR_OF_DAY, 0);
+				debut.set(Calendar.MINUTE, 0);
+				debut.set(Calendar.SECOND, 0);
 				em.setDateDebut(debut);
 				// date de fin
 				final Calendar fin = Calendar.getInstance();
 				fin.set(Calendar.DAY_OF_MONTH, debut.getActualMaximum(Calendar.DAY_OF_MONTH));
 				fin.set(Calendar.MONTH, (i + numMoi) % 12);
 				fin.set(Calendar.YEAR, dateDeb.get(Calendar.YEAR) + ((i + numMoi) / 12));
+				fin.set(Calendar.HOUR_OF_DAY, 23);
+				fin.set(Calendar.MINUTE, 59);
+				fin.set(Calendar.SECOND, 59);
+				
 				em.setDateFin(fin);
 
 				// insertion de l'exercice mensuel en base

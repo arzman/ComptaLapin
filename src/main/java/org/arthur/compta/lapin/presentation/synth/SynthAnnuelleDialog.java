@@ -47,6 +47,8 @@ public class SynthAnnuelleDialog extends ComptaDialog<ButtonData> {
 		setTitle("Synthèse Annuelle");
 
 		GridPane root = new GridPane();
+		root.setVgap(2.0);
+		root.setHgap(2.0);
 		getDialogPane().setContent(root);
 
 		ColumnConstraints c1 = new ColumnConstraints();

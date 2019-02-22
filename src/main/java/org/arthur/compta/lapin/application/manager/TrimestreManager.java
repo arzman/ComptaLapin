@@ -65,10 +65,8 @@ public class TrimestreManager {
 	/**
 	 * Charge un trimestre courant
 	 * 
-	 * @param appId
-	 *            l'id du trimestre a charger
-	 * @throws ComptaException
-	 *             Echec du chargement
+	 * @param appId l'id du trimestre a charger
+	 * @throws ComptaException Echec du chargement
 	 */
 	public void loadTrimestreCourant(String appId) throws ComptaException {
 
@@ -91,11 +89,9 @@ public class TrimestreManager {
 	/**
 	 * Extrait de la base un trimestre
 	 * 
-	 * @param appId
-	 *            L'id du trimestre
+	 * @param appId L'id du trimestre
 	 * @return
-	 * @throws ComptaException
-	 *             Echec dans la récupération
+	 * @throws ComptaException Echec dans la récupération
 	 */
 	public AppTrimestre loadTrimestre(String appId) throws ComptaException {
 
@@ -131,8 +127,7 @@ public class TrimestreManager {
 	/**
 	 * Crée un exercice mensuel applicatif depuis la base de donnée
 	 * 
-	 * @param id
-	 *            l'id de l'exercice mensuel
+	 * @param id l'id de l'exercice mensuel
 	 * @return l'exercice mensuel
 	 * @throws ComptaException
 	 */
@@ -234,10 +229,8 @@ public class TrimestreManager {
 	/**
 	 * Crée un trimestre applicatif
 	 * 
-	 * @param dateDeb
-	 *            la date de début
-	 * @param resPrev
-	 *            le résultat prévisionnel
+	 * @param dateDeb la date de début
+	 * @param resPrev le résultat prévisionnel
 	 * @return
 	 * @throws ComptaException
 	 */
@@ -274,7 +267,7 @@ public class TrimestreManager {
 				fin.set(Calendar.HOUR_OF_DAY, 23);
 				fin.set(Calendar.MINUTE, 59);
 				fin.set(Calendar.SECOND, 59);
-				
+
 				em.setDateFin(fin);
 
 				// insertion de l'exercice mensuel en base
@@ -307,12 +300,10 @@ public class TrimestreManager {
 	}
 
 	/**
-	 * Retourne une Map contenant un peu d'informations sur les trimestres en
-	 * base
+	 * Retourne une Map contenant un peu d'informations sur les trimestres en base
 	 * 
 	 * @return une Map contenant clé:id Trimestre , value:dateDébut
-	 * @throws ComptaException
-	 *             Erreur lors de la récupération des infos
+	 * @throws ComptaException Erreur lors de la récupération des infos
 	 */
 	public HashMap<String, Calendar> getAllTrimestreShortList() throws ComptaException {
 
@@ -339,13 +330,11 @@ public class TrimestreManager {
 	}
 
 	/**
-	 * Supprime un trimestre. La suppression est ignorée si le trimestre à
-	 * supprimer est le trimestre courant
+	 * Supprime un trimestre. La suppression est ignorée si le trimestre à supprimer
+	 * est le trimestre courant
 	 * 
-	 * @param idTrimestre
-	 *            l'id du trimestre a supprimer
-	 * @throws ComptaException
-	 *             Impossible de supprimer le trimestre
+	 * @param idTrimestre l'id du trimestre a supprimer
+	 * @throws ComptaException Impossible de supprimer le trimestre
 	 */
 	public void removeTrimestre(String idTrimestre) throws ComptaException {
 
@@ -358,8 +347,7 @@ public class TrimestreManager {
 	}
 
 	/**
-	 * Indique si la chaine de caractère correspond au type d'opération :
-	 * Transfert
+	 * Indique si la chaine de caractère correspond au type d'opération : Transfert
 	 * 
 	 * @param type
 	 * @return
@@ -416,9 +404,9 @@ public class TrimestreManager {
 	}
 
 	/**
-	 * Charge le trimestre courant précédemment enregistré en base. Cette
-	 * méthode ne peut pas se mettre dans le constructeur car sinon il y a une
-	 * boucle d'instanciation avec le CompteManager
+	 * Charge le trimestre courant précédemment enregistré en base. Cette méthode ne
+	 * peut pas se mettre dans le constructeur car sinon il y a une boucle
+	 * d'instanciation avec le CompteManager
 	 */
 	public void recoverTrimestre() {
 		try {
@@ -436,10 +424,8 @@ public class TrimestreManager {
 	/**
 	 * Supprime une opération du mois du trimestre courant
 	 * 
-	 * @param appOp
-	 *            l'opération
-	 * @param numMois
-	 *            l'index du mois dans le trimestre
+	 * @param appOp   l'opération
+	 * @param numMois l'index du mois dans le trimestre
 	 * @throws ComptaException
 	 */
 	public void removeOperation(AppOperation appOp, Integer numMois) throws ComptaException {
@@ -476,24 +462,17 @@ public class TrimestreManager {
 	}
 
 	/**
-	 * Crée une nouvelle opération dans le mois du trimestre courant
-	 * correspondant à l'index
+	 * Crée une nouvelle opération dans le mois du trimestre courant correspondant à
+	 * l'index
 	 * 
-	 * @param libelle
-	 *            le libelle
-	 * @param montant
-	 *            le montant
-	 * @param type
-	 *            le type
-	 * @param compteSrc
-	 *            le compte source
-	 * @param compteCible
-	 *            le compte cible si Transfert, null sinon
-	 * @param numMois
-	 *            l'index du mois
+	 * @param libelle     le libelle
+	 * @param montant     le montant
+	 * @param type        le type
+	 * @param compteSrc   le compte source
+	 * @param compteCible le compte cible si Transfert, null sinon
+	 * @param numMois     l'index du mois
 	 * @return
-	 * @throws ComptaException
-	 *             Erreur lors de l'ajout
+	 * @throws ComptaException Erreur lors de l'ajout
 	 */
 	public AppOperation addOperation(String libelle, double montant, String type, AppCompte compteSrc,
 			AppCompte compteCible, int numMois) throws ComptaException {
@@ -557,8 +536,8 @@ public class TrimestreManager {
 	}
 
 	/**
-	 * Retourne le résultat de l'excercice mensuel correspondant à l'index donné
-	 * du trimestre courant
+	 * Retourne le résultat de l'excercice mensuel correspondant à l'index donné du
+	 * trimestre courant
 	 * 
 	 * @param numMois
 	 * @return
@@ -577,8 +556,8 @@ public class TrimestreManager {
 	}
 
 	/**
-	 * Retourne les dépenses de l'excercice mensuel correspondant à l'index
-	 * donné du trimestre courant
+	 * Retourne les dépenses de l'excercice mensuel correspondant à l'index donné du
+	 * trimestre courant
 	 * 
 	 * @param numMois
 	 * @return
@@ -597,8 +576,8 @@ public class TrimestreManager {
 	}
 
 	/**
-	 * Retourne les ressources de l'excercice mensuel correspondant à l'index
-	 * donné du trimestre courant
+	 * Retourne les ressources de l'excercice mensuel correspondant à l'index donné
+	 * du trimestre courant
 	 * 
 	 * @param numMois
 	 * @return
@@ -616,8 +595,8 @@ public class TrimestreManager {
 	}
 
 	/**
-	 * Retourne les transferts de l'excercice mensuel correspondant à l'index
-	 * donné du trimestre courant
+	 * Retourne les transferts de l'excercice mensuel correspondant à l'index donné
+	 * du trimestre courant
 	 * 
 	 * @param numMois
 	 * @return
@@ -650,6 +629,13 @@ public class TrimestreManager {
 		}
 
 		return res;
+	}
+
+	public String getExerciceMensuelId(String idTrimestre, int numMois) {
+
+		String idEm = DBManager.getInstance().getExerciceMensuelId(idTrimestre, numMois);
+
+		return idEm;
 	}
 
 }

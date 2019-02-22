@@ -66,8 +66,7 @@ public class ExerciceMensuelPane extends GridPane {
 	/**
 	 * Constructeur
 	 * 
-	 * @param id
-	 *            l'id
+	 * @param id l'id
 	 */
 	public ExerciceMensuelPane(String id, int numMois) {
 
@@ -239,8 +238,7 @@ public class ExerciceMensuelPane extends GridPane {
 	/**
 	 * Création du menu contexuel sur le tableau des compte
 	 * 
-	 * @param table
-	 *            le tableau des comptes
+	 * @param table le tableau des comptes
 	 */
 	private void createContextMenu(TableView<? extends AppOperation> table) {
 
@@ -331,6 +329,30 @@ public class ExerciceMensuelPane extends GridPane {
 		// on désactive le menu si la selection est vide
 		removeOp.disableProperty().bind(Bindings.isEmpty(table.getSelectionModel().getSelectedItems()));
 		menu.getItems().add(removeOp);
+
+		// action de suppression de l'operation
+		final MenuItem trasnOp = new MenuItem("Transférer");
+		trasnOp.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.DEL_IMG)));
+		trasnOp.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+
+				// récupération de l'operation
+				AppOperation appOp = table.getSelectionModel().getSelectedItems().get(0);
+				// suppression
+				try {
+
+					TrimestreManager.getInstance().removeOperation(appOp, _numMois);
+					_title.setResutlat(TrimestreManager.getInstance().getResultat(_numMois));
+				} catch (ComptaException e) {
+					ExceptionDisplayService.showException(e);
+				}
+			}
+		});
+		// on désactive le menu si la selection est vide
+		trasnOp.disableProperty().bind(Bindings.isEmpty(table.getSelectionModel().getSelectedItems()));
+		menu.getItems().add(trasnOp);
 
 	}
 

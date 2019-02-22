@@ -72,10 +72,8 @@ public class DBManager {
 	/**
 	 * Exécute un script SQL "interne"
 	 * 
-	 * @param connexion
-	 *            la connexion à la base
-	 * @param script
-	 *            le script a executer
+	 * @param connexion la connexion à la base
+	 * @param script    le script a executer
 	 */
 	private void loadScript(Connection connexion, String script) {
 
@@ -106,8 +104,7 @@ public class DBManager {
 	/**
 	 * Méthode de création de la base de donnée
 	 *
-	 * @param pathToDb
-	 *            le fichier de donnée de la base
+	 * @param pathToDb le fichier de donnée de la base
 	 */
 	private void createDB(Path pathToDb) {
 
@@ -136,17 +133,12 @@ public class DBManager {
 	/**
 	 * Ajout un compte dans la base de donnée
 	 * 
-	 * @param nom
-	 *            le nom du compte
-	 * @param solde
-	 *            le solde
-	 * @param livret
-	 *            est livret ?
-	 * @param budgetAllowed
-	 *            participe aux budgets ?
+	 * @param nom           le nom du compte
+	 * @param solde         le solde
+	 * @param livret        est livret ?
+	 * @param budgetAllowed participe aux budgets ?
 	 * @return ID en base du compte
-	 * @throws SQLException
-	 *             Exception en cas de problème lors de l'insertion
+	 * @throws SQLException Exception en cas de problème lors de l'insertion
 	 */
 	public String addCompte(String nom, double solde, boolean livret, boolean budgetAllowed) throws ComptaException {
 
@@ -178,8 +170,7 @@ public class DBManager {
 	 * Récupère toutes les informations comptes de la base de donnée
 	 * 
 	 * @return couple clé : identifiant et valeurs [nom,solde,livret,budget]
-	 * @throws ComptaException
-	 *             Exception sur la récupération en base
+	 * @throws ComptaException Exception sur la récupération en base
 	 */
 	public HashMap<String, String[]> getAllCompte() throws ComptaException {
 
@@ -216,10 +207,8 @@ public class DBManager {
 	 * Supprime le compte correspondant à l'identifiant applicatif passé en
 	 * paramètre
 	 * 
-	 * @param appId
-	 *            l'id
-	 * @throws SQLException
-	 *             Exception si la requête en base échoue
+	 * @param appId l'id
+	 * @throws SQLException Exception si la requête en base échoue
 	 */
 	public void removeCompte(String appId) throws SQLException {
 
@@ -234,11 +223,9 @@ public class DBManager {
 	/**
 	 * Met à jour le compte en base
 	 * 
-	 * @param compte
-	 *            :le compte a mettre a jour en base
+	 * @param compte :le compte a mettre a jour en base
 	 *
-	 * @throws ComptaException
-	 *             Exception si la requête en base échoue
+	 * @throws ComptaException Exception si la requête en base échoue
 	 */
 	public void updateCompte(AppCompte compte) throws ComptaException {
 
@@ -262,8 +249,7 @@ public class DBManager {
 	 * Récupère en base l'id du trimestre courant
 	 * 
 	 * @return les champ du compte courant
-	 * @throws ComptaException
-	 *             Echec de la récupération
+	 * @throws ComptaException Echec de la récupération
 	 */
 	public String[] getTrimestreCourantId() throws ComptaException {
 
@@ -292,8 +278,7 @@ public class DBManager {
 	 * 2eme mois, id 3 eme mois]
 	 * 
 	 * @return les champ du compte courant
-	 * @throws SQLException
-	 *             Echec de la récupération
+	 * @throws SQLException Echec de la récupération
 	 */
 	public String[] getTrimestreInfo(String appId) throws SQLException {
 
@@ -321,11 +306,9 @@ public class DBManager {
 	 * Récupère les champ en base d'un exercice mensuel [ ID , date_debut ,
 	 * date_fin,resultat_moyen_prevu]
 	 * 
-	 * @param id
-	 *            l'id de l'exercice
+	 * @param id l'id de l'exercice
 	 * @return les champs en base
-	 * @throws SQLException
-	 *             Echec de la récupération
+	 * @throws SQLException Echec de la récupération
 	 */
 	public String[] getExMensuelInfos(String id) throws SQLException {
 
@@ -352,15 +335,11 @@ public class DBManager {
 	/**
 	 * Ajoute un exercice mensuel en base de donnée
 	 * 
-	 * @param debut
-	 *            date de début
-	 * @param fin
-	 *            date de fin
-	 * @param resPrevu
-	 *            : le gain moyen prévisionnel à la création
+	 * @param debut    date de début
+	 * @param fin      date de fin
+	 * @param resPrevu : le gain moyen prévisionnel à la création
 	 * @return l'identifiant de l'exercice inséré
-	 * @throws SQLException
-	 *             Echec de l'insertion
+	 * @throws SQLException Echec de l'insertion
 	 */
 	public String addExerciceMensuel(Calendar debut, Calendar fin, double resPrevu) throws SQLException {
 		String id = "";
@@ -391,15 +370,11 @@ public class DBManager {
 	/**
 	 * Ajoute un trimestre en base
 	 * 
-	 * @param idMois1
-	 *            identifiant applicatif du premier mois
-	 * @param idMois2
-	 *            identifiant applicatif du deuxieme mois
-	 * @param idMois3
-	 *            identifiant applicatif du troisieme mois
+	 * @param idMois1 identifiant applicatif du premier mois
+	 * @param idMois2 identifiant applicatif du deuxieme mois
+	 * @param idMois3 identifiant applicatif du troisieme mois
 	 * @return
-	 * @throws ComptaException
-	 *             Echec de l'insertion
+	 * @throws ComptaException Echec de l'insertion
 	 */
 	public String addTrimestre(String idMois1, String idMois2, String idMois3) throws ComptaException {
 
@@ -429,10 +404,8 @@ public class DBManager {
 	/**
 	 * Sauvegarde l'id du trimestre courant en base
 	 * 
-	 * @param appId
-	 *            le nouvel id
-	 * @throws ComptaException
-	 *             Echec de l'insertion
+	 * @param appId le nouvel id
+	 * @throws ComptaException Echec de l'insertion
 	 */
 	public void setTrimestreCourant(String appId) throws ComptaException {
 
@@ -465,8 +438,7 @@ public class DBManager {
 	 * Retourne une liste avec tout les identifiants des trimestres en base
 	 * 
 	 * @return
-	 * @throws ComptaException
-	 *             Echec de la récupération
+	 * @throws ComptaException Echec de la récupération
 	 */
 	public ArrayList<String> getAllTrimestreId() throws ComptaException {
 
@@ -490,11 +462,9 @@ public class DBManager {
 	/**
 	 * Récupération de la date de début d'un trimestre
 	 * 
-	 * @param id
-	 *            l'id du trimestre
+	 * @param id l'id du trimestre
 	 * @return
-	 * @throws ComptaException
-	 *             Echec de la récupération
+	 * @throws ComptaException Echec de la récupération
 	 */
 	public Date getDateDebutFromTrimestre(String id) throws ComptaException {
 
@@ -522,10 +492,8 @@ public class DBManager {
 	/**
 	 * Supprime un trimestre de la base de donnée
 	 * 
-	 * @param idTrimestrel'id
-	 *            du trimestre
-	 * @throws SQLException
-	 *             Echec de la suppression
+	 * @param idTrimestrel'id du trimestre
+	 * @throws SQLException Echec de la suppression
 	 */
 	public void removeTrimestre(String idTrimestre) throws ComptaException {
 
@@ -566,10 +534,8 @@ public class DBManager {
 	 * Supprime un exercice mensuel de la base. Les opérations sont également
 	 * supprimées.
 	 * 
-	 * @param idMois
-	 *            l'id de l'exercice mensuel à supprimer
-	 * @throws ComptaException
-	 *             Echec de la suppression
+	 * @param idMois l'id de l'exercice mensuel à supprimer
+	 * @throws ComptaException Echec de la suppression
 	 */
 	private void removeExcerciceMensuel(String idMois) throws ComptaException {
 
@@ -637,8 +603,7 @@ public class DBManager {
 	/**
 	 * Vide le modèle de trimestre
 	 * 
-	 * @throws ComptaException
-	 *             Echec de la suppression
+	 * @throws ComptaException Echec de la suppression
 	 */
 	public void clearTrimTemplate() throws ComptaException {
 
@@ -652,8 +617,7 @@ public class DBManager {
 	}
 
 	/**
-	 * AAjoute les éléments de template aau modèle de trimestre en base de
-	 * donnée
+	 * AAjoute les éléments de template aau modèle de trimestre en base de donnée
 	 * 
 	 * @param elements
 	 * @throws ComptaException
@@ -692,12 +656,9 @@ public class DBManager {
 	/**
 	 * Ajoute une opération en base de donnée
 	 * 
-	 * @param dep
-	 *            l'operation
-	 * @param compteSrcId
-	 *            l'id du compte
-	 * @param appEmId
-	 *            l'id de l'exercice mensuel
+	 * @param dep         l'operation
+	 * @param compteSrcId l'id du compte
+	 * @param appEmId     l'id de l'exercice mensuel
 	 * @return l'id de la depense
 	 * @throws ComptaException
 	 */
@@ -821,8 +782,7 @@ public class DBManager {
 	 * Supprime l'opération de la base
 	 * 
 	 * @param appOp
-	 * @throws ComptaException
-	 *             Echec de la suppression
+	 * @throws ComptaException Echec de la suppression
 	 */
 	public void removeOperation(AppOperation appOp) throws ComptaException {
 
@@ -842,8 +802,7 @@ public class DBManager {
 	 * Retourne la date de dernière vérification sauvée en base
 	 * 
 	 * @return
-	 * @throws ComptaException
-	 *             Echec de la récupération
+	 * @throws ComptaException Echec de la récupération
 	 */
 	public String getDateDerVerif() throws ComptaException {
 
@@ -872,8 +831,7 @@ public class DBManager {
 	 * Sauve en base la date de dernière modif
 	 * 
 	 * @param date
-	 * @throws ComptaException
-	 *             Echec de l'écriture en base
+	 * @throws ComptaException Echec de l'écriture en base
 	 */
 	public void setDateDerVerif(Calendar date) throws ComptaException {
 
@@ -891,12 +849,9 @@ public class DBManager {
 	/**
 	 * Effectue une recherche d'opération en base de donnée
 	 * 
-	 * @param lib
-	 *            le libelle a trouver
-	 * @param montant
-	 *            le montant
-	 * @param tolerance
-	 *            la tolérance sur le montant
+	 * @param lib       le libelle a trouver
+	 * @param montant   le montant
+	 * @param tolerance la tolérance sur le montant
 	 * @return
 	 * @throws ComptaException
 	 */
@@ -988,10 +943,8 @@ public class DBManager {
 	/**
 	 * Récupère les comptes actifs
 	 * 
-	 * @return couple clé : identifiant et valeurs
-	 *         [nom,objectif,utilise,priority]
-	 * @throws ComptaException
-	 *             Echec de la récupération
+	 * @return couple clé : identifiant et valeurs [nom,objectif,utilise,priority]
+	 * @throws ComptaException Echec de la récupération
 	 */
 	public HashMap<String, String[]> getActiveBudget() throws ComptaException {
 
@@ -1025,17 +978,12 @@ public class DBManager {
 	/**
 	 * Ajoute un budget dans la base de donnée
 	 * 
-	 * @param nom
-	 *            le nom
-	 * @param objectif
-	 *            l'objectif
-	 * @param utilise
-	 *            le montant utilise
-	 * @param isActif
-	 *            est actif ?
+	 * @param nom      le nom
+	 * @param objectif l'objectif
+	 * @param utilise  le montant utilise
+	 * @param isActif  est actif ?
 	 * @return l'id applicatif
-	 * @throws ComptaException
-	 *             Echec de l'ajout
+	 * @throws ComptaException Echec de l'ajout
 	 */
 	public String addBudget(String nom, double objectif, double utilise, boolean isActif, int priority)
 			throws ComptaException {
@@ -1067,10 +1015,8 @@ public class DBManager {
 	/**
 	 * Met à jour le budget en base de donnée
 	 * 
-	 * @param budget
-	 *            le budget
-	 * @throws ComptaException
-	 *             Echec de la mise à jour
+	 * @param budget le budget
+	 * @throws ComptaException Echec de la mise à jour
 	 */
 	public void updateBudget(AppBudget budget) throws ComptaException {
 
@@ -1094,10 +1040,8 @@ public class DBManager {
 	/**
 	 * Met à jour les budgets en base de donnée
 	 * 
-	 * @param budgets
-	 *            les budgets
-	 * @throws ComptaException
-	 *             Echec de la mise à jour
+	 * @param budgets les budgets
+	 * @throws ComptaException Echec de la mise à jour
 	 */
 	public void updateBudgets(List<AppBudget> budgets) throws ComptaException {
 
@@ -1131,8 +1075,7 @@ public class DBManager {
 	 * 
 	 * @return couple clé : identifiant et valeurs
 	 *         [nom,objectif,utilise,priority,is_actif]
-	 * @throws ComptaException
-	 *             Echec de la récupération
+	 * @throws ComptaException Echec de la récupération
 	 */
 	public HashMap<String, String[]> getAllBudget() throws ComptaException {
 
@@ -1167,14 +1110,10 @@ public class DBManager {
 	/**
 	 * Ajoute une utilisation en base de donnée
 	 * 
-	 * @param budId
-	 *            l'id du budget utilisé
-	 * @param nom
-	 *            le nom de l'utilisation
-	 * @param montat
-	 *            le montant de l'utilisation
-	 * @param date
-	 *            la date
+	 * @param budId  l'id du budget utilisé
+	 * @param nom    le nom de l'utilisation
+	 * @param montat le montant de l'utilisation
+	 * @param date   la date
 	 * @throws ComptaException
 	 */
 	public String addUtilisationForBudget(String budId, String nom, double montat, Calendar date)
@@ -1221,11 +1160,9 @@ public class DBManager {
 	/**
 	 * Retourne les champs en base des utilisations du budget
 	 * 
-	 * @param id
-	 *            l'id du budget
+	 * @param id l'id du budget
 	 * @return
-	 * @throws ComptaException
-	 *             Echec de la recupération
+	 * @throws ComptaException Echec de la recupération
 	 */
 	public HashMap<String, String[]> getUtilisationInfos(String id) throws ComptaException {
 
@@ -1261,8 +1198,7 @@ public class DBManager {
 	 * Mets à jour l'utilisation en base de donnée
 	 * 
 	 * @param utilisation
-	 * @throws ComptaException
-	 *             Echec de la mise à jour
+	 * @throws ComptaException Echec de la mise à jour
 	 */
 	public void upDateUtilisation(AppUtilisation utilisation) throws ComptaException {
 		// préparation de la requête
@@ -1337,8 +1273,7 @@ public class DBManager {
 	 * Retourne une liste des années des exercices
 	 * 
 	 * @return la liste
-	 * @throws ComptaException
-	 *             la récupération a échouée
+	 * @throws ComptaException la récupération a échouée
 	 */
 	public List<String> getAllAnnees() throws ComptaException {
 
@@ -1365,8 +1300,7 @@ public class DBManager {
 	}
 
 	/**
-	 * Retourne la liste des montants des opérations pour le mois passé en
-	 * paramètre
+	 * Retourne la liste des montants des opérations pour le mois passé en paramètre
 	 * 
 	 * @param date
 	 * @return
@@ -1426,6 +1360,30 @@ public class DBManager {
 		}
 
 		return res;
+	}
+
+	public String getExerciceMensuelId(String idTrimestre, int numMois) {
+
+		String field;
+
+		switch (numMois) {
+		case 1:
+			field = "premier_mois_id";
+			break;
+		case 2:
+			field = "deux_mois_id";
+			break;
+		case 3:
+			field = "trois_mois_id";
+			break;
+		default:
+			field = "premier_mois_id";
+		}
+
+		String query = "SELECT "+field+" FROM TRIMESTRE WHERE date_util>=? AND date_util<=?;";
+
+		//TODO TBC
+		return null;
 	}
 
 }

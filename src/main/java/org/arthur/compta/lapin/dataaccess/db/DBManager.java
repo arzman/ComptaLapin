@@ -18,6 +18,8 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.model.AppBudget;
 import org.arthur.compta.lapin.application.model.AppCompte;
@@ -37,7 +39,15 @@ public class DBManager {
 	/** l'instance du singleton */
 	private static DBManager _instance;
 
+	/**
+	 * Connexion à la base
+	 */
 	private Connection _connexionDB;
+
+	/**
+	 * Le Logger
+	 */
+	private static Logger logger = LogManager.getLogger(DBManager.class);
 
 	/**
 	 * Retourne l'instance unique du singleton
@@ -91,8 +101,6 @@ public class DBManager {
 			}
 
 			Statement stmt = connexion.createStatement();
-
-			System.out.println(sb.toString());
 
 			stmt.executeUpdate(sb.toString());
 		} catch (Exception e) {
@@ -152,7 +160,7 @@ public class DBManager {
 			stmt.setBoolean(3, livret);
 			stmt.setBoolean(4, budgetAllowed);
 			// execution
-			stmt.executeUpdate();
+			executeUpdate(stmt);
 
 			// récupération de l'id en base du compte créé
 			ResultSet res = stmt.getGeneratedKeys();
@@ -181,7 +189,7 @@ public class DBManager {
 
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 
-			ResultSet res = stmt.executeQuery();
+			ResultSet res = executeQuery(stmt);
 
 			if (res.getMetaData().getColumnCount() == 5) {
 
@@ -238,7 +246,7 @@ public class DBManager {
 			stmt.setBoolean(4, compte.isBudget());
 			stmt.setString(5, compte.getAppId());
 			// execution
-			stmt.executeUpdate();
+			executeUpdate(stmt);
 		} catch (Exception e) {
 			throw new ComptaException("Impossible de mettre à jour le compte");
 		}
@@ -259,7 +267,7 @@ public class DBManager {
 		String query = "SELECT ID_TRIMESTRE FROM CONFIGURATION limit 1";
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 			// execution
-			ResultSet queryRes = stmt.executeQuery();
+			ResultSet queryRes = executeQuery(stmt);
 			// parse du resultat
 			while (queryRes.next()) {
 
@@ -288,7 +296,7 @@ public class DBManager {
 		String query = "SELECT ID,premier_mois_id,deux_mois_id,trois_mois_id FROM TRIMESTRE WHERE ID=?";
 		PreparedStatement stmt = getConnexion().prepareStatement(query);
 		stmt.setInt(1, Integer.parseInt(appId));
-		ResultSet queryRes = stmt.executeQuery();
+		ResultSet queryRes = executeQuery(stmt);
 
 		while (queryRes.next()) {
 
@@ -318,7 +326,7 @@ public class DBManager {
 		PreparedStatement stmt = getConnexion().prepareStatement(query);
 		stmt.setInt(1, Integer.parseInt(id));
 		// exécution
-		ResultSet queryRes = stmt.executeQuery();
+		ResultSet queryRes = executeQuery(stmt);
 
 		while (queryRes.next()) {
 			// parsing du résultat
@@ -352,7 +360,7 @@ public class DBManager {
 		stmt.setDouble(3, resPrevu);
 
 		// execution
-		stmt.executeUpdate();
+		executeUpdate(stmt);
 
 		// récupération de l'id en base du compte créé
 		ResultSet res = stmt.getGeneratedKeys();
@@ -387,7 +395,7 @@ public class DBManager {
 			stmt.setString(3, idMois3);
 
 			// execution
-			stmt.executeUpdate();
+			executeUpdate(stmt);
 
 			// récupération de l'id en base du compte créé
 			ResultSet res = stmt.getGeneratedKeys();
@@ -414,7 +422,7 @@ public class DBManager {
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
 			stmt.setInt(1, Integer.parseInt(appId));
-			stmt.executeUpdate();
+			executeUpdate(stmt);
 
 			if (stmt.getUpdateCount() == 0) {
 				// pas d'update, on insert
@@ -422,7 +430,7 @@ public class DBManager {
 				try (PreparedStatement stmt2 = getConnexion().prepareStatement(query2)) {
 					stmt2.setDate(1, new Date(Calendar.getInstance().getTime().getTime()));
 					stmt2.setInt(2, Integer.parseInt(appId));
-					stmt2.executeUpdate();
+					executeUpdate(stmt2);
 				} catch (Exception e) {
 					throw new ComptaException("Impossible d'insérer la nouvelle configuration en base", e);
 				}
@@ -446,7 +454,7 @@ public class DBManager {
 
 		String query = "SELECT ID FROM TRIMESTRE;";
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query);) {
-			ResultSet queryRes = stmt.executeQuery();
+			ResultSet queryRes = executeQuery(stmt);
 			while (queryRes.next()) {
 				// parsing du résultat
 				res.add(queryRes.getString("ID"));
@@ -475,7 +483,7 @@ public class DBManager {
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query);) {
 
 			stmt.setInt(1, Integer.parseInt(id));
-			ResultSet queryRes = stmt.executeQuery();
+			ResultSet queryRes = executeQuery(stmt);
 
 			while (queryRes.next()) {
 				// parsing du résultat
@@ -509,7 +517,7 @@ public class DBManager {
 			try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 
 				stmt.setInt(1, Integer.parseInt(idTrimestre));
-				stmt.executeUpdate();
+				executeUpdate(stmt);
 			} catch (Exception e) {
 				throw new ComptaException("Impossible de supprimer le trimestre", e);
 			}
@@ -543,13 +551,13 @@ public class DBManager {
 		String queryOp = "DELETE FROM OPERATION WHERE mois_id=? ;";
 		try (PreparedStatement stmt = getConnexion().prepareStatement(queryOp)) {
 			stmt.setInt(1, Integer.parseInt(idMois));
-			stmt.executeUpdate();
+			executeUpdate(stmt);
 
 			// suppression de l'exercie
 			String query = "DELETE FROM EXERCICE_MENSUEL WHERE ID=? ;";
 			try (PreparedStatement stmt2 = getConnexion().prepareStatement(query)) {
 				stmt2.setInt(1, Integer.parseInt(idMois));
-				stmt2.executeUpdate();
+				executeUpdate(stmt2);
 			} catch (Exception e) {
 				throw new ComptaException("Impossible de supprimer l'exercice mensuel", e);
 			}
@@ -576,7 +584,7 @@ public class DBManager {
 		String query = "SELECT ID,nom,montant,type_ope,frequence,occurence,compte_source_id,compte_cible_id FROM TEMPLATE;";
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 
-			ResultSet queryRes = stmt.executeQuery();
+			ResultSet queryRes = executeQuery(stmt);
 
 			while (queryRes.next()) {
 				// parsing du résultat
@@ -609,7 +617,7 @@ public class DBManager {
 
 		String query = "DELETE FROM TEMPLATE;";
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
-			stmt.executeUpdate();
+			executeUpdate(stmt);
 		} catch (Exception e) {
 			throw new ComptaException("Impossible de vider les templates", e);
 		}
@@ -681,7 +689,7 @@ public class DBManager {
 			}
 			stmt.setInt(7, Integer.parseInt(appEmId));
 
-			stmt.executeUpdate();
+			executeUpdate(stmt);
 
 			// récupération de l'id en base du compte créé
 			ResultSet res = stmt.getGeneratedKeys();
@@ -718,7 +726,7 @@ public class DBManager {
 			// positionnement du parametre
 			stmt.setInt(1, Integer.parseInt(exId));
 
-			ResultSet queryRes = stmt.executeQuery();
+			ResultSet queryRes = executeQuery(stmt);
 
 			while (queryRes.next()) {
 				// parsing du résultat
@@ -771,7 +779,7 @@ public class DBManager {
 			stmt.setInt(7, Integer.parseInt(appOp.getAppId()));
 
 			// execution
-			stmt.executeUpdate();
+			executeUpdate(stmt);
 		} catch (Exception e) {
 			throw new ComptaException("Impossible de mettre l'opération à jour", e);
 		}
@@ -790,7 +798,7 @@ public class DBManager {
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 
 			stmt.setInt(1, Integer.parseInt(appOp.getAppId()));
-			stmt.executeUpdate();
+			executeUpdate(stmt);
 
 		} catch (Exception e) {
 			throw new ComptaException("Impossible de supprimer l'opération", e);
@@ -812,7 +820,7 @@ public class DBManager {
 		String query = "SELECT date_verif FROM CONFIGURATION limit 1";
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 			// execution
-			ResultSet queryRes = stmt.executeQuery();
+			ResultSet queryRes = executeQuery(stmt);
 			// parse du resultat
 			while (queryRes.next()) {
 
@@ -839,7 +847,7 @@ public class DBManager {
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 
 			stmt.setDate(1, new Date(date.getTime().getTime()));
-			stmt.executeUpdate();
+			executeUpdate(stmt);
 		} catch (Exception e) {
 			throw new ComptaException("Impossible de mettre la date a jour", e);
 		}
@@ -919,7 +927,7 @@ public class DBManager {
 				}
 
 			}
-			ResultSet queryRes = stmt.executeQuery();
+			ResultSet queryRes = executeQuery(stmt);
 
 			while (queryRes.next()) {
 				// parsing du résultat
@@ -954,7 +962,7 @@ public class DBManager {
 
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 
-			ResultSet queryRes = stmt.executeQuery();
+			ResultSet queryRes = executeQuery(stmt);
 
 			while (queryRes.next()) {
 				// parsing du résultat
@@ -998,7 +1006,7 @@ public class DBManager {
 			stmt.setBoolean(4, isActif);
 			stmt.setInt(5, priority);
 			// execution
-			stmt.executeUpdate();
+			executeUpdate(stmt);
 
 			// récupération de l'id en base du compte créé
 			ResultSet res = stmt.getGeneratedKeys();
@@ -1030,7 +1038,7 @@ public class DBManager {
 			stmt.setInt(5, budget.getPriority());
 			stmt.setString(6, budget.getAppId());
 			// execution
-			stmt.executeUpdate();
+			executeUpdate(stmt);
 		} catch (Exception e) {
 			throw new ComptaException("Impossible de mettre à jour le budget", e);
 		}
@@ -1085,7 +1093,7 @@ public class DBManager {
 
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 
-			ResultSet queryRes = stmt.executeQuery();
+			ResultSet queryRes = executeQuery(stmt);
 
 			while (queryRes.next()) {
 				// parsing du résultat
@@ -1128,7 +1136,7 @@ public class DBManager {
 			stmt.setDate(3, new Date(date.getTimeInMillis()));
 			stmt.setInt(4, Integer.parseInt(budId));
 			// execution
-			stmt.executeUpdate();
+			executeUpdate(stmt);
 
 			// récupération de l'id en base du compte créé
 			ResultSet res = stmt.getGeneratedKeys();
@@ -1174,7 +1182,7 @@ public class DBManager {
 
 			stmt.setString(1, id);
 
-			ResultSet queryRes = stmt.executeQuery();
+			ResultSet queryRes = executeQuery(stmt);
 
 			while (queryRes.next()) {
 				// parsing du résultat
@@ -1212,7 +1220,7 @@ public class DBManager {
 			stmt.setString(4, utilisation.getAppId());
 
 			// execution
-			stmt.executeUpdate();
+			executeUpdate(stmt);
 
 		} catch (Exception e) {
 			throw new ComptaException("Impossible de mettre à jour l'utilisation", e);
@@ -1254,14 +1262,14 @@ public class DBManager {
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 			// suppression des utilisations
 			stmt.setString(1, appB.getAppId());
-			stmt.executeUpdate();
+			executeUpdate(stmt);
 
 			// suppression du budget
 			String query2 = "DELETE FROM BUDGET WHERE ID=?;";
 			PreparedStatement stmt2 = getConnexion().prepareStatement(query2);
 
 			stmt2.setString(1, appB.getAppId());
-			stmt2.executeUpdate();
+			executeUpdate(stmt2);
 
 		} catch (Exception e) {
 			throw new ComptaException("Impossible de supprimer les utilisations", e);
@@ -1283,7 +1291,7 @@ public class DBManager {
 
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 
-			ResultSet queryRes = stmt.executeQuery();
+			ResultSet queryRes = executeQuery(stmt);
 
 			while (queryRes.next()) {
 
@@ -1317,7 +1325,7 @@ public class DBManager {
 			stmt.setDate(1, new Date(date.getTimeInMillis()));
 			stmt.setString(2, type);
 
-			ResultSet queryRes = stmt.executeQuery();
+			ResultSet queryRes = executeQuery(stmt);
 
 			while (queryRes.next()) {
 
@@ -1347,7 +1355,7 @@ public class DBManager {
 					23, 59, 59);
 			stmt.setDate(2, new Date(dateF.getTimeInMillis()));
 
-			ResultSet queryRes = stmt.executeQuery();
+			ResultSet queryRes = executeQuery(stmt);
 
 			while (queryRes.next()) {
 
@@ -1362,28 +1370,103 @@ public class DBManager {
 		return res;
 	}
 
-	public String getExerciceMensuelId(String idTrimestre, int numMois) {
+	/**
+	 * Récupère l'identifiant d'un excercice mensuel
+	 * 
+	 * @param idTrimestre
+	 * @param numMois
+	 * @return
+	 * @throws ComptaException
+	 */
+	public int getExerciceMensuelId(String idTrimestre, int numMois) throws ComptaException {
 
 		String field;
+		int res = -1;
 
 		switch (numMois) {
-		case 1:
+		case 0:
 			field = "premier_mois_id";
 			break;
-		case 2:
+		case 1:
 			field = "deux_mois_id";
 			break;
-		case 3:
+		case 2:
 			field = "trois_mois_id";
 			break;
 		default:
 			field = "premier_mois_id";
 		}
 
-		String query = "SELECT "+field+" FROM TRIMESTRE WHERE date_util>=? AND date_util<=?;";
+		String query = "SELECT " + field + " FROM TRIMESTRE WHERE ID=? ;";
 
-		//TODO TBC
-		return null;
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
+
+			stmt.setString(1, idTrimestre);
+
+			ResultSet queryRes = executeQuery(stmt);
+
+			while (queryRes.next()) {
+
+				res = queryRes.getInt(field);
+
+			}
+
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de récupérer l'excercice mensuel", e);
+		}
+
+		return res;
+	}
+
+	/**
+	 * Change l'exercice mensuel d'une opération
+	 * @param OpId
+	 * @param appEMId
+	 * @throws ComptaException
+	 */
+	public void moveOperation(String OpId, String appEMId) throws ComptaException {
+
+		String query = "UPDATE OPERATION SET mois_id=? WHERE ID=? ;";
+
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
+
+			stmt.setInt(1, Integer.parseInt(appEMId));
+			stmt.setInt(2, Integer.parseInt(OpId));
+
+			// execution
+			executeUpdate(stmt);
+
+		} catch (Exception e) {
+			throw new ComptaException("Impossible de mettre à jour l'opération", e);
+		}
+
+	}
+
+	/**
+	 * Centralisation des updates BD
+	 * 
+	 * @param stmt
+	 * @throws SQLException
+	 */
+	public void executeUpdate(PreparedStatement stmt) throws SQLException {
+
+		logger.debug(stmt.toString());
+		stmt.executeUpdate();
+
+	}
+
+	/**
+	 * Centralisation des updates BD
+	 * 
+	 * @param stmt
+	 * @return
+	 * @throws SQLException
+	 */
+	public ResultSet executeQuery(PreparedStatement stmt) throws SQLException {
+
+		logger.debug(stmt.toString());
+		return stmt.executeQuery();
+
 	}
 
 }

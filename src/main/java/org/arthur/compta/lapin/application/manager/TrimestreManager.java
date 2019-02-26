@@ -8,6 +8,7 @@ import java.util.HashMap;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.model.AppCompte;
 import org.arthur.compta.lapin.application.model.AppExerciceMensuel;
+import org.arthur.compta.lapin.application.model.AppExerciceMensuelLightId;
 import org.arthur.compta.lapin.application.model.AppOperation;
 import org.arthur.compta.lapin.application.model.AppTransfert;
 import org.arthur.compta.lapin.application.model.AppTrimestre;
@@ -631,11 +632,79 @@ public class TrimestreManager {
 		return res;
 	}
 
-	public String getExerciceMensuelId(String idTrimestre, int numMois) {
+	/**
+	 * Retourne l'identifiant applicatif d'un exercice mensuel
+	 * 
+	 * @param idTrimestre id applicatif du trimestre
+	 * @param numMois     le numéro du mois
+	 * @return l'identifiant
+	 * @throws ComptaException
+	 */
+	public String getExerciceMensuelId(String idTrimestre, int numMois) throws ComptaException {
 
-		String idEm = DBManager.getInstance().getExerciceMensuelId(idTrimestre, numMois);
+		int idEm = DBManager.getInstance().getExerciceMensuelId(idTrimestre, numMois);
 
-		return idEm;
+		return String.valueOf(idEm);
+	}
+
+	/**
+	 * Déplacement une opération du trimestre courant
+	 * 
+	 * @param appOp       l'opération
+	 * @param numMoisFrom le numéro du mois dans le trimestre courant
+	 * @param appTrimIdTo l'id du trimestre ou elle sera déplacée
+	 * @param numMoisTo   le numéro du mois ou elle sera déplacée
+	 * @throws ComptaException
+	 */
+	public void moveOperationFromTrimCourant(AppOperation appOp, int numMoisFrom, AppExerciceMensuelLightId appLI)
+			throws ComptaException {
+
+		// on supprime l'opération de l'EM source
+		AppExerciceMensuel appEm = _trimestreCourant.get().getAppExerciceMensuel(numMoisFrom).get();
+
+		// suppression de l'opération dans l'application
+		if (appOp.getType().equals(OperationType.DEPENSE)) {
+			appEm.getDepenses().remove(appOp);
+		} else {
+			if (appOp.getType().equals(OperationType.RESSOURCE)) {
+				appEm.getRessources().remove(appOp);
+			} else {
+				if (appOp.getType().equals(OperationType.TRANSFERT)) {
+					appEm.getTransferts().remove(appOp);
+				}
+			}
+
+		}
+
+		// on la rajoute si besoin
+		if (appLI.getTrimestreId().equals(_trimestreCourant.get().getAppId())) {
+
+			AppExerciceMensuel appEmTo = _trimestreCourant.get().getAppExerciceMensuel(appLI.getNumMois()).get();
+			// suppression de l'opération dans l'application
+			if (appOp.getType().equals(OperationType.DEPENSE)) {
+				appEmTo.getDepenses().add(appOp);
+			} else {
+				if (appOp.getType().equals(OperationType.RESSOURCE)) {
+					appEmTo.getRessources().add(appOp);
+				} else {
+					if (appOp.getType().equals(OperationType.TRANSFERT)) {
+						appEmTo.getTransferts().add((AppTransfert) appOp);
+					}
+				}
+
+			}
+
+		}
+
+		// Maj prévisionnel
+		CompteManager.getInstance().calculateSoldePrev(appOp.getCompteSource());
+		if (appOp instanceof AppTransfert) {
+			CompteManager.getInstance().calculateSoldePrev(((AppTransfert) appOp).getCompteCible());
+		}
+
+		// changement en base
+		DBManager.getInstance().moveOperation(appOp.getAppId(), appLI.getExerciceMensuelId());
+
 	}
 
 }

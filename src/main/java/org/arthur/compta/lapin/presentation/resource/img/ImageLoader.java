@@ -56,12 +56,13 @@ public class ImageLoader {
 	public static final String CHART_IMG = "synth_icon.png";
 	// un livre
 	public static final String BOOK_IMG = "book.png";
+	// transfert
+	public static final String TRANSFERT_IMG = "transfert_icon.png";
 
 	/**
 	 * Retourne une image
 	 * 
-	 * @param nom
-	 *            le nom de l'image a retourner
+	 * @param nom le nom de l'image a retourner
 	 * @return l'image
 	 */
 	public static Image getImage(String nom) {

@@ -5,14 +5,18 @@ import java.util.Optional;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
+import org.arthur.compta.lapin.application.model.AppExerciceMensuelLightId;
 import org.arthur.compta.lapin.application.model.AppOperation;
+import org.arthur.compta.lapin.model.operation.EtatOperation;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.operation.dialog.CreateOperationDialog;
 import org.arthur.compta.lapin.presentation.operation.table.OperationTableView;
 import org.arthur.compta.lapin.presentation.operation.table.TransfertTableView;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
+import org.arthur.compta.lapin.presentation.trimestre.dialog.SelectExerciceMensuelDialog;
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -332,7 +336,7 @@ public class ExerciceMensuelPane extends GridPane {
 
 		// action de suppression de l'operation
 		final MenuItem trasnOp = new MenuItem("Transférer");
-		trasnOp.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.DEL_IMG)));
+		trasnOp.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.TRANSFERT_IMG)));
 		trasnOp.setOnAction(new EventHandler<ActionEvent>() {
 
 			@Override
@@ -340,18 +344,30 @@ public class ExerciceMensuelPane extends GridPane {
 
 				// récupération de l'operation
 				AppOperation appOp = table.getSelectionModel().getSelectedItems().get(0);
-				// suppression
-				try {
+				SelectExerciceMensuelDialog semd = new SelectExerciceMensuelDialog();
 
-					TrimestreManager.getInstance().removeOperation(appOp, _numMois);
-					_title.setResutlat(TrimestreManager.getInstance().getResultat(_numMois));
-				} catch (ComptaException e) {
-					ExceptionDisplayService.showException(e);
+				Optional<AppExerciceMensuelLightId> appEMId = semd.showAndWait();
+
+				if (appEMId != null && appEMId.isPresent()) {
+					try {
+						TrimestreManager.getInstance().moveOperationFromTrimCourant(appOp, _numMois, appEMId.get());
+					} catch (ComptaException e) {
+						ExceptionDisplayService.showException(e);
+					}
 				}
+
 			}
 		});
-		// on désactive le menu si la selection est vide
-		trasnOp.disableProperty().bind(Bindings.isEmpty(table.getSelectionModel().getSelectedItems()));
+		// on désactive le menu si la selection est vide ou si l'opération est deja
+		// prise en compte
+
+		BooleanBinding booBind = Bindings.createBooleanBinding(
+				() -> (table.getSelectionModel().getSelectedItem() != null && table.getSelectionModel()
+						.getSelectedItem().getEtat().equals(EtatOperation.PRISE_EN_COMPTE.toString()))
+						|| (table.getSelectionModel().isEmpty()),
+				table.getSelectionModel().getSelectedItems());
+
+		trasnOp.disableProperty().bind(booBind);
 		menu.getItems().add(trasnOp);
 
 	}

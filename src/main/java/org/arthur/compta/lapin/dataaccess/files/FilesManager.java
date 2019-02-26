@@ -75,6 +75,8 @@ public class FilesManager {
 		if (!Files.exists(_confFolderPath, new LinkOption[] {})) {
 
 			Files.createDirectories(_confFolderPath);
+			
+			
 		}
 
 	}

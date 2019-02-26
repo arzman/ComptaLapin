@@ -1,10 +1,17 @@
 package org.arthur.compta.lapin;
 
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import org.apache.logging.log4j.core.config.Configurator;
 import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.dataaccess.db.DBManager;
 import org.arthur.compta.lapin.dataaccess.files.FilesManager;
+import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import org.arthur.compta.lapin.presentation.scene.MainScene;
 
@@ -46,31 +53,45 @@ public class ComptaLapin extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 
-		// mise en place du titre de la fenêtre
-		primaryStage.setTitle("Compta Du Lapin 2.0");
-		primaryStage.getIcons().add(ImageLoader.getImage(ImageLoader.LAPIN_IMG));
-		primaryStage.getIcons().add(ImageLoader.getImage(ImageLoader.LAPIN32_IMG));
+		try {
 
-		// remplissage de la fenetre
-		MainScene sc = new MainScene();
-		primaryStage.setScene(sc);
-		// on prend toute la place
-		primaryStage.setMaximized(true);
+			// initialisationb du logger
+			Path confLog4j2Path = Paths.get(FilesManager.getInstance().getConfFolder().toString(), "log4j2.xml");
 
-		// sauvegarde des etats des IHM
-		primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+			if (Files.exists(confLog4j2Path, new LinkOption[] {})) {
 
-			@Override
-			public void handle(WindowEvent event) {
-				ConfigurationManager.getInstance().save();
+				Configurator.initialize(null,confLog4j2Path.toString() );
 
 			}
-		});
 
-		setUserAgentStylesheet(STYLESHEET_MODENA);
+			// mise en place du titre de la fenêtre
+			primaryStage.setTitle("Compta Du Lapin 2.0");
+			primaryStage.getIcons().add(ImageLoader.getImage(ImageLoader.LAPIN_IMG));
+			primaryStage.getIcons().add(ImageLoader.getImage(ImageLoader.LAPIN32_IMG));
 
-		// ouverture de la fenetre
-		primaryStage.show();
+			// remplissage de la fenetre
+			MainScene sc = new MainScene();
+			primaryStage.setScene(sc);
+			// on prend toute la place
+			primaryStage.setMaximized(true);
+
+			// sauvegarde des etats des IHM
+			primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+
+				@Override
+				public void handle(WindowEvent event) {
+					ConfigurationManager.getInstance().save();
+
+				}
+			});
+
+			setUserAgentStylesheet(STYLESHEET_MODENA);
+
+			// ouverture de la fenetre
+			primaryStage.show();
+		} catch (Exception e) {
+			ExceptionDisplayService.showException(e);
+		}
 
 	}
 

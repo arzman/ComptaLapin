@@ -1,5 +1,7 @@
 package org.arthur.compta.lapin;
 
+import java.io.InputStream;
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -58,14 +60,17 @@ public class ComptaLapin extends Application {
 			// initialisationb du logger
 			Path confLog4j2Path = Paths.get(FilesManager.getInstance().getConfFolder().toString(), "log4j2.xml");
 
-			if (Files.exists(confLog4j2Path, new LinkOption[] {})) {
+			if (!Files.exists(confLog4j2Path, new LinkOption[] {})) {
 
-				Configurator.initialize(null,confLog4j2Path.toString() );
+				InputStream in = ComptaLapin.class
+						.getResourceAsStream("/org/arthur/compta/lapin/dataaccess/files/ressources/conf/log4j2.xml");
+				Files.copy(in, confLog4j2Path, new CopyOption[] {});
 
 			}
+			Configurator.initialize(null, confLog4j2Path.toString());
 
 			// mise en place du titre de la fenêtre
-			primaryStage.setTitle("Compta Du Lapin 2.0");
+			primaryStage.setTitle("Compta Du Lapin 2.1");
 			primaryStage.getIcons().add(ImageLoader.getImage(ImageLoader.LAPIN_IMG));
 			primaryStage.getIcons().add(ImageLoader.getImage(ImageLoader.LAPIN32_IMG));
 

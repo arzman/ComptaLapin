@@ -24,6 +24,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.RowConstraints;
 
 /**
  * Fenetre traçant la synthèse sur l'année.
@@ -56,6 +57,12 @@ public class SynthAnnuelleDialog extends ComptaDialog<ButtonData> {
 		c2.setFillWidth(true);
 		c2.setHgrow(Priority.ALWAYS);
 		root.getColumnConstraints().addAll(c1, c2);
+
+		RowConstraints r1 = new RowConstraints();
+		RowConstraints r2 = new RowConstraints();
+		r2.setFillHeight(true);
+		r2.setVgrow(Priority.ALWAYS);
+		root.getRowConstraints().addAll(r1, r2);
 
 		Label comboLdl = new Label("Sélection de l'année");
 		_yearCombo = new ComboBox<Integer>();
@@ -116,12 +123,13 @@ public class SynthAnnuelleDialog extends ComptaDialog<ButtonData> {
 	 * Remplit le graphique avec les valeurs de l'année
 	 * 
 	 * @param year
-	 * @throws ComptaException
-	 *             Echec lors de la récupératoin des données
+	 * @throws ComptaException Echec lors de la récupératoin des données
 	 */
 	private void drawChart(Integer year) throws ComptaException {
 
 		_lineChart.setTitle("Synthèse " + year);
+
+		_lineChart.getData().clear();
 
 		Series<String, Number> depenseSerie = new Series<String, Number>();
 		depenseSerie.setName("Dépenses");

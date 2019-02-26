@@ -80,8 +80,8 @@ public class AvancementTableCell implements Callback<TableColumn<AppBudget, Numb
 			double val = _percentProp.doubleValue();
 
 			if (val < 0) {
-				text.setText("");
-				bar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+				text.setText(ApplicationFormatter.pourcentFormat.format(0));
+				bar.setProgress(0);
 			} else {
 				text.setText(ApplicationFormatter.pourcentFormat.format(val));
 				bar.setProgress(val);

@@ -2,6 +2,7 @@ package org.arthur.compta.lapin.application.model;
 
 import org.arthur.compta.lapin.model.Budget;
 
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -28,6 +29,8 @@ public class AppBudget extends AppObject {
 	private SimpleDoubleProperty _montantUtiliseProp;
 	/** La priorité 0 =priorite la plus haute */
 	private SimpleIntegerProperty _priorityProp;
+	/** si le budget est terminé */
+	private SimpleBooleanProperty _isTermine;
 
 	/**
 	 * Consructeur par défaut
@@ -47,6 +50,9 @@ public class AppBudget extends AppObject {
 		_avancementProp = new SimpleDoubleProperty();
 		_montantCourantProp = new SimpleDoubleProperty();
 		_montantLivretProp = new SimpleDoubleProperty();
+		_isTermine = new SimpleBooleanProperty();
+		_isTermine.bind(Bindings.createBooleanBinding(() -> budget.getMontantUtilise() == budget.getObjectif(),
+				_objectifProp, _montantUtiliseProp));
 
 	}
 
@@ -179,6 +185,15 @@ public class AppBudget extends AppObject {
 	}
 
 	/**
+	 * Retourne si le budget est terminé
+	 * 
+	 * @return
+	 */
+	public SimpleBooleanProperty termineProperty() {
+		return _isTermine;
+	}
+
+	/**
 	 * Positionne le montant sur compte livret
 	 * 
 	 * @param liv
@@ -238,6 +253,16 @@ public class AppBudget extends AppObject {
 	public String toString() {
 
 		return getNom() + " " + String.valueOf(getObjectif()) + "€";
+	}
+
+	/**
+	 * Retourne vrai si le budget est termine
+	 * 
+	 * @return
+	 */
+	public boolean isTermine() {
+
+		return _isTermine.get();
 	}
 
 }

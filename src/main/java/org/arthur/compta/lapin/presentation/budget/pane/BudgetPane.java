@@ -5,6 +5,7 @@ import org.arthur.compta.lapin.application.manager.BudgetManager;
 import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.application.model.AppBudget;
 import org.arthur.compta.lapin.presentation.budget.cellfactory.AvancementTableCell;
+import org.arthur.compta.lapin.presentation.budget.cellfactory.NomBudgetTableCell;
 import org.arthur.compta.lapin.presentation.budget.dialog.EditBudgetDialog;
 import org.arthur.compta.lapin.presentation.budget.dialog.HistoryBudgetDialog;
 import org.arthur.compta.lapin.presentation.budget.dialog.UseBudgetDialog;
@@ -91,7 +92,10 @@ public class BudgetPane extends GridPane {
 		colNom.setEditable(false);
 		colNom.setId("nom");
 		// bind sur la nom
-		colNom.setCellValueFactory(cellData -> cellData.getValue().nomProperty());
+		colNom.setCellValueFactory(cellData -> Bindings.createStringBinding(
+				() -> cellData.getValue().getNom() + "#" + String.valueOf(cellData.getValue().isTermine()),
+				cellData.getValue().nomProperty(), cellData.getValue().termineProperty()));
+		colNom.setCellFactory(new NomBudgetTableCell());
 		_table.getColumns().add(colNom);
 
 		// Colonne de l'objectif
@@ -143,8 +147,7 @@ public class BudgetPane extends GridPane {
 	/**
 	 * Création du menu contexuel sur le tableau des budgets
 	 * 
-	 * @param table
-	 *            le tableau des comptes
+	 * @param table le tableau des comptes
 	 */
 	private void createContextMenu() {
 

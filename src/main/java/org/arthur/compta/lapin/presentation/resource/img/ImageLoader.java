@@ -58,6 +58,8 @@ public class ImageLoader {
 	public static final String BOOK_IMG = "book.png";
 	// transfert
 	public static final String TRANSFERT_IMG = "transfert_icon.png";
+	//cycle
+	public static final String CYCLE_IMG = "cycle.png";
 
 	/**
 	 * Retourne une image

@@ -25,7 +25,16 @@ CREATE TABLE BUDGET(
 	utilise        	FLOAT  NOT NULL,
 	is_actif       	BOOLEAN  NOT NULL,
 	priority		INTEGER NOT NULL,
+	label_recurrent VARCHAR (25) NOT NULL, 
+	date_recurrent  DATE NOT NULL,
 	CONSTRAINT BUDGET_Pk PRIMARY KEY (ID)
+);
+
+#**************************************************************
+# Table: LABEL_BUDGET_RECURRENT
+#***************************************************************
+CREATE TABLE LABEL_BUDGET_RECURRENT(
+	label             VARCHAR (25) NOT NULL,
 );
 
 #***************************************************************

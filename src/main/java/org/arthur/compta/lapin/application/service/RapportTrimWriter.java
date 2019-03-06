@@ -3,7 +3,6 @@ package org.arthur.compta.lapin.application.service;
 import java.awt.Color;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.Calendar;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -58,10 +57,8 @@ public class RapportTrimWriter {
 	/**
 	 * Constructeur
 	 * 
-	 * @param idTrim
-	 *            le trimestre
-	 * @param file
-	 *            le fichier ou l'on sauve le rapport
+	 * @param idTrim le trimestre
+	 * @param file   le fichier ou l'on sauve le rapport
 	 * @throws ComptaException
 	 */
 	public RapportTrimWriter(String idTrim) throws ComptaException {
@@ -92,14 +89,10 @@ public class RapportTrimWriter {
 			document.add(createRapportTitle());
 
 			// ajout du détails par mois
-			Calendar date = Calendar.getInstance();
-			date.set(_appTrim.getDateDebut().get(Calendar.YEAR), _appTrim.getDateDebut().get(Calendar.MONTH), 1);
 			for (int i = 0; i < 3; i++) {
 
 				// on change de mois pour la prochaine boucle
 				document.add(createChapMois(i));
-				date.add(Calendar.MONTH, 1);
-
 			}
 
 			document.add(createChapGraphique(4));
@@ -115,8 +108,7 @@ public class RapportTrimWriter {
 	/**
 	 * Création du chapitre du graphique récapitulatif
 	 * 
-	 * @param i
-	 *            le numéro du chapitre
+	 * @param i le numéro du chapitre
 	 * @return
 	 * @throws ComptaException
 	 */
@@ -148,16 +140,20 @@ public class RapportTrimWriter {
 		for (int month = 0; month < 3; month++) {
 
 			double dep = SyntheseService.getDepenseForMonth(_appTrim.getAppExerciceMensuel(month).get().getDateDebut());
-			double res = SyntheseService.getRessourceForMonth(_appTrim.getAppExerciceMensuel(month).get().getDateDebut());
-			double bud = SyntheseService.getBudgetUsageForMonth(_appTrim.getAppExerciceMensuel(month).get().getDateDebut());
+			double res = SyntheseService
+					.getRessourceForMonth(_appTrim.getAppExerciceMensuel(month).get().getDateDebut());
+			double bud = SyntheseService
+					.getBudgetUsageForMonth(_appTrim.getAppExerciceMensuel(month).get().getDateDebut());
 
-			depenseSerie.getData()
-					.add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut().getTime()), dep));
-			ressourceSerie.getData()
-					.add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut().getTime()), res));
-			budgetUseSerie.getData()
-					.add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut().getTime()), bud));
-
+			depenseSerie.getData().add(new Data<String, Number>(
+					ApplicationFormatter.moisFormat.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut()),
+					dep));
+			ressourceSerie.getData().add(new Data<String, Number>(
+					ApplicationFormatter.moisFormat.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut()),
+					res));
+			budgetUseSerie.getData().add(new Data<String, Number>(
+					ApplicationFormatter.moisFormat.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut()),
+					bud));
 
 		}
 		_lineChart.getData().add(depenseSerie);
@@ -189,8 +185,7 @@ public class RapportTrimWriter {
 	/**
 	 * Crée un rapport pour le mois
 	 * 
-	 * @param i
-	 *            index du mois dans le trimestre
+	 * @param i index du mois dans le trimestre
 	 * @return
 	 */
 	private Element createChapMois(int i) {
@@ -199,7 +194,7 @@ public class RapportTrimWriter {
 		AppExerciceMensuel em = _appTrim.getAppExerciceMensuel(i).getValue();
 
 		// paragraphe du mois
-		Paragraph moisTitle = new Paragraph(ApplicationFormatter.moiAnneedateFormat.format(em.getDateDebut().getTime()),
+		Paragraph moisTitle = new Paragraph(ApplicationFormatter.moiAnneedateFormat.format(em.getDateDebut()),
 				FONT_MOIS_TITLE);
 		Chapter chapMois = new Chapter(moisTitle, i + 1);
 
@@ -276,9 +271,10 @@ public class RapportTrimWriter {
 	 */
 	private Paragraph createRapportTitle() {
 
-		Chunk titlechunk = new Chunk("Rapport Trimestriel de "
-				+ ApplicationFormatter.moiAnneedateFormat.format(_appTrim.getDateDebut().getTime()) + " à "
-				+ ApplicationFormatter.moiAnneedateFormat.format(_appTrim.getDateFin().getTime()), FONT_TITLE);
+		Chunk titlechunk = new Chunk(
+				"Rapport Trimestriel de " + ApplicationFormatter.moiAnneedateFormat.format(_appTrim.getDateDebut())
+						+ " à " + ApplicationFormatter.moiAnneedateFormat.format(_appTrim.getDateFin()),
+				FONT_TITLE);
 
 		Paragraph parTitle = new Paragraph(titlechunk);
 		parTitle.setAlignment(Element.ALIGN_CENTER);

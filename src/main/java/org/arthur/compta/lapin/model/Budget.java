@@ -3,9 +3,14 @@
  */
 package org.arthur.compta.lapin.model;
 
+import java.time.LocalDate;
+
 /**
  * Modélise un Budget. Soit un montant à atteindre et qui peut être utilisé. On
  * doit garder en mémoire les Utilisation qui ont été faite.
+ * 
+ * Un budget récurrent est un qui sera rattaché a un label et une date. Cette
+ * fonctionnalité permet de suivre l'evolution des budgets qui ont le meme label
  * 
  * @author Arthur
  * 
@@ -27,6 +32,12 @@ public class Budget {
 	/** La priorité du budget */
 	private int _priority;
 
+	/** Label recurrent */
+	private String _labelRec;
+
+	/** Date récurrente */
+	private LocalDate _dateRecurrent;
+
 	/**
 	 * Constructeur
 	 */
@@ -37,6 +48,7 @@ public class Budget {
 		_nom = "Nouveau Budget";
 		_isActif = true;
 		_priority = 0;
+		_labelRec = "";
 	}
 
 	/**
@@ -55,8 +67,7 @@ public class Budget {
 	}
 
 	/**
-	 * @param montantUtilise
-	 *            the montantUtilise to set
+	 * @param montantUtilise the montantUtilise to set
 	 */
 	public void setMontantUtilise(double montantUtilise) {
 		_montantUtilise = montantUtilise;
@@ -65,8 +76,7 @@ public class Budget {
 	/**
 	 * Modifie le nom du budget
 	 * 
-	 * @param nom
-	 *            le nouveau nom
+	 * @param nom le nouveau nom
 	 */
 	public void setNom(String nom) {
 		_nom = nom;
@@ -75,8 +85,7 @@ public class Budget {
 	/**
 	 * Modifie le montant de l'objectif
 	 * 
-	 * @param montantTotal
-	 *            le nouveau montant
+	 * @param montantTotal le nouveau montant
 	 */
 	public void setObjectif(double montantTotal) {
 		_objectif = montantTotal;
@@ -119,6 +128,35 @@ public class Budget {
 	public int getPriority() {
 
 		return _priority;
+	}
+
+	/**
+	 * Retourne le label recurrent
+	 * 
+	 * @return
+	 */
+	public String getLabelRecurrent() {
+
+		return _labelRec;
+	}
+
+	/***
+	 * Retourne la date récurrente
+	 * 
+	 * @return
+	 */
+	public LocalDate getDateRecurrent() {
+		return _dateRecurrent;
+	}
+
+	public void setLabelRecurrent(String labelRecurrent) {
+		_labelRec = labelRecurrent;
+
+	}
+
+	public void setDateRecurrent(LocalDate dateRecurrent) {
+		_dateRecurrent = dateRecurrent;
+
 	}
 
 }

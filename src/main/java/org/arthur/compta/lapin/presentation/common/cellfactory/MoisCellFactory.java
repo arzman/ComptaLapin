@@ -1,6 +1,6 @@
 package org.arthur.compta.lapin.presentation.common.cellfactory;
 
-import java.util.Calendar;
+import java.time.LocalDate;
 
 import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
@@ -13,22 +13,22 @@ import javafx.util.Callback;
  *
  * @param <T>
  */
-public class MoisCellFactory<T> implements Callback<TableColumn<T, Calendar>, TableCell<T, Calendar>> {
+public class MoisCellFactory<T> implements Callback<TableColumn<T, LocalDate>, TableCell<T, LocalDate>> {
 
 	@Override
-	public TableCell<T, Calendar> call(TableColumn<T, Calendar> param) {
+	public TableCell<T, LocalDate> call(TableColumn<T, LocalDate> param) {
 
-		return new TableCell<T, Calendar>() {
+		return new TableCell<T, LocalDate>() {
 
 			@Override
-			protected void updateItem(Calendar item, boolean empty) {
+			protected void updateItem(LocalDate item, boolean empty) {
 
 				super.updateItem(item, empty);
 
 				if (empty || item == null) {
 					setText(null);
 				} else {
-					setText(ApplicationFormatter.moiAnneedateFormat.format(item.getTime()));
+					setText(ApplicationFormatter.moiAnneedateFormat.format(item));
 				}
 
 			}

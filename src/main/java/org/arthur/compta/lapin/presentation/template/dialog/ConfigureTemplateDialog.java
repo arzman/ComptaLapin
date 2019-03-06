@@ -42,7 +42,7 @@ import javafx.util.Callback;
  * écraser le modèle sauvegardé.
  *
  */
-public class ConfigureTemplateDialog extends ComptaDialog<String> {
+public class ConfigureTemplateDialog extends ComptaDialog<ButtonType> {
 
 	/** La liste des éléments de template */
 	private ObservableList<TrimestreTemplateElement> _elementList;
@@ -67,8 +67,6 @@ public class ConfigureTemplateDialog extends ComptaDialog<String> {
 		setResizable(true);
 		// création du contenu de la fenetre
 		createContent();
-		// création des boutons
-		createButtonBar();
 
 		createContextMenu();
 
@@ -83,6 +81,26 @@ public class ConfigureTemplateDialog extends ComptaDialog<String> {
 							String.valueOf(col.getWidth()));
 				}
 
+			}
+		});
+
+		setResultConverter(new Callback<ButtonType, ButtonType>() {
+
+			@Override
+			public ButtonType call(ButtonType param) {
+
+				if (param.equals(_buttonTypeOk)) {
+
+					// on écrase le template en DB par le nouveau
+					try {
+						TemplateService.updateTrimestreTemplate(_elementList);
+					} catch (ComptaException e) {
+						ExceptionDisplayService.showException(e);
+					}
+
+				}
+
+				return param;
 			}
 		});
 
@@ -225,8 +243,7 @@ public class ConfigureTemplateDialog extends ComptaDialog<String> {
 	/**
 	 * Création du tableau
 	 * 
-	 * @param root
-	 *            Le noeud ou doit se placer le tableau
+	 * @param root Le noeud ou doit se placer le tableau
 	 */
 	private void createTable() {
 
@@ -291,38 +308,17 @@ public class ConfigureTemplateDialog extends ComptaDialog<String> {
 		colcible.setCellValueFactory(cellData -> cellData.getValue().compteCibleProperty());
 		colcible.setCellFactory(new CompteCellFactory<TrimestreTemplateElement>());
 		_table.getColumns().add(colcible);
+
 	}
 
 	/**
 	 * Création des boutons
 	 */
-	private void createButtonBar() {
-		// bouton ok
-		ButtonType okButton = new ButtonType("Ok", ButtonData.OK_DONE);
-		getDialogPane().getButtonTypes().add(okButton);
+	protected void createButtonBar() {
 		// bouton annuler
 		ButtonType cancelButton = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(cancelButton);
 
-		setResultConverter(new Callback<ButtonType, String>() {
-
-			@Override
-			public String call(ButtonType param) {
-
-				if (param.equals(okButton)) {
-
-					// on écrase le template en DB par le nouveau
-					try {
-						TemplateService.updateTrimestreTemplate(_elementList);
-					} catch (ComptaException e) {
-						ExceptionDisplayService.showException(e);
-					}
-
-				}
-
-				return "lol";
-			}
-		});
 	}
 
 }

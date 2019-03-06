@@ -10,8 +10,6 @@ import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 
 import javafx.beans.binding.Bindings;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -48,18 +46,7 @@ public class ComptePane extends GridPane {
 		createCompteTable();
 
 		// restitution des largeur de colonnes
-		for(TableColumn<?, ?> col : _table.getColumns()){
-			
-			col.widthProperty().addListener(new ChangeListener<Number>() {
-
-				@Override
-				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-					ConfigurationManager.getInstance().setProp("ComptePane.table.col."+col.getId(), String.valueOf(newValue));
-					
-				}
-			});
-			col.setPrefWidth(Double.parseDouble(ConfigurationManager.getInstance().getProp("ComptePane.table.col."+col.getId(), "50")));
-		}
+		ConfigurationManager.getInstance().setPrefColumnWidth(_table, "ComptePane.table.col");
 
 	}
 
@@ -132,8 +119,7 @@ public class ComptePane extends GridPane {
 	/**
 	 * Création du menu contexuel sur le tableau des compte
 	 * 
-	 * @param table
-	 *            le tableau des comptes
+	 * @param table le tableau des comptes
 	 */
 	private void createContextMenu(TableView<AppCompte> table) {
 

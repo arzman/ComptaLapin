@@ -1,6 +1,6 @@
 package org.arthur.compta.lapin.model;
 
-import java.util.Calendar;
+import java.time.LocalDate;
 
 /**
  * Modélise une utilisation d'un budget. Soit une dépense (libellé) d'un montant
@@ -22,19 +22,16 @@ public class Utilisation {
 	/**
 	 * la date
 	 */
-	private Calendar _date;
+	private LocalDate _date;
 
 	/**
 	 * Constructeur de l'utilisation
 	 * 
-	 * @param montant
-	 *            le montant utilisé
-	 * @param libelle
-	 *            le nom de l'utilisation
-	 * @param date
-	 *            la date de l'utilisation
+	 * @param montant le montant utilisé
+	 * @param libelle le nom de l'utilisation
+	 * @param date    la date de l'utilisation
 	 */
-	public Utilisation(double montant, String libelle, Calendar date) {
+	public Utilisation(double montant, String libelle, LocalDate date) {
 
 		_montant = montant;
 		_libelle = libelle;
@@ -59,7 +56,7 @@ public class Utilisation {
 	 * 
 	 * @return
 	 */
-	public Calendar getDate() {
+	public LocalDate getDate() {
 		return _date;
 	}
 
@@ -88,7 +85,7 @@ public class Utilisation {
 	 * 
 	 * @param date
 	 */
-	public void setDate(Calendar date) {
+	public void setDate(LocalDate date) {
 		_date = date;
 	}
 }

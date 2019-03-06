@@ -1,7 +1,6 @@
 package org.arthur.compta.lapin.presentation.trimestre.cellfactory;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.HashMap;
 
 import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
@@ -21,15 +20,14 @@ public class TrimestreListCellFactory implements Callback<ListView<String>, List
 	/**
 	 * Map permettant de liée l'id du trimstre à sa date de début
 	 */
-	private HashMap<String, Calendar> _resumeTrimestre;
+	private HashMap<String, LocalDate> _resumeTrimestre;
 
 	/**
 	 * Constructeur
 	 * 
-	 * @param resumeTrimestre
-	 *            les id des trimestres et leur date de début
+	 * @param resumeTrimestre les id des trimestres et leur date de début
 	 */
-	public TrimestreListCellFactory(HashMap<String, Calendar> resumeTrimestre) {
+	public TrimestreListCellFactory(HashMap<String, LocalDate> resumeTrimestre) {
 
 		_resumeTrimestre = resumeTrimestre;
 
@@ -52,16 +50,14 @@ public class TrimestreListCellFactory implements Callback<ListView<String>, List
 
 					// De <mois année de début> à < mois année de fin>
 					StringBuilder text = new StringBuilder("De ");
-					Calendar deb = _resumeTrimestre.get(item);
-					text.append(ApplicationFormatter.moiAnneedateFormat.format(deb.getTime()));
+					LocalDate deb = _resumeTrimestre.get(item);
+					text.append(ApplicationFormatter.moiAnneedateFormat.format(deb));
 					text.append(" à ");
-					Calendar fin = Calendar.getInstance();
-					fin.setTime(new Date(deb.getTime().getTime()));
-					fin.add(Calendar.MONTH, 2);
-					text.append(ApplicationFormatter.moiAnneedateFormat.format(fin.getTime()));
+
+					text.append(ApplicationFormatter.moiAnneedateFormat.format(deb.plusMonths(2)));
 					setText(text.toString());
 
-				}else{
+				} else {
 					// pas de donnée = pas de texte
 					setText("");
 				}

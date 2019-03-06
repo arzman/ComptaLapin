@@ -5,9 +5,13 @@ import org.arthur.compta.lapin.application.model.AppBudget;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 
+import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
@@ -29,15 +33,17 @@ public class EditBudgetDialog extends ComptaDialog<AppBudget> {
 	private TextField _objTxt;
 	/** Le champ de saisi du montant utilisé */
 	private TextField _utilsTxt;
-
-	/** Le bouton OK */
-	private ButtonType _buttonTypeOk;
+	/** active le budget recurrent */
+	private CheckBox _isReccurentChckB;
+	/** Liste des budget recurrent */
+	private ComboBox<String> _listBudRecuCB;
+	/** Date du budget récurrent */
+	private DatePicker _dateBudgetDP;
 
 	/**
 	 * Constructeur
 	 * 
-	 * @param budget
-	 *            le budget a éditer, null si création
+	 * @param budget le budget a éditer, null si création
 	 */
 	public EditBudgetDialog(AppBudget budget) {
 
@@ -55,8 +61,6 @@ public class EditBudgetDialog extends ComptaDialog<AppBudget> {
 		// initialisation des valeurs
 		initValues();
 
-		// création des boutons
-		createButtonBar();
 		// attachement des écouteurs pour la validation des modifs
 		hookListener();
 
@@ -75,7 +79,8 @@ public class EditBudgetDialog extends ComptaDialog<AppBudget> {
 						try {
 							_budget = BudgetManager.getInstance().addBudget(_nomTxt.getText().trim(),
 									Double.parseDouble(_objTxt.getText().trim()),
-									Double.parseDouble(_utilsTxt.getText().trim()));
+									Double.parseDouble(_utilsTxt.getText().trim()),
+									_listBudRecuCB.getSelectionModel().getSelectedItem(), _dateBudgetDP.getValue());
 						} catch (Exception e) {
 							ExceptionDisplayService.showException(e);
 						}
@@ -86,7 +91,8 @@ public class EditBudgetDialog extends ComptaDialog<AppBudget> {
 							_budget = BudgetManager.getInstance().editBudget(_budget, _nomTxt.getText().trim(),
 									Double.parseDouble(_objTxt.getText().trim()),
 									Double.parseDouble(_utilsTxt.getText().trim()), _budget.isActif(),
-									_budget.getPriority());
+									_budget.getPriority(), _listBudRecuCB.getSelectionModel().getSelectedItem(),
+									_dateBudgetDP.getValue());
 						} catch (Exception e) {
 							ExceptionDisplayService.showException(e);
 						}
@@ -134,6 +140,16 @@ public class EditBudgetDialog extends ComptaDialog<AppBudget> {
 		_utilsTxt = new TextField();
 		root.add(_utilsTxt, 1, 2);
 
+		// rattachement a un budget récurrent
+		_isReccurentChckB = new CheckBox("Budget récurrent");
+		root.add(_isReccurentChckB, 0, 3);
+
+		_dateBudgetDP = new DatePicker();
+		root.add(_dateBudgetDP, 1, 3);
+
+		// liste des budgets récurrent
+		_listBudRecuCB = new ComboBox<>();
+		root.add(_listBudRecuCB, 0, 4, 2, 1);
 	}
 
 	/**
@@ -183,8 +199,24 @@ public class EditBudgetDialog extends ComptaDialog<AppBudget> {
 
 		}
 
+		// verif de la récurrence
+		boolean isReccurent = _isReccurentChckB.isSelected();
+		boolean recError = true;
+		_dateBudgetDP.setDisable(!isReccurent);
+		_listBudRecuCB.setDisable(!isReccurent);
+
+		if (isReccurent) {
+
+			if (_dateBudgetDP.getValue() != null && !_listBudRecuCB.getSelectionModel().getSelectedItem().isEmpty()) {
+				recError = false;
+			}
+
+		} else {
+			recError = false;
+		}
+
 		Node OkButton = getDialogPane().lookupButton(_buttonTypeOk);
-		OkButton.setDisable(nomError || objError || utilEsrror);
+		OkButton.setDisable(nomError || objError || utilEsrror || recError);
 
 	}
 
@@ -193,12 +225,25 @@ public class EditBudgetDialog extends ComptaDialog<AppBudget> {
 	 */
 	private void initValues() {
 
-		if (_budget != null) {
+		try {
 
-			_nomTxt.setText(_budget.getNom());
-			_objTxt.setText(String.valueOf(_budget.getObjectif()));
-			_utilsTxt.setText(String.valueOf(_budget.getMontantUtilise()));
+			_listBudRecuCB
+					.setItems(FXCollections.observableArrayList(BudgetManager.getInstance().getLabelRecurrentList()));
 
+			if (_budget != null) {
+
+				_nomTxt.setText(_budget.getNom());
+				_objTxt.setText(String.valueOf(_budget.getObjectif()));
+				_utilsTxt.setText(String.valueOf(_budget.getMontantUtilise()));
+				_isReccurentChckB.setSelected(_budget.isRecurrent());
+				if (_budget.isRecurrent()) {
+					_listBudRecuCB.getSelectionModel().select(_budget.getLabelRecurrent());
+					_dateBudgetDP.setValue(_budget.getDateRecurrent());
+				}
+
+			}
+		} catch (Exception e) {
+			ExceptionDisplayService.showException(e);
 		}
 
 	}
@@ -220,15 +265,19 @@ public class EditBudgetDialog extends ComptaDialog<AppBudget> {
 			checkInput();
 		});
 
+		_isReccurentChckB.selectedProperty().addListener((observable, oldValue, newValue) -> {
+			checkInput();
+
+		});
+
 	}
 
 	/**
 	 * Création des boutons
 	 */
-	private void createButtonBar() {
+	protected void createButtonBar() {
 		// bouton ok
-		_buttonTypeOk = new ButtonType("Ok", ButtonData.OK_DONE);
-		getDialogPane().getButtonTypes().add(_buttonTypeOk);
+		super.createButtonBar();
 		ButtonType close = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(close);
 

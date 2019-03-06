@@ -1,6 +1,6 @@
 package org.arthur.compta.lapin.presentation.synth;
 
-import java.util.Calendar;
+import java.time.LocalDate;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.service.SyntheseService;
@@ -142,19 +142,15 @@ public class SynthAnnuelleDialog extends ComptaDialog<ButtonData> {
 
 		for (int month = 0; month < 12; month++) {
 
-			Calendar date = Calendar.getInstance();
-			date.set(year, month, 1);
+			LocalDate date = LocalDate.of(year, month, 1);
 
 			double dep = SyntheseService.getDepenseForMonth(date);
 			double res = SyntheseService.getRessourceForMonth(date);
 			double bud = SyntheseService.getBudgetUsageForMonth(date);
 
-			depenseSerie.getData()
-					.add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(date.getTime()), dep));
-			ressourceSerie.getData()
-					.add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(date.getTime()), res));
-			budgetUseSerie.getData()
-					.add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(date.getTime()), bud));
+			depenseSerie.getData().add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(date), dep));
+			ressourceSerie.getData().add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(date), res));
+			budgetUseSerie.getData().add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(date), bud));
 
 		}
 

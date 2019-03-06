@@ -5,6 +5,8 @@ import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
@@ -23,6 +25,8 @@ public class ComptaDialog<T> extends Dialog<T> {
 	/** La bordure rouge en cas d'erreur de saisi */
 	protected final Border BORDER_ERROR = new Border(
 			new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1)));
+
+	protected ButtonType _buttonTypeOk;
 
 	public ComptaDialog(String id) {
 
@@ -59,6 +63,16 @@ public class ComptaDialog<T> extends Dialog<T> {
 
 			}
 		});
+
+		createButtonBar();
+
+	}
+
+	protected void createButtonBar() {
+
+		// bouton ok
+		_buttonTypeOk = new ButtonType("Ok", ButtonData.OK_DONE);
+		getDialogPane().getButtonTypes().add(_buttonTypeOk);
 
 	}
 

@@ -1,7 +1,7 @@
 package org.arthur.compta.lapin.presentation.budget.dialog;
 
 import java.util.Comparator;
-import java.util.Iterator;
+import java.util.Optional;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.BudgetManager;
@@ -11,6 +11,8 @@ import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -19,9 +21,8 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TitledPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -36,56 +37,23 @@ import javafx.util.Callback;
  */
 public class ConfigBudgetDialog extends ComptaDialog<ButtonData> {
 
-	/** Le bouton OK */
-	private ButtonType _buttonTypeOk;
 	/** Les budgets actifs ordonnés */
 	private ObservableList<AppBudget> _activesBudgets;
-	/** Listview des budgets actids */
+	/** Listview des budgets actifs */
 	private ListView<AppBudget> list;
-	/** Tous les budgets */
-	private ObservableList<AppBudget> _allBudgets;
+	/** la liste des label existant */
+	private ObservableList<String> _existingLabels;
 
 	public ConfigBudgetDialog() {
 		super(ConfigBudgetDialog.class.getSimpleName());
 
 		setTitle("Gestion des budgets");
 
-		GridPane root = new GridPane();
-		root.setHgap(5);
-		getDialogPane().setContent(root);
+		// récupération des valeurs
+		initValues();
+		// création IHM
+		createContent();
 
-		RowConstraints rowCons = new RowConstraints();
-		rowCons.setFillHeight(true);
-		rowCons.setVgrow(Priority.ALWAYS);
-		root.getRowConstraints().add(rowCons);
-
-		// récupération des budgets actifs
-		_activesBudgets = FXCollections.observableArrayList();
-		_activesBudgets.addAll(BudgetManager.getInstance().getBudgetList());
-		_activesBudgets.sort(new Comparator<AppBudget>() {
-
-			@Override
-			public int compare(AppBudget o1, AppBudget o2) {
-
-				return Integer.compare(o1.getPriority(), o2.getPriority());
-			}
-		});
-
-		// récupérations de tout les budgets
-		_allBudgets = FXCollections.observableArrayList();
-		try {
-			_allBudgets.addAll(BudgetManager.getInstance().getAllBudgets());
-		} catch (ComptaException e) {
-			ExceptionDisplayService.showException(e);
-		}
-
-		// zone ré-organisation
-		root.add(createReOrg(), 0, 0);
-		// de suppression
-		root.add(createSuppr(), 1, 0);
-
-		// bouton Ok et Fermer
-		createButtonBar();
 
 		setResultConverter(new Callback<ButtonType, ButtonData>() {
 
@@ -115,6 +83,49 @@ public class ConfigBudgetDialog extends ComptaDialog<ButtonData> {
 				return param.getButtonData();
 			}
 		});
+
+	}
+
+	private void initValues() {
+
+		// récupération des budgets actifs
+		_activesBudgets = FXCollections.observableArrayList();
+		_activesBudgets.addAll(BudgetManager.getInstance().getBudgetList());
+		_activesBudgets.sort(new Comparator<AppBudget>() {
+
+			@Override
+			public int compare(AppBudget o1, AppBudget o2) {
+
+				return Integer.compare(o1.getPriority(), o2.getPriority());
+			}
+		});
+
+		// récupération des labels existant
+		_existingLabels = FXCollections.observableArrayList();
+		try {
+			_existingLabels.addAll(BudgetManager.getInstance().getLabelRecurrentList());
+		} catch (ComptaException e) {
+			ExceptionDisplayService.showException(e);
+		}
+		_existingLabels.sort(null);
+
+	}
+
+	private void createContent() {
+
+		GridPane root = new GridPane();
+		root.setHgap(5);
+		getDialogPane().setContent(root);
+
+		RowConstraints rowCons = new RowConstraints();
+		rowCons.setFillHeight(true);
+		rowCons.setVgrow(Priority.ALWAYS);
+		root.getRowConstraints().add(rowCons);
+
+		// zone ré-organisation
+		root.add(createReOrg(), 0, 0);
+		// zonne des labels récurrent
+		root.add(createLabelRecurrent(), 1, 0);
 
 	}
 
@@ -192,59 +203,69 @@ public class ConfigBudgetDialog extends ComptaDialog<ButtonData> {
 	 * 
 	 * @return
 	 */
-	private Node createSuppr() {
+	private Node createLabelRecurrent() {
 
 		GridPane subRoot = new GridPane();
 		subRoot.setHgap(5);
 		subRoot.setVgap(5);
 
-		// la liste de tous les budgets
-		ListView<AppBudget> listAllBud = new ListView<AppBudget>();
-		listAllBud.setItems(_allBudgets);
-
-		subRoot.add(listAllBud, 0, 0);
-
-		TitledPane borPa = new TitledPane("Historique des budgets", subRoot);
+		TitledPane borPa = new TitledPane("Budget Récurrent", subRoot);
 		borPa.setCollapsible(false);
 		borPa.setMaxHeight(Double.MAX_VALUE);
 
-		ContextMenu menu = new ContextMenu();
-		listAllBud.setContextMenu(menu);
+		ListView<String> _listV = new ListView<>();
+		_listV.setItems(_existingLabels);
 
-		MenuItem delItem = new MenuItem("Supprimer");
-		delItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.DEL_IMG)));
-		delItem.setOnAction(new EventHandler<ActionEvent>() {
+		subRoot.add(_listV, 0, 0);
+
+		Button _addButton = new Button("Ajouter");
+		_addButton.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.ADD_IMG)));
+		subRoot.add(_addButton, 0, 1);
+
+		// sur le bouton ajouter
+		_addButton.setOnAction(new EventHandler<ActionEvent>() {
 
 			@Override
 			public void handle(ActionEvent event) {
 
-				AppBudget appB = listAllBud.getSelectionModel().getSelectedItem();
+				TextInputDialog dialog = new TextInputDialog();
+				dialog.setTitle("Veuillez saisir le label");
+				dialog.setContentText("Label récurrent :");
+				dialog.setHeaderText(null);
 
-				try {
-					BudgetManager.getInstance().removeBudget(appB);
-					listAllBud.getItems().remove(appB);
+				dialog.getEditor().textProperty().addListener(new ChangeListener<String>() {
 
-					// suppression de la liste ( le remove ne marche pas)
-					Iterator<AppBudget> iter = _activesBudgets.iterator();
-					boolean goOn = true;
-					while (iter.hasNext() && goOn) {
+					@Override
+					public void changed(ObservableValue<? extends String> observable, String oldValue,
+							String newValue) {
 
-						AppBudget bud = iter.next();
-						if (bud.getAppId().equals(appB.getAppId())) {
-							iter.remove();
-							goOn = false;
+						if (_existingLabels.contains(newValue)) {
+
+							dialog.getEditor().setBorder(BORDER_ERROR);
+							dialog.getDialogPane().lookupButton(ButtonType.OK).setDisable(true);
+
+						} else {
+							dialog.getEditor().setBorder(null);
+							dialog.getDialogPane().lookupButton(ButtonType.OK).setDisable(false);
 						}
 
 					}
+				});
 
-				} catch (ComptaException e) {
-					ExceptionDisplayService.showException(e);
+				Optional<String> result = dialog.showAndWait();
+
+				if (result.isPresent()) {
+
+					try {
+						BudgetManager.getInstance().addLabelRecurrent(result.get());
+						_existingLabels.add(result.get());
+					} catch (ComptaException e) {
+						ExceptionDisplayService.showException(e);
+					}
 				}
 
 			}
 		});
-
-		menu.getItems().add(delItem);
 
 		return borPa;
 	}
@@ -252,11 +273,9 @@ public class ConfigBudgetDialog extends ComptaDialog<ButtonData> {
 	/**
 	 * Création des boutons
 	 */
-	private void createButtonBar() {
-		// bouton ok
-		_buttonTypeOk = new ButtonType("Ok", ButtonData.OK_DONE);
-		getDialogPane().getButtonTypes().add(_buttonTypeOk);
-		ButtonType close = new ButtonType("Fermer", ButtonData.CANCEL_CLOSE);
+	protected void createButtonBar() {
+		super.createButtonBar();
+		ButtonType close = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(close);
 
 	}

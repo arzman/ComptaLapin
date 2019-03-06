@@ -16,13 +16,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
-import javafx.scene.paint.Color;
 import javafx.util.Callback;
 
 /**
@@ -35,9 +29,6 @@ public class CreateOperationDialog extends ComptaDialog<String> {
 	private AppOperation _operation;
 	/** l'index du mois dans lequel l'opération sera créée */
 	private int _numMois;
-	/** La bordure rouge en cas d'erreur de saisi */
-	private final Border BORDER_ERROR = new Border(
-			new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1)));
 
 	/** champ de saisie du nom */
 	private TextField _libTxt;
@@ -55,8 +46,7 @@ public class CreateOperationDialog extends ComptaDialog<String> {
 	/**
 	 * Constructeur
 	 * 
-	 * @param op
-	 *            l'opération à éditer, null si création
+	 * @param op l'opération à éditer, null si création
 	 */
 	public CreateOperationDialog(AppOperation op, int numMois) {
 
@@ -69,8 +59,6 @@ public class CreateOperationDialog extends ComptaDialog<String> {
 		createContent();
 		// initialisation des valeurs
 		initValues();
-		// Création des boutons
-		createButtonBar();
 		// ajout des listeners sur les champs
 		hookListeners();
 
@@ -109,7 +97,7 @@ public class CreateOperationDialog extends ComptaDialog<String> {
 							ExceptionDisplayService.showException(e);
 						}
 					}
-					
+
 					res = _operation.getType().toString();
 
 				}
@@ -194,18 +182,15 @@ public class CreateOperationDialog extends ComptaDialog<String> {
 	/**
 	 * Création des boutons
 	 */
-	private void createButtonBar() {
-		// bouton ok
-		_okButton = new ButtonType("Ok", ButtonData.OK_DONE);
-		getDialogPane().getButtonTypes().add(_okButton);
+	protected void createButtonBar() {
 		// bouton annuler
 		ButtonType cancelButton = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(cancelButton);
 	}
 
 	/**
-	 * Affecte des écouteurs de modification sur les champs de saisie. Ces
-	 * écouteurs déclenchent la vérification de la saisie
+	 * Affecte des écouteurs de modification sur les champs de saisie. Ces écouteurs
+	 * déclenchent la vérification de la saisie
 	 */
 	private void hookListeners() {
 		// nom

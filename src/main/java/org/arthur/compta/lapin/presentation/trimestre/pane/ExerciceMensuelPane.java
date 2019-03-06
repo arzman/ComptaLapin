@@ -25,7 +25,6 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TitledPane;
 import javafx.scene.image.ImageView;
@@ -190,52 +189,12 @@ public class ExerciceMensuelPane extends GridPane {
 		});
 
 		// restitution des largeur de colonnes
-		for (TableColumn<?, ?> col : _depenseTable.getColumns()) {
-
-			col.widthProperty().addListener(new ChangeListener<Number>() {
-
-				@Override
-				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-					ConfigurationManager.getInstance().setProp(
-							"ExerciceMensuel" + getId() + ".tabledep.col." + col.getId(), String.valueOf(newValue));
-
-				}
-			});
-			col.setPrefWidth(Double.parseDouble(ConfigurationManager.getInstance()
-					.getProp("ExerciceMensuel" + getId() + ".tabledep.col." + col.getId(), "50")));
-		}
-
-		// restitution des largeur de colonnes
-		for (TableColumn<?, ?> col : _ressourceTable.getColumns()) {
-
-			col.widthProperty().addListener(new ChangeListener<Number>() {
-
-				@Override
-				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-					ConfigurationManager.getInstance().setProp(
-							"ExerciceMensuel" + getId() + ".tableres.col." + col.getId(), String.valueOf(newValue));
-
-				}
-			});
-			col.setPrefWidth(Double.parseDouble(ConfigurationManager.getInstance()
-					.getProp("ExerciceMensuel" + getId() + ".tableres.col." + col.getId(), "50")));
-		}
-
-		// restitution des largeur de colonnes
-		for (TableColumn<?, ?> col : _transfertTable.getColumns()) {
-
-			col.widthProperty().addListener(new ChangeListener<Number>() {
-
-				@Override
-				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-					ConfigurationManager.getInstance().setProp(
-							"ExerciceMensuel" + getId() + ".tabletrans.col." + col.getId(), String.valueOf(newValue));
-
-				}
-			});
-			col.setPrefWidth(Double.parseDouble(ConfigurationManager.getInstance()
-					.getProp("ExerciceMensuel" + getId() + ".tabletrans.col." + col.getId(), "50")));
-		}
+		ConfigurationManager.getInstance().setPrefColumnWidth(_depenseTable,
+				"ExerciceMensuel" + getId() + ".tabledep.col");
+		ConfigurationManager.getInstance().setPrefColumnWidth(_ressourceTable,
+				"ExerciceMensuel" + getId() + ".tableres.col.");
+		ConfigurationManager.getInstance().setPrefColumnWidth(_transfertTable,
+				"ExerciceMensuel" + getId() + ".tabletrans.col");
 
 	}
 

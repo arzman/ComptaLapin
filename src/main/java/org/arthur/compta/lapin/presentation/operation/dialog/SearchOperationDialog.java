@@ -1,6 +1,6 @@
 package org.arthur.compta.lapin.presentation.operation.dialog;
 
-import java.util.Calendar;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,15 +27,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.paint.Color;
 
 /**
  * Fenetre de recherche d'opération
@@ -57,9 +51,6 @@ public class SearchOperationDialog extends ComptaDialog<String> {
 	/** Le bouton de recherche */
 	private Button searchBut;
 
-	/** La bordure rouge en cas d'erreur de saisi */
-	private final Border BORDER_ERROR = new Border(
-			new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1)));
 
 	public SearchOperationDialog() {
 
@@ -82,8 +73,6 @@ public class SearchOperationDialog extends ComptaDialog<String> {
 		root.add(createCriteriaFields(), 0, 0);
 		// créations de la zone de résultat
 		root.add(createSearchRes(), 0, 1);
-		// création des buttons
-		createButtonBar();
 
 		// ajout des écouteur
 		hookListener();
@@ -265,7 +254,7 @@ public class SearchOperationDialog extends ComptaDialog<String> {
 		colMontant.setCellFactory(new MontantCellFactory<OperationSearchResult>());
 
 		// date
-		TableColumn<OperationSearchResult, Calendar> colDate = new TableColumn<OperationSearchResult, Calendar>();
+		TableColumn<OperationSearchResult, LocalDate> colDate = new TableColumn<OperationSearchResult, LocalDate>();
 		colDate.setText("Mois");
 		colDate.setResizable(true);
 		colDate.setSortable(true);
@@ -286,7 +275,7 @@ public class SearchOperationDialog extends ComptaDialog<String> {
 	/**
 	 * Création des boutons
 	 */
-	private void createButtonBar() {
+	protected void createButtonBar() {
 		// bouton ok
 		ButtonType okButton = new ButtonType("Fermer", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(okButton);

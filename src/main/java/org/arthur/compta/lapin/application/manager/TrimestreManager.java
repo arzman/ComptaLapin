@@ -1,8 +1,7 @@
 package org.arthur.compta.lapin.application.manager;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
@@ -145,13 +144,9 @@ public class TrimestreManager {
 				ExerciceMensuel em = new ExerciceMensuel();
 
 				// date de début
-				Calendar deb = Calendar.getInstance();
-				deb.setTime(ApplicationFormatter.databaseDateFormat.parse(infos[1]));
-				em.setDateDebut(deb);
+				em.setDateDebut(LocalDate.parse(infos[1], ApplicationFormatter.databaseDateFormat));
 				// date fin
-				Calendar fin = Calendar.getInstance();
-				fin.setTime(ApplicationFormatter.databaseDateFormat.parse(infos[2]));
-				em.setDateFin(fin);
+				em.setDateFin(LocalDate.parse(infos[2], ApplicationFormatter.databaseDateFormat));
 
 				em.setResPrev(Double.parseDouble(infos[3]));
 
@@ -235,7 +230,7 @@ public class TrimestreManager {
 	 * @return
 	 * @throws ComptaException
 	 */
-	public AppTrimestre createTrimestre(Calendar dateDeb) throws ComptaException {
+	public AppTrimestre createTrimestre(LocalDate dateDeb) throws ComptaException {
 
 		AppTrimestre appTrim = null;
 
@@ -244,31 +239,17 @@ public class TrimestreManager {
 			Trimestre trim = new Trimestre();
 			appTrim = new AppTrimestre(trim);
 
-			final int numMoi = dateDeb.get(Calendar.MONTH);
-
 			// création des exercice mensuel du trimestre
 			for (int i = 0; i < 3; i++) {
 
 				// création du modèle métier
 				final ExerciceMensuel em = new ExerciceMensuel();
 				// date de debut
-				final Calendar debut = Calendar.getInstance();
-				debut.set(Calendar.DAY_OF_MONTH, 1);
-				debut.set(Calendar.MONTH, (i + numMoi) % 12);
-				debut.set(Calendar.YEAR, dateDeb.get(Calendar.YEAR) + ((i + numMoi) / 12));
-				debut.set(Calendar.HOUR_OF_DAY, 0);
-				debut.set(Calendar.MINUTE, 0);
-				debut.set(Calendar.SECOND, 0);
+				final LocalDate debut = dateDeb.plusMonths(i).withDayOfMonth(1);
 				em.setDateDebut(debut);
-				// date de fin
-				final Calendar fin = Calendar.getInstance();
-				fin.set(Calendar.DAY_OF_MONTH, debut.getActualMaximum(Calendar.DAY_OF_MONTH));
-				fin.set(Calendar.MONTH, (i + numMoi) % 12);
-				fin.set(Calendar.YEAR, dateDeb.get(Calendar.YEAR) + ((i + numMoi) / 12));
-				fin.set(Calendar.HOUR_OF_DAY, 23);
-				fin.set(Calendar.MINUTE, 59);
-				fin.set(Calendar.SECOND, 59);
 
+				// date de fin
+				final LocalDate fin = debut.withDayOfMonth(debut.lengthOfMonth());
 				em.setDateFin(fin);
 
 				// insertion de l'exercice mensuel en base
@@ -306,9 +287,9 @@ public class TrimestreManager {
 	 * @return une Map contenant clé:id Trimestre , value:dateDébut
 	 * @throws ComptaException Erreur lors de la récupération des infos
 	 */
-	public HashMap<String, Calendar> getAllTrimestreShortList() throws ComptaException {
+	public HashMap<String, LocalDate> getAllTrimestreShortList() throws ComptaException {
 
-		HashMap<String, Calendar> res = new HashMap<>();
+		HashMap<String, LocalDate> res = new HashMap<>();
 
 		try {
 
@@ -317,10 +298,7 @@ public class TrimestreManager {
 			for (String id : ids) {
 
 				// récupération de la date de début
-				Calendar cal = Calendar.getInstance();
-				cal.setTime(DBManager.getInstance().getDateDebutFromTrimestre(id));
-
-				res.put(id, cal);
+				res.put(id, DBManager.getInstance().getDateDebutFromTrimestre(id));
 
 			}
 		} catch (Exception e) {
@@ -523,13 +501,13 @@ public class TrimestreManager {
 	 * @param numMois
 	 * @return
 	 */
-	public Date getDateDebut(int numMois) {
+	public LocalDate getDateDebut(int numMois) {
 
-		Date dat = null;
+		LocalDate dat = null;
 
 		if (_trimestreCourant.get() != null) {
 
-			dat = _trimestreCourant.get().getAppExerciceMensuel(numMois).get().getDateDebut().getTime();
+			dat = _trimestreCourant.get().getAppExerciceMensuel(numMois).get().getDateDebut();
 
 		}
 

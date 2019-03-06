@@ -3,7 +3,7 @@
  */
 package org.arthur.compta.lapin.model;
 
-import java.util.Calendar;
+import java.time.LocalDate;
 
 /**
  * Exerice comptable comprennant trois ExerciceMensuel.
@@ -26,14 +26,14 @@ public class Trimestre {
 
 	}
 
-	public Calendar getDateDebut() {
+	public LocalDate getDateDebut() {
 
 		return getExerciceMensuel()[0].getDateDebut();
 	}
 
 	// GETTER'N'SETTER -------------------------------------------------
 
-	public Calendar getDateFin() {
+	public LocalDate getDateFin() {
 		return getExerciceMensuel()[2].getDateDebut();
 	}
 

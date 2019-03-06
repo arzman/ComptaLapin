@@ -13,14 +13,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.time.LocalDate;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.arthur.compta.lapin.application.exception.ComptaException;
+import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.application.model.AppBudget;
 import org.arthur.compta.lapin.application.model.AppCompte;
 import org.arthur.compta.lapin.application.model.AppOperation;
@@ -28,6 +30,7 @@ import org.arthur.compta.lapin.application.model.AppTransfert;
 import org.arthur.compta.lapin.application.model.AppUtilisation;
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElement;
 import org.arthur.compta.lapin.dataaccess.files.FilesManager;
+import org.arthur.compta.lapin.model.Budget;
 import org.arthur.compta.lapin.model.operation.Operation;
 import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
@@ -73,8 +76,14 @@ public class DBManager {
 			// tentative de connexion à la base
 			_connexionDB = DriverManager.getConnection("jdbc:hsqldb:file:" + pathToDb + ";ifexists=true", "sa", "");
 
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			createDB(pathToDb);
+		}
+
+		// on met la base a jour ( si besoin)
+		if (Boolean
+				.valueOf(ConfigurationManager.getInstance().getProp("DBManager.checkupdate", Boolean.toString(true)))) {
+			DBUpdateService.checkUpdate(_connexionDB);
 		}
 
 	}
@@ -331,8 +340,8 @@ public class DBManager {
 		while (queryRes.next()) {
 			// parsing du résultat
 			res[0] = queryRes.getString("ID");
-			res[1] = ApplicationFormatter.databaseDateFormat.format(queryRes.getDate("date_debut"));
-			res[2] = ApplicationFormatter.databaseDateFormat.format(queryRes.getDate("date_fin"));
+			res[1] = ApplicationFormatter.databaseDateFormat.format(queryRes.getDate("date_debut").toLocalDate());
+			res[2] = ApplicationFormatter.databaseDateFormat.format(queryRes.getDate("date_fin").toLocalDate());
 			res[3] = String.valueOf(queryRes.getDouble("resultat_moyen_prevu"));
 
 		}
@@ -347,30 +356,30 @@ public class DBManager {
 	 * @param fin      date de fin
 	 * @param resPrevu : le gain moyen prévisionnel à la création
 	 * @return l'identifiant de l'exercice inséré
-	 * @throws SQLException Echec de l'insertion
+	 * @throws ComptaException Echec de l'insertion
 	 */
-	public String addExerciceMensuel(Calendar debut, Calendar fin, double resPrevu) throws SQLException {
+	public String addExerciceMensuel(LocalDate debut, LocalDate fin, double resPrevu)
+			throws SQLException, ComptaException {
 		String id = "";
 
 		// préparation de la requête
 		String query = "INSERT INTO EXERCICE_MENSUEL (date_debut,date_fin,resultat_moyen_prevu) VALUES (?,?,?);";
-		PreparedStatement stmt = getConnexion().prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-		stmt.setDate(1, new Date(debut.getTime().getTime()));
-		stmt.setDate(2, new Date(fin.getTime().getTime()));
-		stmt.setDouble(3, resPrevu);
+		try (PreparedStatement stmt = getConnexion().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+			stmt.setDate(1, Date.valueOf(debut));
+			stmt.setDate(2, Date.valueOf(fin));
+			stmt.setDouble(3, resPrevu);
 
-		// execution
-		executeUpdate(stmt);
+			// execution
+			executeUpdate(stmt);
 
-		// récupération de l'id en base du compte créé
-		ResultSet res = stmt.getGeneratedKeys();
-		if (res.getMetaData().getColumnCount() == 1 && res.next()) {
-			id = res.getString(1).trim();
+			// récupération de l'id en base du compte créé
+			ResultSet res = stmt.getGeneratedKeys();
+			if (res.getMetaData().getColumnCount() == 1 && res.next()) {
+				id = res.getString(1).trim();
+			}
+		} catch (Exception e) {
+			throw new ComptaException("Impossible d'ajouter un exercice mensuel", e);
 		}
-
-		// libération des ressources JDBC
-		stmt.close();
-		res.close();
 
 		return id;
 	}
@@ -428,7 +437,7 @@ public class DBManager {
 				// pas d'update, on insert
 				String query2 = "INSERT INTO CONFIGURATION (date_verif,ID_TRIMESTRE) VALUES (?,?);";
 				try (PreparedStatement stmt2 = getConnexion().prepareStatement(query2)) {
-					stmt2.setDate(1, new Date(Calendar.getInstance().getTime().getTime()));
+					stmt2.setDate(1, Date.valueOf(LocalDate.now()));
 					stmt2.setInt(2, Integer.parseInt(appId));
 					executeUpdate(stmt2);
 				} catch (Exception e) {
@@ -474,9 +483,9 @@ public class DBManager {
 	 * @return
 	 * @throws ComptaException Echec de la récupération
 	 */
-	public Date getDateDebutFromTrimestre(String id) throws ComptaException {
+	public LocalDate getDateDebutFromTrimestre(String id) throws ComptaException {
 
-		Date res = null;
+		LocalDate res = null;
 		// récupération de la date de début du premier exercice mensuel
 		String query = "SELECT date_debut FROM EXERCICE_MENSUEL E INNER JOIN TRIMESTRE T ON E.ID=T.premier_mois_id WHERE T.ID=? ;";
 
@@ -487,7 +496,7 @@ public class DBManager {
 
 			while (queryRes.next()) {
 				// parsing du résultat
-				res = queryRes.getDate("date_debut");
+				res = queryRes.getDate("date_debut").toLocalDate();
 			}
 
 		} catch (Exception e) {
@@ -824,7 +833,7 @@ public class DBManager {
 			// parse du resultat
 			while (queryRes.next()) {
 
-				res = ApplicationFormatter.databaseDateFormat.format(queryRes.getDate("date_verif"));
+				res = ApplicationFormatter.databaseDateFormat.format(queryRes.getDate("date_verif").toLocalDate());
 
 			}
 		} catch (Exception e) {
@@ -841,12 +850,12 @@ public class DBManager {
 	 * @param date
 	 * @throws ComptaException Echec de l'écriture en base
 	 */
-	public void setDateDerVerif(Calendar date) throws ComptaException {
+	public void setDateDerVerif(LocalDate date) throws ComptaException {
 
 		String query = "UPDATE CONFIGURATION SET date_verif=?;";
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 
-			stmt.setDate(1, new Date(date.getTime().getTime()));
+			stmt.setDate(1, Date.valueOf(date));
 			executeUpdate(stmt);
 		} catch (Exception e) {
 			throw new ComptaException("Impossible de mettre la date a jour", e);
@@ -935,7 +944,7 @@ public class DBManager {
 
 				elt[0] = queryRes.getString("nom");
 				elt[1] = queryRes.getString("montant");
-				elt[2] = ApplicationFormatter.databaseDateFormat.format(queryRes.getDate("date_debut"));
+				elt[2] = ApplicationFormatter.databaseDateFormat.format(queryRes.getDate("date_debut").toInstant());
 
 				res.put(queryRes.getString("ID"), elt);
 			}
@@ -958,7 +967,7 @@ public class DBManager {
 
 		HashMap<String, String[]> res = new HashMap<>();
 
-		String query = "SELECT 	ID,nom,objectif,utilise,priority FROM BUDGET WHERE is_actif=True;";
+		String query = "SELECT 	ID,nom,objectif,utilise,priority,label_recurrent,date_recurrent FROM BUDGET WHERE is_actif=True;";
 
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 
@@ -966,12 +975,15 @@ public class DBManager {
 
 			while (queryRes.next()) {
 				// parsing du résultat
-				String[] elt = new String[4];
+				String[] elt = new String[6];
 
 				elt[0] = queryRes.getString("nom");
 				elt[1] = String.valueOf(queryRes.getDouble("objectif"));
 				elt[2] = String.valueOf(queryRes.getDouble("utilise"));
 				elt[3] = String.valueOf(queryRes.getInt("priority"));
+				elt[4] = queryRes.getString("label_recurrent");
+				elt[5] = ApplicationFormatter.databaseDateFormat
+						.format(queryRes.getDate("date_recurrent").toLocalDate());
 
 				res.put(queryRes.getString("ID"), elt);
 			}
@@ -986,25 +998,30 @@ public class DBManager {
 	/**
 	 * Ajoute un budget dans la base de donnée
 	 * 
-	 * @param nom      le nom
-	 * @param objectif l'objectif
-	 * @param utilise  le montant utilise
-	 * @param isActif  est actif ?
+	 * @param nom            le nom
+	 * @param objectif       l'objectif
+	 * @param utilise        le montant utilise
+	 * @param isActif        est actif ?
+	 * @param dateRecurrent
+	 * @param labelRecurrent
 	 * @return l'id applicatif
 	 * @throws ComptaException Echec de l'ajout
 	 */
-	public String addBudget(String nom, double objectif, double utilise, boolean isActif, int priority)
-			throws ComptaException {
+	public String addBudget(String nom, double objectif, double utilise, boolean isActif, int priority,
+			String labelRecurrent, LocalDate dateRecurrent) throws ComptaException {
 		String id = "";
 
 		// préparation de la requête
-		String query = "INSERT INTO BUDGET (nom,objectif,utilise,is_actif,priority) VALUES (?,?,?,?,?);";
+		String query = "INSERT INTO BUDGET (nom,objectif,utilise,is_actif,priority,label_recurrent,date_recurrent) VALUES (?,?,?,?,?,?,?);";
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 			stmt.setString(1, nom);
 			stmt.setDouble(2, objectif);
 			stmt.setDouble(3, utilise);
 			stmt.setBoolean(4, isActif);
 			stmt.setInt(5, priority);
+			stmt.setString(6, labelRecurrent);
+			stmt.setDate(7, Date.valueOf(dateRecurrent));
+
 			// execution
 			executeUpdate(stmt);
 
@@ -1029,14 +1046,16 @@ public class DBManager {
 	public void updateBudget(AppBudget budget) throws ComptaException {
 
 		// préparation de la requête
-		String query = "UPDATE BUDGET SET nom=?,objectif=?,utilise=?,is_actif=?,priority=? WHERE ID = ?";
+		String query = "UPDATE BUDGET SET nom=?,objectif=?,utilise=?,is_actif=?,priority=?,label_recurrent=?,date_recurrent=? WHERE ID = ?";
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 			stmt.setString(1, budget.getNom());
 			stmt.setDouble(2, budget.getObjectif());
 			stmt.setDouble(3, budget.getMontantUtilise());
 			stmt.setBoolean(4, budget.isActif());
 			stmt.setInt(5, budget.getPriority());
-			stmt.setString(6, budget.getAppId());
+			stmt.setString(6, budget.getLabelRecurrent());
+			stmt.setDate(7, Date.valueOf(budget.getDateRecurrent()));
+			stmt.setInt(8, Integer.valueOf(budget.getAppId()));
 			// execution
 			executeUpdate(stmt);
 		} catch (Exception e) {
@@ -1054,7 +1073,7 @@ public class DBManager {
 	public void updateBudgets(List<AppBudget> budgets) throws ComptaException {
 
 		// préparation de la requête
-		String query = "UPDATE BUDGET SET nom=?,objectif=?,utilise=?,is_actif=?,priority=? WHERE ID = ?";
+		String query = "UPDATE BUDGET SET nom=?,objectif=?,utilise=?,is_actif=?,priority=?,label_recurrent=?,date_recurrent=? WHERE ID = ?";
 
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 
@@ -1065,7 +1084,9 @@ public class DBManager {
 				stmt.setDouble(3, budget.getMontantUtilise());
 				stmt.setBoolean(4, budget.isActif());
 				stmt.setInt(5, budget.getPriority());
-				stmt.setString(6, budget.getAppId());
+				stmt.setString(6, budget.getLabelRecurrent());
+				stmt.setDate(7, Date.valueOf(budget.getDateRecurrent()));
+				stmt.setInt(8, Integer.valueOf(budget.getAppId()));
 
 				stmt.addBatch();
 			}
@@ -1085,11 +1106,11 @@ public class DBManager {
 	 *         [nom,objectif,utilise,priority,is_actif]
 	 * @throws ComptaException Echec de la récupération
 	 */
-	public HashMap<String, String[]> getAllBudget() throws ComptaException {
+	public HashMap<String, Budget> getAllBudget() throws ComptaException {
 
-		HashMap<String, String[]> res = new HashMap<>();
+		HashMap<String, Budget> res = new HashMap<>();
 
-		String query = "SELECT ID,nom,objectif,utilise,priority,is_actif FROM BUDGET;";
+		String query = "SELECT ID,nom,objectif,utilise,priority,is_actif,label_recurrent,date_recurrent FROM BUDGET;";
 
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 
@@ -1097,19 +1118,21 @@ public class DBManager {
 
 			while (queryRes.next()) {
 				// parsing du résultat
-				String[] elt = new String[5];
+				Budget elt = new Budget();
 
-				elt[0] = queryRes.getString("nom");
-				elt[1] = String.valueOf(queryRes.getDouble("objectif"));
-				elt[2] = String.valueOf(queryRes.getDouble("utilise"));
-				elt[3] = String.valueOf(queryRes.getInt("priority"));
-				elt[4] = String.valueOf(queryRes.getInt("is_actif"));
+				elt.setNom(queryRes.getString("nom"));
+				elt.setObjectif(queryRes.getDouble("objectif"));
+				elt.setMontantUtilise(queryRes.getDouble("utilise"));
+				elt.setPriority(queryRes.getInt("priority"));
+				elt.setIsActif(queryRes.getBoolean("is_actif"));
+				elt.setLabelRecurrent(queryRes.getString("label_recurrent"));
+				elt.setDateRecurrent(queryRes.getDate("date_recurrent").toLocalDate());
 
 				res.put(queryRes.getString("ID"), elt);
 			}
 
 		} catch (Exception e) {
-			throw new ComptaException("Impossible de récupérer tous les comptes de la base");
+			throw new ComptaException("Impossible de récupérer tous les comptes de la base", e);
 		}
 
 		return res;
@@ -1124,7 +1147,7 @@ public class DBManager {
 	 * @param date   la date
 	 * @throws ComptaException
 	 */
-	public String addUtilisationForBudget(String budId, String nom, double montat, Calendar date)
+	public String addUtilisationForBudget(String budId, String nom, double montat, LocalDate date)
 			throws ComptaException {
 		String id = "";
 
@@ -1133,7 +1156,7 @@ public class DBManager {
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 			stmt.setString(1, nom);
 			stmt.setDouble(2, montat);
-			stmt.setDate(3, new Date(date.getTimeInMillis()));
+			stmt.setDate(3, Date.valueOf(date));
 			stmt.setInt(4, Integer.parseInt(budId));
 			// execution
 			executeUpdate(stmt);
@@ -1190,7 +1213,7 @@ public class DBManager {
 
 				elt[0] = queryRes.getString("nom");
 				elt[1] = String.valueOf(queryRes.getDouble("montant"));
-				elt[2] = ApplicationFormatter.databaseDateFormat.format(queryRes.getDate("date_util"));
+				elt[2] = ApplicationFormatter.databaseDateFormat.format(queryRes.getDate("date_util").toInstant());
 
 				res.put(queryRes.getString("ID"), elt);
 			}
@@ -1216,7 +1239,7 @@ public class DBManager {
 
 			stmt.setString(1, utilisation.getNom());
 			stmt.setDouble(2, utilisation.getMontant());
-			stmt.setDate(3, new Date(utilisation.getDate().getTimeInMillis()));
+			stmt.setDate(3, Date.valueOf(utilisation.getDate()));
 			stmt.setString(4, utilisation.getAppId());
 
 			// execution
@@ -1314,7 +1337,7 @@ public class DBManager {
 	 * @return
 	 * @throws ComptaException
 	 */
-	public List<Double> getOperationForMonth(String type, Calendar date) throws ComptaException {
+	public List<Double> getOperationForMonth(String type, LocalDate date) throws ComptaException {
 
 		ArrayList<Double> res = new ArrayList<>();
 
@@ -1322,7 +1345,7 @@ public class DBManager {
 
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 
-			stmt.setDate(1, new Date(date.getTimeInMillis()));
+			stmt.setDate(1, Date.valueOf(date));
 			stmt.setString(2, type);
 
 			ResultSet queryRes = executeQuery(stmt);
@@ -1340,20 +1363,19 @@ public class DBManager {
 		return res;
 	}
 
-	public List<Double> getBudgetUsageForMonth(Calendar date) throws ComptaException {
+	public List<Double> getBudgetUsageForMonth(LocalDate date) throws ComptaException {
 		ArrayList<Double> res = new ArrayList<>();
 
-		String query = "SELECT montant FROM UTILISATION WHERE date_util>=? AND date_util<=?;";
+		String query = "SELECT montant FROM UTILISATION WHERE date_util>=? AND date_util<?;";
 
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 
-			date.set(Calendar.DAY_OF_MONTH, 1);
-			stmt.setDate(1, new Date(date.getTimeInMillis()));
+			// on démarre au debut du mois
+			LocalDate deb = date.with(ChronoField.DAY_OF_MONTH, 1);
+			stmt.setDate(1, Date.valueOf(deb));
 
-			Calendar dateF = Calendar.getInstance();
-			dateF.set(date.get(Calendar.YEAR), date.get(Calendar.MONTH), date.getActualMaximum(Calendar.DAY_OF_MONTH),
-					23, 59, 59);
-			stmt.setDate(2, new Date(dateF.getTimeInMillis()));
+			// on termine a la fin
+			stmt.setDate(2, Date.valueOf(deb.plusMonths(1)));
 
 			ResultSet queryRes = executeQuery(stmt);
 
@@ -1420,6 +1442,7 @@ public class DBManager {
 
 	/**
 	 * Change l'exercice mensuel d'une opération
+	 * 
 	 * @param OpId
 	 * @param appEMId
 	 * @throws ComptaException
@@ -1466,6 +1489,70 @@ public class DBManager {
 
 		logger.debug(stmt.toString());
 		return stmt.executeQuery();
+
+	}
+
+	/**
+	 * Ferme la base de donnée
+	 */
+	public void closeDataBase() {
+
+		try (PreparedStatement pst = _connexionDB.prepareStatement("SHUTDOWN")) {
+			pst.execute();
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Retourne la liste des labels des budgets récurrent
+	 * 
+	 * @return
+	 * @throws ComptaException Problème en base
+	 */
+	public List<String> getLabelRecurrentList() throws ComptaException {
+
+		ArrayList<String> res = new ArrayList<>();
+
+		String query = "SELECT label FROM LABEL_BUDGET_RECURRENT";
+
+		try (PreparedStatement stmt = _connexionDB.prepareStatement(query)) {
+
+			ResultSet resSet = executeQuery(stmt);
+
+			while (resSet.next()) {
+
+				res.add(resSet.getString("label"));
+
+			}
+
+		} catch (SQLException e) {
+			throw new ComptaException("Impossible de récupérer les labels des budgets récurrents", e);
+		}
+
+		return res;
+	}
+
+	/**
+	 * Ajoute un label de budget recurrent dans la base
+	 * 
+	 * @param labelRec
+	 * @throws ComptaException
+	 */
+	public void addLabelRecurrent(String labelRec) throws ComptaException {
+
+		String query = "INSERT INTO LABEL_BUDGET_RECURRENT (label) VALUES (?) ;";
+		try (PreparedStatement stmt = _connexionDB.prepareStatement(query)) {
+
+			stmt.setString(1, labelRec);
+			executeUpdate(stmt);
+
+		} catch (SQLException e) {
+			throw new ComptaException("Impossible d'ajouter le label des budgets récurrents", e);
+		}
 
 	}
 

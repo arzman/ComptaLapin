@@ -1,5 +1,6 @@
 package org.arthur.compta.lapin.application.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -199,7 +200,7 @@ public class OperationService {
 
 				String[] info = infos.get(idOp);
 				OperationSearchResult opRes = new OperationSearchResult(info[0], Double.parseDouble(info[1]),
-						ApplicationFormatter.databaseDateFormat.parse(info[2]));
+						LocalDate.parse(info[2],ApplicationFormatter.databaseDateFormat));
 				res.add(opRes);
 
 			}

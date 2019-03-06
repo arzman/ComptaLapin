@@ -1,7 +1,7 @@
 package org.arthur.compta.lapin.model;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import org.arthur.compta.lapin.model.operation.EtatOperation;
@@ -33,11 +33,11 @@ public class ExerciceMensuel implements Comparable<ExerciceMensuel> {
 	/**
 	 * Date de début de l'exercice
 	 */
-	private Calendar _dateDebut;
+	private LocalDate _dateDebut;
 	/**
 	 * Date de fin de l'exercice
 	 */
-	private Calendar _dateFin;
+	private LocalDate _dateFin;
 	/** Le résultat prévisionnel à la création */
 	private double _resPrev;
 
@@ -56,10 +56,8 @@ public class ExerciceMensuel implements Comparable<ExerciceMensuel> {
 	/**
 	 * Ajoute une dépense.
 	 * 
-	 * @param nom
-	 *            le nom de la dépense
-	 * @param montant
-	 *            le montant de la dépense
+	 * @param nom     le nom de la dépense
+	 * @param montant le montant de la dépense
 	 * @return true si l'ajout a été effectué false sinon
 	 */
 	public boolean ajouterDepense(String nom, double montant, Compte compte) {
@@ -71,12 +69,9 @@ public class ExerciceMensuel implements Comparable<ExerciceMensuel> {
 	/**
 	 * Ajoute une ressource.
 	 * 
-	 * @param nom_
-	 *            le nom de la ressource
-	 * @param montant_
-	 *            le montant de la ressource
-	 * @param compte
-	 *            le compte
+	 * @param nom_     le nom de la ressource
+	 * @param montant_ le montant de la ressource
+	 * @param compte   le compte
 	 * @return true si l'ajout a été effectué false sinon
 	 */
 	public boolean ajouterRessource(String nom, double montant, Compte compte) {
@@ -89,14 +84,10 @@ public class ExerciceMensuel implements Comparable<ExerciceMensuel> {
 	/**
 	 * Ajoute un transfert.
 	 * 
-	 * @param nom
-	 *            le nom de la ressource
-	 * @param montant
-	 *            le montant de la ressource
-	 * @param compteSource
-	 *            le compte source
-	 * @param compteCible
-	 *            le compte cible
+	 * @param nom          le nom de la ressource
+	 * @param montant      le montant de la ressource
+	 * @param compteSource le compte source
+	 * @param compteCible  le compte cible
 	 * @return true si l'ajout a été effectué false sinon
 	 */
 	public boolean ajouterTransfert(String nom, double montant, Compte compteSource, Compte compteCible) {
@@ -117,11 +108,11 @@ public class ExerciceMensuel implements Comparable<ExerciceMensuel> {
 
 	// GETTER'N'SETTER -----------------------
 
-	public Calendar getDateDebut() {
+	public LocalDate getDateDebut() {
 		return _dateDebut;
 	}
 
-	public Calendar getDateFin() {
+	public LocalDate getDateFin() {
 		return _dateFin;
 	}
 
@@ -146,35 +137,32 @@ public class ExerciceMensuel implements Comparable<ExerciceMensuel> {
 		return _transfertList;
 	}
 
-	public void setDateDebut(Calendar dateDebut) {
+	public void setDateDebut(LocalDate dateDebut) {
 
 		_dateDebut = dateDebut;
 	}
 
-	public void setDateFin(Calendar dateFin) {
+	public void setDateFin(LocalDate dateFin) {
 		_dateFin = dateFin;
 
 	}
 
 	/**
-	 * @param depensesList
-	 *            the depensesList to set
+	 * @param depensesList the depensesList to set
 	 */
 	public void setDepensesList(List<Operation> depensesList) {
 		_depensesList = depensesList;
 	}
 
 	/**
-	 * @param _ressourcesList
-	 *            the _ressourcesList to set
+	 * @param _ressourcesList the _ressourcesList to set
 	 */
 	public void setRessourcesList(List<Operation> _ressourcesList) {
 		this._ressourcesList = _ressourcesList;
 	}
 
 	/**
-	 * @param transfertList
-	 *            the transfertList to set
+	 * @param transfertList the transfertList to set
 	 */
 	public void setTransfertList(List<TransfertOperation> transfertList) {
 		_transfertList = transfertList;

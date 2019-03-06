@@ -1,6 +1,6 @@
 package org.arthur.compta.lapin.presentation.menu;
 
-import java.util.Calendar;
+import java.time.LocalDate;
 import java.util.Optional;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
@@ -8,6 +8,7 @@ import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.application.service.ComptaService;
 import org.arthur.compta.lapin.presentation.budget.dialog.ConfigBudgetDialog;
 import org.arthur.compta.lapin.presentation.budget.dialog.EditBudgetDialog;
+import org.arthur.compta.lapin.presentation.budget.dialog.VisiBudgetDialog;
 import org.arthur.compta.lapin.presentation.common.dialog.DateDialog;
 import org.arthur.compta.lapin.presentation.compte.dialog.EditCompteDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
@@ -225,7 +226,7 @@ public class ComptaMenuBar extends MenuBar {
 		budMenu.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.BUDGET_IMG)));
 		getMenus().add(budMenu);
 
-		// ajout de l'action créé trimestre
+		// ajout de l'action créé budget
 		MenuItem addItem = new MenuItem("Créer un budget");
 		addItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.ADD_IMG)));
 		addItem.setOnAction(new EventHandler<ActionEvent>() {
@@ -256,6 +257,21 @@ public class ComptaMenuBar extends MenuBar {
 			}
 		});
 		budMenu.getItems().add(gestItem);
+
+		// configuration des budget
+		MenuItem visiItem = new MenuItem("Visualiser les budgets");
+		visiItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.CYCLE_IMG)));
+		visiItem.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				// ouverture de la fenêtre de configuration
+				VisiBudgetDialog dia = new VisiBudgetDialog();
+				dia.showAndWait();
+
+			}
+		});
+		budMenu.getItems().add(visiItem);
 
 	}
 
@@ -308,7 +324,7 @@ public class ComptaMenuBar extends MenuBar {
 					try {
 						// positionne la date de derniere verification à la date
 						// courant
-						ComptaService.setDateDerVerif(Calendar.getInstance());
+						ComptaService.setDateDerVerif(LocalDate.now());
 						datMenu.setText("Vérif : " + ComptaService.getDateDerVerif());
 					} catch (ComptaException e) {
 						ExceptionDisplayService.showException(e);
@@ -330,7 +346,7 @@ public class ComptaMenuBar extends MenuBar {
 						// ouverture de la fenetre de choix de date
 						DateDialog dia = new DateDialog(null);
 						// récupération du choix
-						Optional<Calendar> res = dia.showAndWait();
+						Optional<LocalDate> res = dia.showAndWait();
 
 						if (res.isPresent()) {
 							// positionnement de la nouvelle date

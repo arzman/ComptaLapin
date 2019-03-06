@@ -1,8 +1,5 @@
 package org.arthur.compta.lapin.presentation.budget.dialog;
 
-import java.sql.Date;
-import java.util.Calendar;
-
 import org.arthur.compta.lapin.application.manager.BudgetManager;
 import org.arthur.compta.lapin.application.model.AppBudget;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
@@ -24,8 +21,7 @@ public class UseBudgetDialog extends ComptaDialog<ButtonData> {
 	/** Le budget */
 	private AppBudget _budget;
 
-	/** Le bouton OK */
-	private ButtonType _buttonTypeOk;
+
 	/** champ de saisie du montant */
 	private TextField _montantTxt;
 	/** champ de saisie du libelle */
@@ -71,9 +67,6 @@ public class UseBudgetDialog extends ComptaDialog<ButtonData> {
 		// ajout de l'écoute sur la modif des entrées
 		hookListener();
 
-		// création des boutons
-		createButtonBar();
-
 		// vérif initiale
 		checkInput();
 
@@ -84,12 +77,9 @@ public class UseBudgetDialog extends ComptaDialog<ButtonData> {
 
 				if (param == _buttonTypeOk) {
 
-					Calendar date = Calendar.getInstance();
-					date.setTime(Date.valueOf(_datePck.getValue()));
-
 					try {
 						BudgetManager.getInstance().addUtilisationForBudget(_budget, _nomTxt.getText().trim(),
-								Double.parseDouble(_montantTxt.getText().trim()), date);
+								Double.parseDouble(_montantTxt.getText().trim()), _datePck.getValue());
 					} catch (Exception e) {
 						ExceptionDisplayService.showException(e);
 					}
@@ -162,10 +152,8 @@ public class UseBudgetDialog extends ComptaDialog<ButtonData> {
 	/**
 	 * Création des boutons
 	 */
-	private void createButtonBar() {
-		// bouton ok
-		_buttonTypeOk = new ButtonType("Ok", ButtonData.OK_DONE);
-		getDialogPane().getButtonTypes().add(_buttonTypeOk);
+	protected void createButtonBar() {
+		// bouton close
 		ButtonType close = new ButtonType("Fermer", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(close);
 

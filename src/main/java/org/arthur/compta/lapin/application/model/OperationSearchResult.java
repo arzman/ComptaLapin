@@ -1,7 +1,6 @@
 package org.arthur.compta.lapin.application.model;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDate;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -18,28 +17,24 @@ public class OperationSearchResult {
 	/** Le montant de l'opération */
 	private SimpleDoubleProperty _montantProp;
 	/** Le mois de l'opération */
-	private SimpleObjectProperty<Calendar> _moisProp;
+	private SimpleObjectProperty<LocalDate> _moisProp;
 
 	/**
 	 * Constructeur
 	 * 
-	 * @param libelle
-	 *            le libelle
-	 * @param montant
-	 *            le montant
-	 * @param date
-	 *            le mois
+	 * @param libelle le libelle
+	 * @param montant le montant
+	 * @param date    le mois
 	 */
-	public OperationSearchResult(String libelle, double montant, Date date) {
+	public OperationSearchResult(String libelle, double montant, LocalDate date) {
 
 		// positionnement du libelle
 		_libelleProp = new SimpleStringProperty(libelle);
 		// positionnement du montant
 		_montantProp = new SimpleDoubleProperty(montant);
 		// positionnement du mois
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
-		_moisProp = new SimpleObjectProperty<Calendar>(cal);
+		LocalDate cal = LocalDate.now();
+		_moisProp = new SimpleObjectProperty<LocalDate>(cal);
 	}
 
 	/**
@@ -66,7 +61,7 @@ public class OperationSearchResult {
 	 * 
 	 * @return
 	 */
-	public SimpleObjectProperty<Calendar> getMoisProperty() {
+	public SimpleObjectProperty<LocalDate> getMoisProperty() {
 		return _moisProp;
 	}
 

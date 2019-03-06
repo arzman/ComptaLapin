@@ -17,13 +17,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
-import javafx.scene.paint.Color;
 import javafx.util.Callback;
 
 /**
@@ -34,10 +28,6 @@ public class EditTemplateEltDialog extends ComptaDialog<TrimestreTemplateElement
 
 	/** L'élément de template */
 	private TrimestreTemplateElement _templateElt;
-
-	/** La bordure rouge en cas d'erreur de saisi */
-	private final Border BORDER_ERROR = new Border(
-			new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1)));
 
 	/** champ de saisie du nom */
 	private TextField _nomTxt;
@@ -59,8 +49,7 @@ public class EditTemplateEltDialog extends ComptaDialog<TrimestreTemplateElement
 	/**
 	 * Constructeur
 	 * 
-	 * @param elt
-	 *            l'element a éditer , null si création
+	 * @param elt l'element a éditer , null si création
 	 */
 	public EditTemplateEltDialog(TrimestreTemplateElement elt) {
 
@@ -76,8 +65,7 @@ public class EditTemplateEltDialog extends ComptaDialog<TrimestreTemplateElement
 
 		// création des zones de saisie
 		createContent();
-		// création des bouton ok/cancel
-		createButtonBar();
+
 		// initialisation des valeurs
 		initValues();
 		// mise en place des listener sur les modifications
@@ -213,18 +201,15 @@ public class EditTemplateEltDialog extends ComptaDialog<TrimestreTemplateElement
 	/**
 	 * Création des boutons
 	 */
-	private void createButtonBar() {
-		// bouton ok
-		_okButton = new ButtonType("Ok", ButtonData.OK_DONE);
-		getDialogPane().getButtonTypes().add(_okButton);
+	protected void createButtonBar() {
 		// bouton annuler
 		ButtonType cancelButton = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(cancelButton);
 	}
 
 	/**
-	 * Affecte des écouteurs de modification sur les champs de saisie. Ces
-	 * écouteurs déclenchent la vérification de la saisie
+	 * Affecte des écouteurs de modification sur les champs de saisie. Ces écouteurs
+	 * déclenchent la vérification de la saisie
 	 */
 	private void hookListeners() {
 		// nom

@@ -1,6 +1,6 @@
 package org.arthur.compta.lapin.application.model;
 
-import java.util.Calendar;
+import java.time.LocalDate;
 
 import org.arthur.compta.lapin.model.Utilisation;
 
@@ -19,15 +19,14 @@ public class AppUtilisation extends AppObject {
 	/** Le libellé */
 	private SimpleStringProperty _nomProp;
 	/** La date */
-	private SimpleObjectProperty<Calendar> _dateProp;
+	private SimpleObjectProperty<LocalDate> _dateProp;
 	/** Le montant */
 	private SimpleDoubleProperty _montantProp;
 
 	/**
 	 * Constructeur
 	 * 
-	 * @param utilisation
-	 *            utilisation métier
+	 * @param utilisation utilisation métier
 	 */
 	public AppUtilisation(Utilisation utilisation) {
 
@@ -51,7 +50,7 @@ public class AppUtilisation extends AppObject {
 	 * 
 	 * @return
 	 */
-	public SimpleObjectProperty<Calendar> dateProperty() {
+	public SimpleObjectProperty<LocalDate> dateProperty() {
 		return _dateProp;
 	}
 
@@ -91,7 +90,7 @@ public class AppUtilisation extends AppObject {
 	 * 
 	 * @param date
 	 */
-	public void setDate(Calendar date) {
+	public void setDate(LocalDate date) {
 		_dateProp.set(date);
 		_utilisation.setDate(date);
 
@@ -120,7 +119,7 @@ public class AppUtilisation extends AppObject {
 	 * 
 	 * @return
 	 */
-	public Calendar getDate() {
+	public LocalDate getDate() {
 		return _dateProp.get();
 	}
 

@@ -14,6 +14,13 @@ import java.util.TreeSet;
 
 import org.arthur.compta.lapin.dataaccess.files.FilesManager;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.TreeTableView;
+
 public class ConfigurationManager {
 
 	/**
@@ -110,6 +117,54 @@ public class ConfigurationManager {
 	 */
 	public String getProp(String key, String defaultValue) {
 		return _config.getProperty(key, defaultValue);
+	}
+
+	/**
+	 * Restaure et sauve les largeurs des colonnes d'un tableau
+	 * 
+	 * @param table  le tableau
+	 * @param prefix prefix pour sauvegarder les paramètres
+	 */
+	public void setPrefColumnWidth(TableView<?> table, String prefix) {
+
+		// restitution des largeur de colonnes
+		for (TableColumn<?, ?> col : table.getColumns()) {
+
+			col.widthProperty().addListener(new ChangeListener<Number>() {
+
+				@Override
+				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+					setProp(prefix + "." + col.getId(), String.valueOf(newValue));
+
+				}
+			});
+			col.setPrefWidth(Double.parseDouble(getProp(prefix + "." + col.getId(), "50")));
+		}
+
+	}
+
+	/**
+	 * Restaure et sauve les largeurs des colonnes d'un tableau-arbre
+	 * 
+	 * @param tree   l'arbre
+	 * @param prefix le prefic pour la sauvegarde des largeurs
+	 */
+	public void setPrefColumnWidth(TreeTableView<?> tree, String prefix) {
+
+		// restitution des largeur de colonnes
+		for (TreeTableColumn<?, ?> col : tree.getColumns()) {
+
+			col.widthProperty().addListener(new ChangeListener<Number>() {
+
+				@Override
+				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+					setProp(prefix + col.getId(), String.valueOf(newValue));
+
+				}
+			});
+			col.setPrefWidth(Double.parseDouble(getProp(prefix + col.getId(), "50")));
+		}
+
 	}
 
 }

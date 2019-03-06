@@ -1,6 +1,6 @@
 package org.arthur.compta.lapin.application.service;
 
-import java.util.Calendar;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 
@@ -66,10 +66,8 @@ public class TemplateService {
 	/**
 	 * Ajoute les opérations du template au mois
 	 * 
-	 * @param exMen
-	 *            l'exercice mensuel
-	 * @param num
-	 *            l'indice du mois dans le trimestre
+	 * @param exMen l'exercice mensuel
+	 * @param num   l'indice du mois dans le trimestre
 	 * @return
 	 * @throws ComptaException
 	 */
@@ -85,16 +83,16 @@ public class TemplateService {
 			if (elt.getFreq().equals(TrimestreTemplateElementFrequence.HEBDOMADAIRE)) {
 
 				// on se place au début du mois
-				final Calendar cal = Calendar.getInstance();
-				cal.set(exMen.getDateDebut().get(Calendar.YEAR), exMen.getDateDebut().get(Calendar.MONTH), 1);
+				LocalDate deb = LocalDate.of(exMen.getDateDebut().getYear(), exMen.getDateDebut().getMonthValue(), 1);
 
-				for (int j = 0; j < cal.getActualMaximum(Calendar.DAY_OF_MONTH); j++) {
+				for (int j = 0; j < deb.lengthOfMonth(); j++) {
 
-					cal.roll(Calendar.DAY_OF_MONTH, 1);
 					// on obtient tombe sur le jour
-					if (cal.get(Calendar.DAY_OF_WEEK) == elt.getOccurence()) {
+					if (deb.getDayOfWeek().getValue() == elt.getOccurence()) {
 						count++;
 					}
+
+					deb=deb.plusDays(1);
 
 				}
 			}
@@ -122,13 +120,10 @@ public class TemplateService {
 	}
 
 	/**
-	 * Crée et ajoute une opération dans l'exercice depuis un élément de
-	 * template
+	 * Crée et ajoute une opération dans l'exercice depuis un élément de template
 	 * 
-	 * @param exMen
-	 *            l'exercice
-	 * @param elt
-	 *            l'element
+	 * @param exMen l'exercice
+	 * @param elt   l'element
 	 * @throws ComptaException
 	 */
 	private static void createOperationFromTmpElt(AppExerciceMensuel exMen, TrimestreTemplateElement elt)
@@ -182,8 +177,7 @@ public class TemplateService {
 	 * Met à jour le modèle de trimestre
 	 * 
 	 * @param elementList
-	 * @throws ComptaException
-	 *             Echec
+	 * @throws ComptaException Echec
 	 */
 	public static void updateTrimestreTemplate(List<TrimestreTemplateElement> elementList) throws ComptaException {
 

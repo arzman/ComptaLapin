@@ -1,6 +1,6 @@
 package org.arthur.compta.lapin.presentation.trimestre.dialog;
 
-import java.util.Calendar;
+import java.time.LocalDate;
 import java.util.HashMap;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
@@ -19,13 +19,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
-import javafx.scene.paint.Color;
 import javafx.util.Callback;
 
 /**
@@ -33,11 +27,6 @@ import javafx.util.Callback;
  *
  */
 public class SelectExerciceMensuelDialog extends ComptaDialog<AppExerciceMensuelLightId> {
-
-	/**
-	 * Bouton ok
-	 */
-	private ButtonType _buttonTypeOk;
 
 	/**
 	 * Liste des trimestres
@@ -48,10 +37,6 @@ public class SelectExerciceMensuelDialog extends ComptaDialog<AppExerciceMensuel
 	 * Combo de sélection du mois
 	 */
 	private ComboBox<Integer> _moisCombo;
-
-	/** La bordure rouge en cas d'erreur de saisi */
-	private final Border BORDER_ERROR = new Border(
-			new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1)));
 
 	public SelectExerciceMensuelDialog() {
 		super(SelectExerciceMensuelDialog.class.getSimpleName());
@@ -85,7 +70,7 @@ public class SelectExerciceMensuelDialog extends ComptaDialog<AppExerciceMensuel
 		_listV.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
 		try {
-			HashMap<String, Calendar> _resumeTrimestre = TrimestreManager.getInstance().getAllTrimestreShortList();
+			HashMap<String, LocalDate> _resumeTrimestre = TrimestreManager.getInstance().getAllTrimestreShortList();
 			_trimDdList.addAll(_resumeTrimestre.keySet());
 			// callback permettant de customiser l'affichage
 			_listV.setCellFactory(new TrimestreListCellFactory(_resumeTrimestre));

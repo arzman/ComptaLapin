@@ -1,8 +1,6 @@
 package org.arthur.compta.lapin.presentation.common.dialog;
 
-import java.sql.Date;
 import java.time.LocalDate;
-import java.util.Calendar;
 
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 
@@ -15,9 +13,9 @@ import javafx.util.Callback;
 /**
  * Fenetre permettant de choisr une date
  */
-public class DateDialog extends ComptaDialog<Calendar> {
+public class DateDialog extends ComptaDialog<LocalDate> {
 
-	public DateDialog(Calendar date) {
+	public DateDialog(LocalDate date) {
 
 		super(DateDialog.class.getSimpleName());
 
@@ -26,8 +24,7 @@ public class DateDialog extends ComptaDialog<Calendar> {
 		DatePicker datPick = new DatePicker();
 
 		if (date != null) {
-			datPick.setValue(
-					LocalDate.of(date.get(Calendar.YEAR), date.get(Calendar.MONTH)+1, date.get(Calendar.DAY_OF_MONTH)));
+			datPick.setValue(date);
 		} else {
 
 			datPick.setValue(LocalDate.now());
@@ -44,16 +41,15 @@ public class DateDialog extends ComptaDialog<Calendar> {
 		getDialogPane().getButtonTypes().add(cancelButton);
 
 		// crée ou édite l'élement de template après appuis sur Ok
-		setResultConverter(new Callback<ButtonType, Calendar>() {
+		setResultConverter(new Callback<ButtonType, LocalDate>() {
 
 			@Override
-			public Calendar call(ButtonType param) {
+			public LocalDate call(ButtonType param) {
 
-				Calendar deb = null;
+				LocalDate deb = null;
 
 				if (param == _okButton) {
-					deb = Calendar.getInstance();
-					deb.setTime(Date.valueOf(datPick.getValue()));
+					deb = datPick.getValue();
 
 				}
 

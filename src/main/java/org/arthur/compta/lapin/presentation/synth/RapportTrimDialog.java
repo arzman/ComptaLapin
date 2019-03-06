@@ -1,7 +1,7 @@
 package org.arthur.compta.lapin.presentation.synth;
 
 import java.io.File;
-import java.util.Calendar;
+import java.time.LocalDate;
 import java.util.HashMap;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
@@ -57,7 +57,7 @@ public class RapportTrimDialog extends ComptaDialog<ButtonData> {
 		try {
 			// récupération des trimestres de l'application ainsi que leur date
 			// de début
-			HashMap<String, Calendar> _resumeTrimestre = TrimestreManager.getInstance().getAllTrimestreShortList();
+			HashMap<String, LocalDate> _resumeTrimestre = TrimestreManager.getInstance().getAllTrimestreShortList();
 
 			// Création de la liste des trimestres à afficher
 			_trimDdList = FXCollections.observableArrayList();

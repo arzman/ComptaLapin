@@ -1,6 +1,6 @@
 package org.arthur.compta.lapin.application.model;
 
-import java.util.Calendar;
+import java.time.LocalDate;
 
 import org.arthur.compta.lapin.model.Trimestre;
 
@@ -35,8 +35,7 @@ public class AppTrimestre extends AppObject {
 	/**
 	 * Constructeur
 	 * 
-	 * @param trimestre
-	 *            le trimestre a encapsuler
+	 * @param trimestre le trimestre a encapsuler
 	 */
 	public AppTrimestre(Trimestre trimestre) {
 
@@ -126,19 +125,17 @@ public class AppTrimestre extends AppObject {
 	 * 
 	 * @return
 	 */
-	public Calendar getDateDebut() {
+	public LocalDate getDateDebut() {
 
 		return _trimeste.getDateDebut();
 	}
 
 	/**
-	 * Positionne un exercice mensuel applicatif par sa position. 0 = premier
-	 * mois , 1 = deuxieme mois , 2 = troisieme mois
+	 * Positionne un exercice mensuel applicatif par sa position. 0 = premier mois ,
+	 * 1 = deuxieme mois , 2 = troisieme mois
 	 * 
-	 * @param i
-	 *            position
-	 * @param appEm
-	 *            l'exercice applicatif
+	 * @param i     position
+	 * @param appEm l'exercice applicatif
 	 */
 	public void setAppExerciceMensuel(int i, AppExerciceMensuel appEm) {
 
@@ -185,7 +182,7 @@ public class AppTrimestre extends AppObject {
 	 * 
 	 * @return
 	 */
-	public Calendar getDateFin() {
+	public LocalDate getDateFin() {
 		return _trimeste.getDateFin();
 	}
 

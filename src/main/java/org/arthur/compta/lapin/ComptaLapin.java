@@ -29,6 +29,8 @@ import javafx.stage.WindowEvent;
  *
  */
 public class ComptaLapin extends Application {
+	
+	
 	public static void main(String[] args) {
 
 		// lancement de l'ihm

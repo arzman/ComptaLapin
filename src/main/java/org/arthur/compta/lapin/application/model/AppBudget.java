@@ -1,11 +1,14 @@
 package org.arthur.compta.lapin.application.model;
 
+import java.time.LocalDate;
+
 import org.arthur.compta.lapin.model.Budget;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 public class AppBudget extends AppObject {
@@ -31,6 +34,10 @@ public class AppBudget extends AppObject {
 	private SimpleIntegerProperty _priorityProp;
 	/** si le budget est terminé */
 	private SimpleBooleanProperty _isTermine;
+	/** Libellé du budget récurrent (peut être vide) */
+	private SimpleStringProperty _labelRecurrentProp;
+	/** Date du budget récurrent (peut être nulle) */
+	private SimpleObjectProperty<LocalDate> _dateRecurrentProp;
 
 	/**
 	 * Consructeur par défaut
@@ -45,6 +52,8 @@ public class AppBudget extends AppObject {
 		_montantUtiliseProp = new SimpleDoubleProperty(budget.getMontantUtilise());
 		_isActifProp = new SimpleBooleanProperty(budget.isActif());
 		_priorityProp = new SimpleIntegerProperty(budget.getPriority());
+		_labelRecurrentProp = new SimpleStringProperty(budget.getLabelRecurrent());
+		_dateRecurrentProp = new SimpleObjectProperty<LocalDate>(budget.getDateRecurrent());
 
 		// a calculer par l'application
 		_avancementProp = new SimpleDoubleProperty();
@@ -263,6 +272,44 @@ public class AppBudget extends AppObject {
 	public boolean isTermine() {
 
 		return _isTermine.get();
+	}
+
+	/**
+	 * Retourne vrai si le budget est récurrent
+	 * 
+	 * @return
+	 */
+	public boolean isRecurrent() {
+		return !getLabelRecurrent().isEmpty();
+	}
+
+	/**
+	 * Retourne le labelle récurrent
+	 * 
+	 * @return
+	 */
+	public String getLabelRecurrent() {
+		return _labelRecurrentProp.get();
+	}
+
+	/**
+	 * Retourne la date récurrente
+	 * 
+	 * @return
+	 */
+	public LocalDate getDateRecurrent() {
+
+		return _dateRecurrentProp.get();
+	}
+
+	public void setLabelerecurrent(String labelRecurrent) {
+		_labelRecurrentProp.set(labelRecurrent);
+
+	}
+
+	public void setDateReccurent(LocalDate dateRecurrent) {
+		_dateRecurrentProp.setValue(dateRecurrent);
+
 	}
 
 }

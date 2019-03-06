@@ -1,6 +1,6 @@
 package org.arthur.compta.lapin.presentation.budget.dialog;
 
-import java.util.Calendar;
+import java.time.LocalDate;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.BudgetManager;
@@ -69,8 +69,6 @@ public class HistoryBudgetDialog extends ComptaDialog<ButtonData> {
 		// création du menu contextuel
 		createCtxMenu();
 
-		// creation des bouton
-		createButtonBar();
 
 	}
 
@@ -127,7 +125,7 @@ public class HistoryBudgetDialog extends ComptaDialog<ButtonData> {
 		colnom.setCellValueFactory(value -> value.getValue().nomProperty());
 
 		// la colonne de la date
-		TableColumn<AppUtilisation, Calendar> colDate = new TableColumn<>("Date");
+		TableColumn<AppUtilisation, LocalDate> colDate = new TableColumn<>("Date");
 		colDate.setResizable(true);
 		colDate.setSortable(true);
 		_table.getColumns().add(colDate);
@@ -198,7 +196,7 @@ public class HistoryBudgetDialog extends ComptaDialog<ButtonData> {
 	/**
 	 * Création des boutons
 	 */
-	private void createButtonBar() {
+	protected void createButtonBar() {
 		// bouton fermer
 		ButtonType close = new ButtonType("Fermer", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(close);

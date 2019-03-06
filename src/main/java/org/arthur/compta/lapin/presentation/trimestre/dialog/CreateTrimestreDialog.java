@@ -1,8 +1,5 @@
 package org.arthur.compta.lapin.presentation.trimestre.dialog;
 
-import java.sql.Date;
-import java.util.Calendar;
-
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.application.model.AppTrimestre;
@@ -13,21 +10,11 @@ import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
-import javafx.scene.paint.Color;
 import javafx.util.Callback;
 
 public class CreateTrimestreDialog extends ComptaDialog<AppTrimestre> {
 
-	/**
-	 * Bouton ok
-	 */
-	private ButtonType _buttonTypeOk;
 	/**
 	 * Bouton ok et charger le trimestre
 	 */
@@ -36,12 +23,6 @@ public class CreateTrimestreDialog extends ComptaDialog<AppTrimestre> {
 	 * Saisie de la date de début
 	 */
 	private DatePicker _dpick;
-
-	/**
-	 * La bordure rouge en cas d'erreur de saisie
-	 */
-	private final Border BORDER_ERROR = new Border(
-			new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1)));
 
 	public CreateTrimestreDialog() {
 		super(CreateTrimestreDialog.class.getSimpleName());
@@ -104,11 +85,8 @@ public class CreateTrimestreDialog extends ComptaDialog<AppTrimestre> {
 				if (param.getButtonData().equals(ButtonData.OK_DONE)) {
 
 					try {
-						// recup de la date de début
-						Calendar deb = Calendar.getInstance();
-						deb.setTime(Date.valueOf(_dpick.getValue()));
 						// création
-						zeReturn = TrimestreManager.getInstance().createTrimestre(deb);
+						zeReturn = TrimestreManager.getInstance().createTrimestre(_dpick.getValue());
 
 					} catch (ComptaException e) {
 						ExceptionDisplayService.showException(e);
@@ -117,15 +95,13 @@ public class CreateTrimestreDialog extends ComptaDialog<AppTrimestre> {
 
 				}
 
-				// appuie sur Ok : on crée le trimestre
+				// appuie sur Apply : on crée le trimestre et on charge
 				if (param.getButtonData().equals(ButtonData.APPLY)) {
 
 					try {
-						// recup de la date de début
-						Calendar deb = Calendar.getInstance();
-						deb.setTime(Date.valueOf(_dpick.getValue()));
+
 						// création
-						zeReturn = TrimestreManager.getInstance().createTrimestre(deb);
+						zeReturn = TrimestreManager.getInstance().createTrimestre(_dpick.getValue());
 
 						// changement de trimestre courant
 						TrimestreManager.getInstance().loadTrimestreCourant(zeReturn.getAppId());

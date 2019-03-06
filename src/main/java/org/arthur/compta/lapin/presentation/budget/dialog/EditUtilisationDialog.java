@@ -1,9 +1,5 @@
 package org.arthur.compta.lapin.presentation.budget.dialog;
 
-import java.sql.Date;
-import java.time.LocalDate;
-import java.util.Calendar;
-
 import org.arthur.compta.lapin.application.manager.BudgetManager;
 import org.arthur.compta.lapin.application.model.AppUtilisation;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
@@ -25,8 +21,7 @@ public class EditUtilisationDialog extends ComptaDialog<ButtonData> {
 	/** Le budget */
 	private AppUtilisation _utilisation;
 
-	/** Le bouton OK */
-	private ButtonType _buttonTypeOk;
+
 	/** champ de saisie du montant */
 	private TextField _montantTxt;
 	/** champ de saisie du libelle */
@@ -72,8 +67,6 @@ public class EditUtilisationDialog extends ComptaDialog<ButtonData> {
 		// ajout de l'écoute sur la modif des entrées
 		hookListener();
 
-		// création des boutons
-		createButtonBar();
 
 		// initialisation des valeurs
 		initValue();
@@ -88,12 +81,9 @@ public class EditUtilisationDialog extends ComptaDialog<ButtonData> {
 
 				if (param == _buttonTypeOk) {
 
-					Calendar date = Calendar.getInstance();
-					date.setTime(Date.valueOf(_datePck.getValue()));
-
 					try {
 						BudgetManager.getInstance().editUtilisation(_utilisation, _nomTxt.getText().trim(),
-								Double.parseDouble(_montantTxt.getText().trim()), date);
+								Double.parseDouble(_montantTxt.getText().trim()), _datePck.getValue());
 					} catch (Exception e) {
 						ExceptionDisplayService.showException(e);
 					}
@@ -112,9 +102,7 @@ public class EditUtilisationDialog extends ComptaDialog<ButtonData> {
 
 		_nomTxt.setText(_utilisation.getNom());
 		_montantTxt.setText(String.valueOf(_utilisation.getMontant()));
-		Calendar date = _utilisation.getDate();
-		_datePck.setValue(
-				LocalDate.of(date.get(Calendar.YEAR), date.get(Calendar.MONTH) + 1, date.get(Calendar.DAY_OF_MONTH)));
+		_datePck.setValue(_utilisation.getDate());
 
 	}
 
@@ -179,10 +167,8 @@ public class EditUtilisationDialog extends ComptaDialog<ButtonData> {
 	/**
 	 * Création des boutons
 	 */
-	private void createButtonBar() {
-		// bouton ok
-		_buttonTypeOk = new ButtonType("Ok", ButtonData.OK_DONE);
-		getDialogPane().getButtonTypes().add(_buttonTypeOk);
+	protected void createButtonBar() {
+		// bouton close
 		ButtonType close = new ButtonType("Fermer", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(close);
 

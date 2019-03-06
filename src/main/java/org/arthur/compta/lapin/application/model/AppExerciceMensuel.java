@@ -1,6 +1,6 @@
 package org.arthur.compta.lapin.application.model;
 
-import java.util.Calendar;
+import java.time.LocalDate;
 
 import org.arthur.compta.lapin.model.ExerciceMensuel;
 
@@ -36,7 +36,7 @@ public class AppExerciceMensuel extends AppObject {
 	 * 
 	 * @return
 	 */
-	public Calendar getDateDebut() {
+	public LocalDate getDateDebut() {
 		return _exMensuel.getDateDebut();
 	}
 
@@ -67,10 +67,8 @@ public class AppExerciceMensuel extends AppObject {
 	/**
 	 * Ajoute une dépense dans l'exercice mensuel
 	 * 
-	 * @param dep
-	 *            la dépense
-	 * @param id
-	 *            l'identifiant applicatif
+	 * @param dep la dépense
+	 * @param id  l'identifiant applicatif
 	 */
 	public void addDepense(AppOperation appDep) {
 
@@ -91,10 +89,8 @@ public class AppExerciceMensuel extends AppObject {
 	/**
 	 * Ajoute une ressource dans l'exercice mensuel
 	 * 
-	 * @param res
-	 *            la ressource
-	 * @param id
-	 *            l'identifiant applicatif
+	 * @param res la ressource
+	 * @param id  l'identifiant applicatif
 	 */
 	public void addRessource(AppOperation appRes) {
 
@@ -106,8 +102,7 @@ public class AppExerciceMensuel extends AppObject {
 	/**
 	 * Ajoute un transfert dans l'exercice mensuel
 	 * 
-	 * @param apptrans
-	 *            le transfert
+	 * @param apptrans le transfert
 	 */
 	public void addTransfert(AppTransfert apptr) {
 
@@ -136,6 +131,7 @@ public class AppExerciceMensuel extends AppObject {
 
 	/**
 	 * Retourne le résultat prévisionnel
+	 * 
 	 * @return
 	 */
 	public double getResultatPrev() {

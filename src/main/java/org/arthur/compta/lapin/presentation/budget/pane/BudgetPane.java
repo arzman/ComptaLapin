@@ -14,8 +14,6 @@ import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 
 import javafx.beans.binding.Bindings;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -58,20 +56,7 @@ public class BudgetPane extends GridPane {
 		createBudgetTable();
 
 		// restitution des largeur de colonnes
-		for (TableColumn<?, ?> col : _table.getColumns()) {
-
-			col.widthProperty().addListener(new ChangeListener<Number>() {
-
-				@Override
-				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-					ConfigurationManager.getInstance().setProp("BudgetPane.table.col." + col.getId(),
-							String.valueOf(newValue));
-
-				}
-			});
-			col.setPrefWidth(Double.parseDouble(
-					ConfigurationManager.getInstance().getProp("BudgetPane.table.col." + col.getId(), "50")));
-		}
+		ConfigurationManager.getInstance().setPrefColumnWidth(_table, "BudgetPane.table.col");
 
 	}
 

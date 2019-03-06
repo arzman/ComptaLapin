@@ -1,7 +1,7 @@
 package org.arthur.compta.lapin.application.manager;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -53,6 +53,8 @@ public class BudgetManager {
 				budget.setObjectif(Double.parseDouble(info[1]));
 				budget.setPriority(Integer.parseInt(info[3]));
 				budget.setIsActif(true);
+				budget.setLabelRecurrent(info[4]);
+				budget.setDateRecurrent(LocalDate.parse(info[5], ApplicationFormatter.databaseDateFormat));
 
 				// encapsulation applicative
 				AppBudget appB = new AppBudget(budget);
@@ -103,7 +105,8 @@ public class BudgetManager {
 	public void desactivateBudget(AppBudget appB) throws ComptaException {
 
 		_budgetList.remove(appB);
-		editBudget(appB, appB.getNom(), appB.getObjectif(), appB.getMontantUtilise(), false, appB.getPriority());
+		editBudget(appB, appB.getNom(), appB.getObjectif(), appB.getMontantUtilise(), false, appB.getPriority(),
+				appB.getLabelRecurrent(), appB.getDateRecurrent());
 
 	}
 
@@ -118,7 +121,7 @@ public class BudgetManager {
 		// tri de la liste des bugdets par ordre de priorité
 		List<AppBudget> tmp = new ArrayList<>();
 		tmp.addAll(_budgetList);
-			
+
 		tmp.sort(new Comparator<AppBudget>() {
 
 			@Override
@@ -127,8 +130,7 @@ public class BudgetManager {
 				return Integer.compare(o1.getPriority(), o2.getPriority());
 			}
 		});
-		
-		
+
 		// on calcul le solde disponible sur les différents comptes à la fin du
 		// trimestre
 
@@ -205,17 +207,16 @@ public class BudgetManager {
 	/**
 	 * Ajoute un budget dans l'application
 	 * 
-	 * @param nom
-	 *            le num du budget
-	 * @param objectif
-	 *            l'objectif a atteindre
-	 * @param utilise
-	 *            le montant utilise
+	 * @param nom            le num du budget
+	 * @param objectif       l'objectif a atteindre
+	 * @param utilise        le montant utilise
+	 * @param localDate
+	 * @param labelRecurrent
 	 * @return
-	 * @throws ComptaException
-	 *             Echec dans l'ajout du budget
+	 * @throws ComptaException Echec dans l'ajout du budget
 	 */
-	public AppBudget addBudget(String nom, double objectif, double utilise) throws ComptaException {
+	public AppBudget addBudget(String nom, double objectif, double utilise, String labelRecurrent,
+			LocalDate dateRecurrent) throws ComptaException {
 
 		AppBudget appB = null;
 
@@ -227,10 +228,13 @@ public class BudgetManager {
 			budget.setObjectif(objectif);
 			budget.setIsActif(true);
 			budget.setPriority(_budgetList.size());
+			budget.setLabelRecurrent(labelRecurrent);
+			budget.setDateRecurrent(dateRecurrent);
 
 			// encapsulation applicative
 			appB = new AppBudget(budget);
-			String id = DBManager.getInstance().addBudget(nom, objectif, utilise, true, _budgetList.size());
+			String id = DBManager.getInstance().addBudget(nom, objectif, utilise, true, _budgetList.size(),
+					labelRecurrent, dateRecurrent);
 			appB.setAppID(id);
 
 			// ajout dans l'application
@@ -246,23 +250,19 @@ public class BudgetManager {
 	/**
 	 * Modifie le budget
 	 * 
-	 * @param appBudget
-	 *            le budget
-	 * @param nom
-	 *            le nouveau nom
-	 * @param objectif
-	 *            le nouvel objectif
-	 * @param utilise
-	 *            le nouveau montant utilise
-	 * @param isActif
-	 *            la nouvelle valeur actif
-	 * @param prio
-	 *            la nouvelle priorité
+	 * @param appBudget      le budget
+	 * @param nom            le nouveau nom
+	 * @param objectif       le nouvel objectif
+	 * @param utilise        le nouveau montant utilise
+	 * @param isActif        la nouvelle valeur actif
+	 * @param prio           la nouvelle priorité
+	 * @param dateRecurrent
+	 * @param labelRecurrent
 	 * @return
 	 * @throws ComptaException
 	 */
 	public AppBudget editBudget(AppBudget appBudget, String nom, double objectif, double utilise, boolean isActif,
-			int prio) throws ComptaException {
+			int prio, String labelRecurrent, LocalDate dateRecurrent) throws ComptaException {
 
 		if (appBudget != null) {
 
@@ -273,6 +273,8 @@ public class BudgetManager {
 				appBudget.setMontantUtilise(utilise);
 				appBudget.setIsActif(isActif);
 				appBudget.setPriority(prio);
+				appBudget.setLabelerecurrent(labelRecurrent);
+				appBudget.setDateReccurent(dateRecurrent);
 				// modif du prévisionnel des Budgets
 				calculateData();
 				// écriture en base
@@ -291,29 +293,19 @@ public class BudgetManager {
 	 * Retourne tous les budgets
 	 * 
 	 * @return
-	 * @throws ComptaException
-	 *             Echec de la récupération
+	 * @throws ComptaException Echec de la récupération
 	 */
 	public List<AppBudget> getAllBudgets() throws ComptaException {
 
 		ArrayList<AppBudget> list = new ArrayList<>();
 
 		// récupération en base des métadonnée des budget
-		HashMap<String, String[]> fromPersistancy = DBManager.getInstance().getAllBudget();
+		HashMap<String, Budget> fromPersistancy = DBManager.getInstance().getAllBudget();
 
 		for (String id : fromPersistancy.keySet()) {
 
-			String[] info = fromPersistancy.get(id);
-			// création du modèle
-			Budget budget = new Budget();
-			budget.setNom(info[0]);
-			budget.setMontantUtilise(Double.parseDouble(info[2]));
-			budget.setObjectif(Double.parseDouble(info[1]));
-			budget.setPriority(Integer.parseInt(info[3]));
-			budget.setIsActif(Boolean.parseBoolean(info[4]));
-
 			// encapsulation applicative
-			AppBudget appB = new AppBudget(budget);
+			AppBudget appB = new AppBudget(fromPersistancy.get(id));
 			appB.setAppID(id);
 
 			// ajout dans la liste
@@ -326,17 +318,13 @@ public class BudgetManager {
 	/**
 	 * Ajoute une utilisation pour le budget
 	 * 
-	 * @param appB
-	 *            le budget
-	 * @param nom
-	 *            le nom de l'utilisation
-	 * @param montat
-	 *            le montant
-	 * @param date
-	 *            la date
+	 * @param appB   le budget
+	 * @param nom    le nom de l'utilisation
+	 * @param montat le montant
+	 * @param date   la date
 	 * @throws ComptaException
 	 */
-	public void addUtilisationForBudget(AppBudget appB, String nom, double montat, Calendar date)
+	public void addUtilisationForBudget(AppBudget appB, String nom, double montat, LocalDate date)
 			throws ComptaException {
 
 		// enregistrement de l'utilisation
@@ -356,8 +344,7 @@ public class BudgetManager {
 	/**
 	 * Retourne les utilisations du budget
 	 * 
-	 * @param appId
-	 *            l'id du budget
+	 * @param appId l'id du budget
 	 * @return
 	 * @throws ComptaException
 	 */
@@ -374,8 +361,7 @@ public class BudgetManager {
 				String[] info = infos.get(id);
 
 				// parsing de la date et création du modèle métier
-				Calendar date = Calendar.getInstance();
-				date.setTime(ApplicationFormatter.databaseDateFormat.parse(info[2]));
+				LocalDate date = LocalDate.parse(info[2], ApplicationFormatter.databaseDateFormat);
 				Utilisation util = new Utilisation(Double.parseDouble(info[1]), info[0], date);
 				// Création de l'utilisation applicative
 				AppUtilisation appUtil = new AppUtilisation(util);
@@ -400,7 +386,7 @@ public class BudgetManager {
 	 * @param date
 	 * @throws ComptaException
 	 */
-	public void editUtilisation(AppUtilisation utilisation, String nom, double montant, Calendar date)
+	public void editUtilisation(AppUtilisation utilisation, String nom, double montant, LocalDate date)
 			throws ComptaException {
 
 		// affectation des nouvelles valeurs
@@ -447,6 +433,28 @@ public class BudgetManager {
 			}
 
 		}
+
+	}
+
+	/**
+	 * Retourne la list des budgets récurrent
+	 * 
+	 * @return
+	 * @throws ComptaException
+	 */
+	public List<String> getLabelRecurrentList() throws ComptaException {
+
+		return DBManager.getInstance().getLabelRecurrentList();
+	}
+
+	/**
+	 * Ajoute un label de budget récurrent dans l'application
+	 * 
+	 * @param labelRec
+	 * @throws ComptaException
+	 */
+	public void addLabelRecurrent(String labelRec) throws ComptaException {
+		DBManager.getInstance().addLabelRecurrent(labelRec);
 
 	}
 

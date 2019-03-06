@@ -1,6 +1,6 @@
 package org.arthur.compta.lapin.presentation.trimestre.pane;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
@@ -52,10 +52,9 @@ public class ExerciceHeaderPane extends GridPane {
 	/**
 	 * Affiche la date sous forme <mois année>
 	 * 
-	 * @param time
-	 *            la date
+	 * @param time la date
 	 */
-	public void setMois(Date time) {
+	public void setMois(LocalDate time) {
 
 		if (time != null) {
 			_moisLbl.setText(ApplicationFormatter.moiAnneedateFormat.format(time));

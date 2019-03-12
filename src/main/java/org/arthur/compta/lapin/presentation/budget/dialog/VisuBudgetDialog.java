@@ -231,6 +231,8 @@ public class VisuBudgetDialog extends ComptaDialog<ButtonData> {
 		});
 		menu.getItems().add(delItem);
 		delItem.disableProperty().bind(_tableNoRecuBud.getSelectionModel().selectedItemProperty().isNull());
+		
+		
 
 	}
 

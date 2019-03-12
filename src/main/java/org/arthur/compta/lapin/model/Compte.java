@@ -8,21 +8,14 @@ package org.arthur.compta.lapin.model;
  */
 public class Compte {
 
-	/**
-	 * Le solde du compte
-	 */
+	/** Id en base */
+	private int _id;
+	/** Le solde du compte */
 	private double _solde;
-
-	/**
-	 * Le nom du compte
-	 */
+	/** Le nom du compte */
 	private String _nom;
-
-	/**
-	 * Indique s'il s'agit d'un compte "livret"
-	 */
+	/** Indique s'il s'agit d'un compte "livret" */
 	private boolean _isLivret;
-
 	/**
 	 * Indique si la somme sur le compte peut être utilisé pour remplir les budgets
 	 */
@@ -31,22 +24,21 @@ public class Compte {
 	/**
 	 * Constructeur par défaut
 	 */
-	public Compte() {
-		_nom = "";
-		setSolde(0.0);
-		_isLivret = false;
-		_budgetAllowed = true;
+	public Compte(int id, double solde, String nom, boolean isLivret, boolean budgetAllowed) {
+		_id = id;
+		_nom = nom;
+		_solde = solde;
+		_isLivret = isLivret;
+		_budgetAllowed = budgetAllowed;
 	}
 
 	/**
-	 * Constructeur du Compte
+	 * Retourne l'id
 	 * 
-	 * @param aNom le nom du Compte
+	 * @return
 	 */
-	public Compte(String aNom) {
-		this();
-		setNom(aNom);
-
+	public int getId() {
+		return _id;
 	}
 
 	/**
@@ -83,42 +75,6 @@ public class Compte {
 	 */
 	public boolean isLivret() {
 		return _isLivret;
-	}
-
-	/**
-	 * Modifie l'autorisation de remplissage des budgets
-	 * 
-	 * @param budgetAllowed True si le compte est autorisé à remplir les budgets
-	 */
-	public void setBudgetAllowed(boolean budgetAllowed) {
-		_budgetAllowed = budgetAllowed;
-	}
-
-	/**
-	 * Modifie le caractère "livret" du compte
-	 * 
-	 * @param isLivret True si le compte est un "livret"
-	 */
-	public void setLivret(boolean isLivret) {
-		_isLivret = isLivret;
-	}
-
-	/**
-	 * Modifie le nom du compte
-	 * 
-	 * @param nom le nouveau nom
-	 */
-	public void setNom(String nom) {
-		_nom = nom;
-	}
-
-	/**
-	 * Modifie le solde du compte
-	 * 
-	 * @param _olde le nouveau solde
-	 */
-	public void setSolde(double solde) {
-		_solde = solde;
 	}
 
 }

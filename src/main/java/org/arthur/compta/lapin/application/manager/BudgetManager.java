@@ -314,16 +314,14 @@ public class BudgetManager {
 			throws ComptaException {
 
 		// enregistrement de l'utilisation
-		String id = DBManager.getInstance().addUtilisationForBudget(appB.getAppId(), nom, montat, date);
+		DBManager.getInstance().addUtilisationForBudget(appB.getAppId(), nom, montat, date);
 
-		if (id != null && !id.trim().isEmpty()) {
-			// modification du montant utilisé
-			appB.setMontantUtilise(appB.getMontantUtilise() + montat);
-			// sauvegarde du budget
-			DBManager.getInstance().updateBudget(appB);
-			// MaJ des avancements
-			calculateData();
-		}
+		// modification du montant utilisé
+		appB.setMontantUtilise(appB.getMontantUtilise() + montat);
+		// sauvegarde du budget
+		DBManager.getInstance().updateBudget(appB);
+		// MaJ des avancements
+		calculateData();
 
 	}
 

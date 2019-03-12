@@ -49,6 +49,7 @@ public class Budget {
 		_isActif = true;
 		_priority = 0;
 		_labelRec = "";
+		_dateRecurrent = LocalDate.of(1986, 6, 27);
 	}
 
 	/**

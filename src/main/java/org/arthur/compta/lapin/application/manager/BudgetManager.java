@@ -210,29 +210,25 @@ public class BudgetManager {
 
 		AppBudget appB = null;
 
-		try {
-			// création du modèle
-			Budget budget = new Budget();
-			budget.setNom(nom);
-			budget.setMontantUtilise(utilise);
-			budget.setObjectif(objectif);
-			budget.setIsActif(true);
-			budget.setPriority(_budgetList.size());
-			budget.setLabelRecurrent(labelRecurrent);
-			budget.setDateRecurrent(dateRecurrent);
+		// création du modèle
+		Budget budget = new Budget();
+		budget.setNom(nom);
+		budget.setMontantUtilise(utilise);
+		budget.setObjectif(objectif);
+		budget.setIsActif(true);
+		budget.setPriority(_budgetList.size());
+		budget.setLabelRecurrent(labelRecurrent);
+		budget.setDateRecurrent(dateRecurrent);
 
-			// encapsulation applicative
-			appB = new AppBudget(budget);
-			String id = DBManager.getInstance().addBudget(nom, objectif, utilise, true, _budgetList.size(),
-					labelRecurrent, dateRecurrent);
-			appB.setAppID(id);
+		// encapsulation applicative
+		appB = new AppBudget(budget);
+		String id = DBManager.getInstance().addBudget(nom, objectif, utilise, true, _budgetList.size(), labelRecurrent,
+				dateRecurrent);
+		appB.setAppID(id);
 
-			// ajout dans l'application
-			_budgetList.add(appB);
-			calculateData();
-		} catch (Exception e) {
-			throw new ComptaException("Impossible d'ajouter le compte dans l'application", e);
-		}
+		// ajout dans l'application
+		_budgetList.add(appB);
+		calculateData();
 
 		return appB;
 	}

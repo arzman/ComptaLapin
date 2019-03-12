@@ -1102,8 +1102,16 @@ public class DBManager {
 			stmt.setDouble(3, utilise);
 			stmt.setBoolean(4, isActif);
 			stmt.setInt(5, priority);
-			stmt.setString(6, labelRecurrent);
-			stmt.setDate(7, Date.valueOf(dateRecurrent));
+			if (labelRecurrent != null) {
+				stmt.setString(6, labelRecurrent);
+			} else {
+				stmt.setString(6, "");
+			}
+			if (dateRecurrent != null) {
+				stmt.setDate(7, Date.valueOf(dateRecurrent));
+			} else {
+				stmt.setDate(7, Date.valueOf(LocalDate.of(1986, 6, 27)));
+			}
 
 			// execution
 			executeUpdate(stmt);

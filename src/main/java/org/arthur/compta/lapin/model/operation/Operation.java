@@ -21,17 +21,21 @@ public class Operation {
 	protected OperationType _type;
 	/** Le compte sur lequel l'opération est faite */
 	protected int _srcCompteId;
+	/** Le compte sur lequel l'opération est faite */
+	protected int _cibleCompteId;
 
 	/**
 	 * Construction par défaut
 	 */
-	public Operation(int id, OperationType type, int srcCompteId, String nom, double montant, EtatOperation etat) {
+	public Operation(int id, OperationType type, int srcCompteId, String nom, double montant, EtatOperation etat,
+			int cibleCompteId) {
 		_id = id;
 		_type = type;
 		_etat = etat;
 		_srcCompteId = srcCompteId;
 		_nom = nom;
 		_montant = montant;
+		_cibleCompteId = cibleCompteId;
 
 	}
 
@@ -80,6 +84,10 @@ public class Operation {
 		return _type;
 	}
 
+	public int getCibleCompteId() {
+		return _cibleCompteId;
+	}
+
 	/**
 	 * Duplique l'opération
 	 * 
@@ -87,7 +95,7 @@ public class Operation {
 	 */
 	public Operation duplicate() {
 
-		return new Operation(_id, _type, _srcCompteId, _nom, _montant, _etat);
+		return new Operation(_id, _type, _srcCompteId, _nom, _montant, _etat, _cibleCompteId);
 
 	}
 

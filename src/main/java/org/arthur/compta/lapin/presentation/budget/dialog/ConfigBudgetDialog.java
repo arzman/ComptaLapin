@@ -54,7 +54,6 @@ public class ConfigBudgetDialog extends ComptaDialog<ButtonData> {
 		// création IHM
 		createContent();
 
-
 		setResultConverter(new Callback<ButtonType, ButtonData>() {
 
 			@Override
@@ -73,7 +72,7 @@ public class ConfigBudgetDialog extends ComptaDialog<ButtonData> {
 					BudgetManager.getInstance().calculateData();
 					// on sauve les budgets
 					try {
-						DBManager.getInstance().updateBudgets(_activesBudgets);
+						BudgetManager.getInstance().updateBudgets(_activesBudgets);
 					} catch (ComptaException e) {
 						ExceptionDisplayService.showException(e);
 					}

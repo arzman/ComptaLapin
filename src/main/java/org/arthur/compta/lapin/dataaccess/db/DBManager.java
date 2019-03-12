@@ -6,42 +6,13 @@ import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
-import java.time.LocalDate;
-import java.time.temporal.ChronoField;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.arthur.compta.lapin.application.exception.ComptaException;
-import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.manager.ConfigurationManager;
-import org.arthur.compta.lapin.application.model.AppBudget;
-import org.arthur.compta.lapin.application.model.AppCompte;
-import org.arthur.compta.lapin.application.model.AppOperation;
-import org.arthur.compta.lapin.application.model.AppTransfert;
-import org.arthur.compta.lapin.application.model.AppUtilisation;
-import org.arthur.compta.lapin.application.model.OperationSearchResult;
-import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElement;
-import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElementFrequence;
 import org.arthur.compta.lapin.dataaccess.files.FilesManager;
-import org.arthur.compta.lapin.model.Budget;
-import org.arthur.compta.lapin.model.Compte;
-import org.arthur.compta.lapin.model.ExerciceMensuel;
-import org.arthur.compta.lapin.model.Utilisation;
-import org.arthur.compta.lapin.model.operation.EtatOperation;
-import org.arthur.compta.lapin.model.operation.Operation;
-import org.arthur.compta.lapin.model.operation.OperationType;
-import org.arthur.compta.lapin.model.operation.TransfertOperation;
-import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
 /**
  * Gère l'accès à la base de donnée
@@ -55,8 +26,6 @@ public class DBManager {
 	 * Connexion à la base
 	 */
 	private Connection _connexionDB;
-
-
 
 	/**
 	 * Retourne l'instance unique du singleton
@@ -153,30 +122,6 @@ public class DBManager {
 		return _connexionDB;
 	}
 
-
-	
-	
-
-	
-
-	
-
-	
-
-	
-	
-	
-
-	
-
-	
-
-
-
-	
-
-
-
 	/**
 	 * Ferme la base de donnée
 	 */
@@ -192,16 +137,6 @@ public class DBManager {
 
 	}
 
-
-
-
-
-	
-
-
-
-
-
 	/**
 	 * Ferme la base de donnée
 	 */
@@ -216,9 +151,5 @@ public class DBManager {
 		}
 
 	}
-
-	
-
-	
 
 }

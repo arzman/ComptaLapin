@@ -180,7 +180,7 @@ public class ExerciceMensuelDataAccess extends ComptaDataAccess {
 	 * @param idMois l'id de l'exercice mensuel à supprimer
 	 * @throws ComptaException Echec de la suppression
 	 */
-	private void removeExcerciceMensuel(String idMois) throws ComptaException {
+	public void removeExcerciceMensuel(String idMois) throws ComptaException {
 
 		// suppression des opérations de l'exercice
 		String queryOp = "DELETE FROM OPERATION WHERE mois_id=? ;";

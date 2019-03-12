@@ -436,4 +436,9 @@ public class BudgetManager {
 
 	}
 
+	public void updateBudgets(ObservableList<AppBudget> _activesBudgets) {
+		DBManager.getInstance().updateBudgets(_activesBudgets);
+
+	}
+
 }

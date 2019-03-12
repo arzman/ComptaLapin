@@ -12,14 +12,12 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
-import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.model.AppOperation;
 import org.arthur.compta.lapin.application.model.AppTransfert;
 import org.arthur.compta.lapin.application.model.OperationSearchResult;
 import org.arthur.compta.lapin.model.operation.EtatOperation;
 import org.arthur.compta.lapin.model.operation.Operation;
 import org.arthur.compta.lapin.model.operation.OperationType;
-import org.arthur.compta.lapin.model.operation.TransfertOperation;
 
 public class OperationDataAccess extends ComptaDataAccess {
 
@@ -191,27 +189,9 @@ public class OperationDataAccess extends ComptaDataAccess {
 
 	private Operation parseOperationFromRes(ResultSet queryRes) throws SQLException {
 
-		Operation dep = null;
-		if (queryRes.getString("type_ope").equals(OperationType.DEPENSE.toString())) {
-			dep = new Operation(queryRes.getInt("id"), OperationType.DEPENSE, queryRes.getInt("compte_source_id"),
-					queryRes.getString("nom"), queryRes.getDouble("montant"),
-					EtatOperation.valueOf(queryRes.getString("etat")));
-		}
-		if (queryRes.getString("type_ope").equals(OperationType.RESSOURCE.toString())) {
-			dep = new Operation(queryRes.getInt("id"), OperationType.RESSOURCE, queryRes.getInt("compte_source_id"),
-					queryRes.getString("nom"), queryRes.getDouble("montant"),
-					EtatOperation.valueOf(queryRes.getString("etat")));
-		}
-		if (queryRes.getString("type_ope").equals(OperationType.TRANSFERT.toString())) {
-			dep = new TransfertOperation(
-					CompteManager.getInstance().getAppCompteFromId(String.valueOf(queryRes.getInt("compte_source_id")))
-							.getCompte(),
-					queryRes.getString("nom"), queryRes.getDouble("montant"),
-					EtatOperation.valueOf(queryRes.getString("etat")), CompteManager.getInstance()
-							.getAppCompteFromId(String.valueOf(queryRes.getInt("compte_cible_id"))).getCompte());
-		}
-
-		return dep;
+		return new Operation(queryRes.getInt("id"), OperationType.valueOf(queryRes.getString("type_ope")),
+				queryRes.getInt("compte_source_id"), queryRes.getString("nom"), queryRes.getDouble("montant"),
+				EtatOperation.valueOf(queryRes.getString("etat")), queryRes.getInt("compte_cible_id"));
 	}
 
 	/**

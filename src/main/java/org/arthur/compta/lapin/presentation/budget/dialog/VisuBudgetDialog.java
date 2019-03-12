@@ -1,31 +1,43 @@
 package org.arthur.compta.lapin.presentation.budget.dialog;
 
+import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.BudgetManager;
 import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.application.model.AppBudget;
+import org.arthur.compta.lapin.presentation.budget.cellfactory.MontantPresBudgetCellFactory;
 import org.arthur.compta.lapin.presentation.budget.cellfactory.NomBudgetTableCell;
 import org.arthur.compta.lapin.presentation.budget.model.PresBudget;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
+import org.arthur.compta.lapin.presentation.common.cellfactory.DateTreeCellFactory;
 import org.arthur.compta.lapin.presentation.common.cellfactory.MontantCellFactory;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
+import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
+import org.arthur.compta.lapin.presentation.utils.PresBudgetSorter;
 
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 
-public class VisiBudgetDialog extends ComptaDialog<ButtonData> {
+public class VisuBudgetDialog extends ComptaDialog<ButtonData> {
 
 	private ObservableList<AppBudget> _recurrentBudget;
 
@@ -35,10 +47,14 @@ public class VisiBudgetDialog extends ComptaDialog<ButtonData> {
 
 	private TreeTableView<PresBudget> _treeRecBud;
 
-	public VisiBudgetDialog() {
-		super(VisiBudgetDialog.class.getSimpleName());
+	private final PresBudgetSorter _presbudgetSorter;
+
+	public VisuBudgetDialog() {
+		super(VisuBudgetDialog.class.getSimpleName());
 
 		setTitle("Visualiser les budgets");
+
+		_presbudgetSorter = new PresBudgetSorter();
 
 		// initialisation des valeurs
 		initValues();
@@ -58,6 +74,11 @@ public class VisiBudgetDialog extends ComptaDialog<ButtonData> {
 		rowCons.setVgrow(Priority.ALWAYS);
 		root.getRowConstraints().add(rowCons);
 
+		ColumnConstraints colCons = new ColumnConstraints();
+		colCons.setFillWidth(true);
+		colCons.setHgrow(Priority.ALWAYS);
+		root.getColumnConstraints().addAll(colCons, colCons);
+
 		// budget non-récurent
 		createTableOtherBud();
 		root.add(_tableNoRecuBud, 0, 0);
@@ -76,7 +97,62 @@ public class VisiBudgetDialog extends ComptaDialog<ButtonData> {
 		colNom.setCellValueFactory(cellData -> cellData.getValue().getValue().nomProperty());
 		_treeRecBud.getColumns().add(colNom);
 
+		TreeTableColumn<PresBudget, Number> montNom = new TreeTableColumn<PresBudget, Number>("Montant");
+		montNom.setId("montant");
+		montNom.setResizable(true);
+		montNom.setCellValueFactory(cellData -> cellData.getValue().getValue().montantProperty());
+		montNom.setCellFactory(new MontantPresBudgetCellFactory());
+		_treeRecBud.getColumns().add(montNom);
+
+		TreeTableColumn<PresBudget, LocalDate> colDate = new TreeTableColumn<PresBudget, LocalDate>("Montant");
+		colDate.setId("date");
+		colDate.setResizable(true);
+		colDate.setCellValueFactory(cellData -> cellData.getValue().getValue().dateRecurrentProp());
+		colDate.setCellFactory(new DateTreeCellFactory<PresBudget>());
+		_treeRecBud.getColumns().add(colDate);
+
 		ConfigurationManager.getInstance().setPrefColumnWidth(_treeRecBud, "VisiBudgetDialog.treeRecBud");
+
+		ContextMenu menu = new ContextMenu();
+		_treeRecBud.setContextMenu(menu);
+
+		MenuItem delItem = new MenuItem("Supprimer");
+		delItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.DEL_IMG)));
+		delItem.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+
+				TreeItem<PresBudget> item = _treeRecBud.getSelectionModel().getSelectedItem();
+
+				try {
+					if (item.getValue().getAppBudget() != null) {
+						BudgetManager.getInstance().removeBudget(item.getValue().getAppBudget());
+						item.getParent().getChildren().remove(item);
+
+						// suppression de la liste ( le remove ne marche pas)
+						Iterator<AppBudget> iter = _recurrentBudget.iterator();
+						boolean goOn = true;
+						while (iter.hasNext() && goOn) {
+
+							AppBudget bud = iter.next();
+							if (bud.getAppId().equals(item.getValue().getAppBudget().getAppId())) {
+								iter.remove();
+								goOn = false;
+							}
+
+						}
+					}
+
+				} catch (ComptaException e) {
+					ExceptionDisplayService.showException(e);
+
+				}
+
+			}
+		});
+		menu.getItems().add(delItem);
+		delItem.disableProperty().bind(_treeRecBud.getSelectionModel().selectedItemProperty().isNull());
 
 	}
 
@@ -115,12 +191,54 @@ public class VisiBudgetDialog extends ComptaDialog<ButtonData> {
 
 		ConfigurationManager.getInstance().setPrefColumnWidth(_tableNoRecuBud, "VisiBudgetDialog.tableNoRecuBud");
 
+		ContextMenu menu = new ContextMenu();
+		_tableNoRecuBud.setContextMenu(menu);
+
+		MenuItem delItem = new MenuItem("Supprimer");
+		delItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.DEL_IMG)));
+		delItem.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+
+				AppBudget item = _tableNoRecuBud.getSelectionModel().getSelectedItem();
+
+				try {
+					if (item != null) {
+						BudgetManager.getInstance().removeBudget(item);
+						_tableNoRecuBud.getItems().remove(item);
+
+						// suppression de la liste ( le remove ne marche pas)
+						Iterator<AppBudget> iter = _otherBudget.iterator();
+						boolean goOn = true;
+						while (iter.hasNext() && goOn) {
+
+							AppBudget bud = iter.next();
+							if (bud.getAppId().equals(item.getAppId())) {
+								iter.remove();
+								goOn = false;
+							}
+
+						}
+					}
+
+				} catch (ComptaException e) {
+					ExceptionDisplayService.showException(e);
+
+				}
+
+			}
+		});
+		menu.getItems().add(delItem);
+		delItem.disableProperty().bind(_tableNoRecuBud.getSelectionModel().selectedItemProperty().isNull());
+
 	}
 
 	private TreeItem<PresBudget> getTreeRoot() {
 
 		TreeItem<PresBudget> root = new TreeItem<>();
 		PresBudget pbr = new PresBudget(null, "Tous");
+		root.setExpanded(true);
 		root.setValue(pbr);
 
 		// récupération des labels récurents
@@ -139,9 +257,15 @@ public class VisiBudgetDialog extends ComptaDialog<ButtonData> {
 			ExceptionDisplayService.showException(e);
 		}
 
+		root.getChildren().sort(_presbudgetSorter);
+
 		// placement des budgets
 		for (AppBudget appBud : _recurrentBudget) {
 			tmp.get(appBud.getLabelRecurrent()).getChildren().add(new TreeItem<PresBudget>(new PresBudget(appBud, "")));
+		}
+
+		for (TreeItem<PresBudget> treei : tmp.values()) {
+			treei.getChildren().sort(_presbudgetSorter);
 		}
 
 		return root;

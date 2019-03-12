@@ -140,7 +140,7 @@ public class SynthAnnuelleDialog extends ComptaDialog<ButtonData> {
 		Series<String, Number> budgetUseSerie = new Series<String, Number>();
 		budgetUseSerie.setName("Budget utilisé");
 
-		for (int month = 0; month < 12; month++) {
+		for (int month = 1; month < 13; month++) {
 
 			LocalDate date = LocalDate.of(year, month, 1);
 

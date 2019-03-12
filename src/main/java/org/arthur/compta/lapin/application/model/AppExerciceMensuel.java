@@ -70,7 +70,7 @@ public class AppExerciceMensuel extends AppObject {
 	 * @param dep la dépense
 	 * @param id  l'identifiant applicatif
 	 */
-	public void addDepense(AppOperation appDep) {
+	private void addDepense(AppOperation appDep) {
 
 		_appDepenseList.add(appDep);
 		_exMensuel.getDepensesList().add(appDep.getOperation());
@@ -92,7 +92,7 @@ public class AppExerciceMensuel extends AppObject {
 	 * @param res la ressource
 	 * @param id  l'identifiant applicatif
 	 */
-	public void addRessource(AppOperation appRes) {
+	private void addRessource(AppOperation appRes) {
 
 		_appRessourceList.add(appRes);
 		_exMensuel.getRessourcesList().add(appRes.getOperation());
@@ -104,7 +104,7 @@ public class AppExerciceMensuel extends AppObject {
 	 * 
 	 * @param apptrans le transfert
 	 */
-	public void addTransfert(AppTransfert apptr) {
+	private void addTransfert(AppTransfert apptr) {
 
 		_appTransfertList.add(apptr);
 		_exMensuel.getTransfertList().add(apptr.getTransfert());
@@ -136,6 +136,24 @@ public class AppExerciceMensuel extends AppObject {
 	 */
 	public double getResultatPrev() {
 		return _exMensuel.getResultatPrev();
+	}
+
+	public void addOperation(AppOperation apptr) {
+
+		switch (apptr.getType()) {
+
+		case DEPENSE:
+			addDepense(apptr);
+			break;
+		case RESSOURCE:
+			addRessource(apptr);
+			break;
+		case TRANSFERT:
+			addTransfert((AppTransfert) apptr);
+			break;
+
+		}
+
 	}
 
 }

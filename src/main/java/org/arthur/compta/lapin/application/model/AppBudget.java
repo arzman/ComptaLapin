@@ -302,6 +302,16 @@ public class AppBudget extends AppObject {
 		return _dateRecurrentProp.get();
 	}
 
+	/**
+	 * Retourne la date récurrente
+	 * 
+	 * @return
+	 */
+	public SimpleObjectProperty<LocalDate> dateRecurrentProp() {
+
+		return _dateRecurrentProp;
+	}
+
 	public void setLabelerecurrent(String labelRecurrent) {
 		_labelRecurrentProp.set(labelRecurrent);
 

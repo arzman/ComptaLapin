@@ -173,7 +173,8 @@ public class EditCompteDialog extends ComptaDialog<AppCompte> {
 
 		// Vérif du nom
 		boolean nomError = true;
-		if (!_nomTxt.getText().trim().isEmpty()) {
+		if (!_nomTxt.getText().trim().isEmpty()
+				&& !CompteManager.getInstance().getCompteNameList().contains(_nomTxt.getText().trim())) {
 
 			_nomTxt.setBorder(null);
 			nomError = false;

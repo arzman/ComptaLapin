@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
-import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.model.AppExerciceMensuel;
 import org.arthur.compta.lapin.application.model.AppOperation;
 import org.arthur.compta.lapin.application.model.AppTransfert;
@@ -36,22 +35,12 @@ public class TemplateService {
 
 		TrimestreTemplate tmp = new TrimestreTemplate();
 		try {
-			HashMap<String, String[]> tmpInfo = DBManager.getInstance().loadTemplateInfo();
+			HashMap<String, TrimestreTemplateElement> tmpInfo = DBManager.getInstance().loadTemplateInfo();
 
 			for (String key : tmpInfo.keySet()) {
 				// récupération des infos
-				String[] info = tmpInfo.get(key);
 
-				TrimestreTemplateElement elt = new TrimestreTemplateElement();
-				elt.setNom(info[0]);
-				elt.setMontant(Double.parseDouble(info[1]));
-				elt.setType(info[2]);
-				elt.setFreq(TrimestreTemplateElementFrequence.valueOf(info[3]));
-				elt.setOccurence(Integer.parseInt(info[4]));
-				elt.setCompteSource(CompteManager.getInstance().getCompte(info[5]));
-				elt.setCompteCible(CompteManager.getInstance().getCompte(info[6]));
-
-				tmp.addElement(elt);
+				tmp.addElement(tmpInfo.get(key));
 
 			}
 
@@ -92,7 +81,7 @@ public class TemplateService {
 						count++;
 					}
 
-					deb=deb.plusDays(1);
+					deb = deb.plusDays(1);
 
 				}
 			}
@@ -128,35 +117,23 @@ public class TemplateService {
 	 */
 	private static void createOperationFromTmpElt(AppExerciceMensuel exMen, TrimestreTemplateElement elt)
 			throws ComptaException {
-		if (elt.getType().equals(OperationType.DEPENSE.toString())) {
+		if (elt.getType().equals(OperationType.DEPENSE.toString())
+				|| elt.getType().equals(OperationType.RESSOURCE.toString())) {
 
 			// création
-			Operation dep = new Operation(OperationType.DEPENSE, elt.getCompteSource().getCompte(), elt.getNom(),
-					elt.getMontant(), EtatOperation.PREVISION);
-			String idOp = DBManager.getInstance().addOperation(dep, elt.getCompteSource().getAppId(), null,
+			Operation op = new Operation(OperationType.valueOf(elt.getType()), elt.getCompteSource().getCompte(),
+					elt.getNom(), elt.getMontant(), EtatOperation.PREVISION);
+			String idOp = DBManager.getInstance().addOperation(op, elt.getCompteSource().getAppId(), null,
 					exMen.getAppId());
 
 			// ajout dans l'application
-			AppOperation appDep = new AppOperation(dep);
+			AppOperation appDep = new AppOperation(op);
 			appDep.setAppID(idOp);
 			appDep.setCompteSrc(elt.getCompteSource());
-			exMen.addDepense(appDep);
+			exMen.addOperation(appDep);
 
 		}
-		if (elt.getType().equals(OperationType.RESSOURCE.toString())) {
 
-			// création
-			Operation res = new Operation(OperationType.RESSOURCE, elt.getCompteSource().getCompte(), elt.getNom(),
-					elt.getMontant(), EtatOperation.PREVISION);
-			String idOp = DBManager.getInstance().addOperation(res, elt.getCompteSource().getAppId(), null,
-					exMen.getAppId());
-			// ajout dans l'application
-			AppOperation appRes = new AppOperation(res);
-			appRes.setAppID(idOp);
-			appRes.setCompteSrc(elt.getCompteSource());
-			exMen.addRessource(appRes);
-
-		}
 		if (elt.getType().equals(OperationType.TRANSFERT.toString())) {
 			// création
 			TransfertOperation trans = new TransfertOperation(elt.getCompteSource().getCompte(), elt.getNom(),
@@ -168,7 +145,7 @@ public class TemplateService {
 			apptr.setAppID(idOp);
 			apptr.setCompteSrc(elt.getCompteSource());
 			apptr.setCompteCible(elt.getCompteCible());
-			exMen.addTransfert(apptr);
+			exMen.addOperation(apptr);
 		}
 
 	}

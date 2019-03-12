@@ -8,7 +8,7 @@ import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.application.service.ComptaService;
 import org.arthur.compta.lapin.presentation.budget.dialog.ConfigBudgetDialog;
 import org.arthur.compta.lapin.presentation.budget.dialog.EditBudgetDialog;
-import org.arthur.compta.lapin.presentation.budget.dialog.VisiBudgetDialog;
+import org.arthur.compta.lapin.presentation.budget.dialog.VisuBudgetDialog;
 import org.arthur.compta.lapin.presentation.common.dialog.DateDialog;
 import org.arthur.compta.lapin.presentation.compte.dialog.EditCompteDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
@@ -266,7 +266,7 @@ public class ComptaMenuBar extends MenuBar {
 			@Override
 			public void handle(ActionEvent event) {
 				// ouverture de la fenêtre de configuration
-				VisiBudgetDialog dia = new VisiBudgetDialog();
+				VisuBudgetDialog dia = new VisuBudgetDialog();
 				dia.showAndWait();
 
 			}

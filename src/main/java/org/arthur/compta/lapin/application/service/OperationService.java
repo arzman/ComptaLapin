@@ -1,6 +1,5 @@
 package org.arthur.compta.lapin.application.service;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +15,6 @@ import org.arthur.compta.lapin.model.operation.EtatOperation;
 import org.arthur.compta.lapin.model.operation.Operation;
 import org.arthur.compta.lapin.model.operation.OperationType;
 import org.arthur.compta.lapin.model.operation.TransfertOperation;
-import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -24,13 +22,11 @@ import javafx.collections.ObservableList;
 public class OperationService {
 
 	/**
-	 * Permutte l'état d'une opération et répercute les conséquences (
-	 * sauvegarde DB + re-calcul du solde compte)
+	 * Permutte l'état d'une opération et répercute les conséquences ( sauvegarde DB
+	 * + re-calcul du solde compte)
 	 * 
-	 * @param appOp
-	 *            l'operation
-	 * @throws ComptaException
-	 *             Echec de la mise à jour
+	 * @param appOp l'operation
+	 * @throws ComptaException Echec de la mise à jour
 	 */
 	public static void switchEtatOperation(AppOperation appOp) throws ComptaException {
 
@@ -62,14 +58,10 @@ public class OperationService {
 	/**
 	 * Crée une dépense applicative et la sauve en base
 	 * 
-	 * @param compteSrc
-	 *            le compte source de l'opération
-	 * @param libelle
-	 *            le libelle
-	 * @param montant
-	 *            le montant
-	 * @param appMoisId
-	 *            l'id applicatif de l'exercice mensuel
+	 * @param compteSrc le compte source de l'opération
+	 * @param libelle   le libelle
+	 * @param montant   le montant
+	 * @param appMoisId l'id applicatif de l'exercice mensuel
 	 * @return
 	 * @throws ComptaException
 	 */
@@ -90,14 +82,10 @@ public class OperationService {
 	/**
 	 * Crée une ressource applicative et la sauve en base
 	 * 
-	 * @param compteSrc
-	 *            le compte source de l'opération
-	 * @param libelle
-	 *            le libelle
-	 * @param montant
-	 *            le montant
-	 * @param appMoisId
-	 *            l'id applicatif de l'exercice mensuel
+	 * @param compteSrc le compte source de l'opération
+	 * @param libelle   le libelle
+	 * @param montant   le montant
+	 * @param appMoisId l'id applicatif de l'exercice mensuel
 	 * @return
 	 * @throws ComptaException
 	 */
@@ -176,8 +164,8 @@ public class OperationService {
 	/**
 	 * Effectue une recherche sur les opérations.
 	 * 
-	 * Retourne les operation dont le libellé contient lib et dont le montant
-	 * est égale à montant +- tolerance
+	 * Retourne les operation dont le libellé contient lib et dont le montant est
+	 * égale à montant +- tolerance
 	 * 
 	 * Si un des champs est vide, alors il est ignoré
 	 * 
@@ -193,19 +181,17 @@ public class OperationService {
 		ArrayList<OperationSearchResult> res = new ArrayList<>();
 
 		try {
-			
-			HashMap<String, String[]> infos = DBManager.getInstance().searchOperation(lib, montant, tolerance);
+
+			HashMap<String, OperationSearchResult> infos = DBManager.getInstance().searchOperation(lib, montant,
+					tolerance);
 
 			for (String idOp : infos.keySet()) {
 
-				String[] info = infos.get(idOp);
-				OperationSearchResult opRes = new OperationSearchResult(info[0], Double.parseDouble(info[1]),
-						LocalDate.parse(info[2],ApplicationFormatter.databaseDateFormat));
-				res.add(opRes);
+				res.add(infos.get(idOp));
 
 			}
 		} catch (Exception e) {
-			throw new ComptaException("Echec de la recherche", e);
+			throw new ComptaException("Echec de la recherche des opérations", e);
 		}
 
 		return res;

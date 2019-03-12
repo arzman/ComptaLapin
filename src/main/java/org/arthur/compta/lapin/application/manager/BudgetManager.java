@@ -14,7 +14,6 @@ import org.arthur.compta.lapin.application.model.AppUtilisation;
 import org.arthur.compta.lapin.dataaccess.db.DBManager;
 import org.arthur.compta.lapin.model.Budget;
 import org.arthur.compta.lapin.model.Utilisation;
-import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -41,20 +40,11 @@ public class BudgetManager {
 
 		try {
 			// récupération en base des métadonnée des budget
-			HashMap<String, String[]> fromPersistancy = DBManager.getInstance().getActiveBudget();
+			HashMap<String, Budget> fromPersistancy = DBManager.getInstance().getActiveBudget();
 
 			for (String id : fromPersistancy.keySet()) {
 
-				String[] info = fromPersistancy.get(id);
-				// création du modèle
-				Budget budget = new Budget();
-				budget.setNom(info[0]);
-				budget.setMontantUtilise(Double.parseDouble(info[2]));
-				budget.setObjectif(Double.parseDouble(info[1]));
-				budget.setPriority(Integer.parseInt(info[3]));
-				budget.setIsActif(true);
-				budget.setLabelRecurrent(info[4]);
-				budget.setDateRecurrent(LocalDate.parse(info[5], ApplicationFormatter.databaseDateFormat));
+				Budget budget = fromPersistancy.get(id);
 
 				// encapsulation applicative
 				AppBudget appB = new AppBudget(budget);
@@ -354,17 +344,11 @@ public class BudgetManager {
 		// récupération des champs en base
 		try {
 
-			HashMap<String, String[]> infos = DBManager.getInstance().getUtilisationInfos(appId);
+			HashMap<String, Utilisation> infos = DBManager.getInstance().getUtilisationInfos(appId);
 
 			for (String id : infos.keySet()) {
-				// pour l'utilisation
-				String[] info = infos.get(id);
-
-				// parsing de la date et création du modèle métier
-				LocalDate date = LocalDate.parse(info[2], ApplicationFormatter.databaseDateFormat);
-				Utilisation util = new Utilisation(Double.parseDouble(info[1]), info[0], date);
 				// Création de l'utilisation applicative
-				AppUtilisation appUtil = new AppUtilisation(util);
+				AppUtilisation appUtil = new AppUtilisation(infos.get(id));
 				appUtil.setAppID(id);
 				// ajout au resultat
 				listeRes.add(appUtil);

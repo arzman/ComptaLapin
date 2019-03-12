@@ -22,16 +22,25 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.arthur.compta.lapin.application.exception.ComptaException;
+import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.application.model.AppBudget;
 import org.arthur.compta.lapin.application.model.AppCompte;
 import org.arthur.compta.lapin.application.model.AppOperation;
 import org.arthur.compta.lapin.application.model.AppTransfert;
 import org.arthur.compta.lapin.application.model.AppUtilisation;
+import org.arthur.compta.lapin.application.model.OperationSearchResult;
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElement;
+import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElementFrequence;
 import org.arthur.compta.lapin.dataaccess.files.FilesManager;
 import org.arthur.compta.lapin.model.Budget;
+import org.arthur.compta.lapin.model.Compte;
+import org.arthur.compta.lapin.model.ExerciceMensuel;
+import org.arthur.compta.lapin.model.Utilisation;
+import org.arthur.compta.lapin.model.operation.EtatOperation;
 import org.arthur.compta.lapin.model.operation.Operation;
+import org.arthur.compta.lapin.model.operation.OperationType;
+import org.arthur.compta.lapin.model.operation.TransfertOperation;
 import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
 /**
@@ -189,9 +198,9 @@ public class DBManager {
 	 * @return couple clé : identifiant et valeurs [nom,solde,livret,budget]
 	 * @throws ComptaException Exception sur la récupération en base
 	 */
-	public HashMap<String, String[]> getAllCompte() throws ComptaException {
+	public HashMap<String, Compte> getAllCompte() throws ComptaException {
 
-		HashMap<String, String[]> infos = new HashMap<String, String[]>();
+		HashMap<String, Compte> infos = new HashMap<String, Compte>();
 
 		// requête sur la table COMPTE
 		String query = "SELECT ID,nom,solde,is_livret,budget_allowed FROM COMPTE;";
@@ -200,24 +209,35 @@ public class DBManager {
 
 			ResultSet res = executeQuery(stmt);
 
-			if (res.getMetaData().getColumnCount() == 5) {
+			while (res.next()) {
 
-				while (res.next()) {
-					// récupération des champs
-					String[] values = new String[4];
-					values[0] = res.getString("nom").trim();
-					values[1] = String.valueOf(res.getDouble("solde")).trim();
-					values[2] = String.valueOf(res.getBoolean("is_livret")).trim();
-					values[3] = String.valueOf(res.getBoolean("budget_allowed")).trim();
+				infos.put(String.valueOf(res.getInt("ID")).trim(), parseCompteFromRes(res));
 
-					infos.put(String.valueOf(res.getInt("ID")).trim(), values);
-				}
 			}
 		} catch (Exception e) {
 			throw new ComptaException("Impossible de récupérer les comptes", e);
 		}
 
 		return infos;
+	}
+
+	/**
+	 * Instancie un Compte depuis la persistance
+	 * 
+	 * @param res
+	 * @return
+	 * @throws SQLException
+	 */
+	private Compte parseCompteFromRes(ResultSet res) throws SQLException {
+
+		Compte cpt = new Compte();
+		// récupération des champs
+		cpt.setNom(res.getString("nom"));
+		cpt.setSolde(res.getDouble("solde"));
+		cpt.setLivret(res.getBoolean("is_livret"));
+		cpt.setLivret(res.getBoolean("budget_allowed"));
+
+		return cpt;
 	}
 
 	/**
@@ -268,9 +288,9 @@ public class DBManager {
 	 * @return les champ du compte courant
 	 * @throws ComptaException Echec de la récupération
 	 */
-	public String[] getTrimestreCourantId() throws ComptaException {
+	public String getTrimestreCourantId() throws ComptaException {
 
-		String[] res = new String[1];
+		String res = "";
 
 		// création de la requete
 		String query = "SELECT ID_TRIMESTRE FROM CONFIGURATION limit 1";
@@ -280,7 +300,7 @@ public class DBManager {
 			// parse du resultat
 			while (queryRes.next()) {
 
-				res[0] = String.valueOf(queryRes.getInt("ID_TRIMESTRE"));
+				res = String.valueOf(queryRes.getInt("ID_TRIMESTRE"));
 
 			}
 		} catch (Exception e) {
@@ -327,9 +347,9 @@ public class DBManager {
 	 * @return les champs en base
 	 * @throws SQLException Echec de la récupération
 	 */
-	public String[] getExMensuelInfos(String id) throws SQLException {
+	public HashMap<String, ExerciceMensuel> getExMensuelInfos(String id) throws SQLException {
 
-		String[] res = new String[4];
+		HashMap<String, ExerciceMensuel> res = new HashMap<>();
 		// création de la requete
 		String query = "SELECT ID ,date_debut,date_fin,resultat_moyen_prevu FROM EXERCICE_MENSUEL WHERE ID=?";
 		PreparedStatement stmt = getConnexion().prepareStatement(query);
@@ -339,14 +359,32 @@ public class DBManager {
 
 		while (queryRes.next()) {
 			// parsing du résultat
-			res[0] = queryRes.getString("ID");
-			res[1] = ApplicationFormatter.databaseDateFormat.format(queryRes.getDate("date_debut").toLocalDate());
-			res[2] = ApplicationFormatter.databaseDateFormat.format(queryRes.getDate("date_fin").toLocalDate());
-			res[3] = String.valueOf(queryRes.getDouble("resultat_moyen_prevu"));
+			res.put(queryRes.getString("ID"), parseExcerciceMensuelFromRes(queryRes));
 
 		}
 
 		return res;
+	}
+
+	/**
+	 * Instancie un ExerciceMensuel depuis la persistance
+	 * 
+	 * @param queryRes
+	 * @return
+	 * @throws SQLException
+	 */
+	private ExerciceMensuel parseExcerciceMensuelFromRes(ResultSet queryRes) throws SQLException {
+
+		ExerciceMensuel em = new ExerciceMensuel();
+
+		// date de début
+		em.setDateDebut(queryRes.getDate("date_debut").toLocalDate());
+		// date fin
+		em.setDateFin(queryRes.getDate("date_fin").toLocalDate());
+
+		em.setResPrev(queryRes.getDouble("resultat_moyen_prevu"));
+
+		return em;
 	}
 
 	/**
@@ -586,9 +624,9 @@ public class DBManager {
 	 * @return une map contenant les infos du template
 	 * @throws ComptaException
 	 */
-	public HashMap<String, String[]> loadTemplateInfo() throws ComptaException {
+	public HashMap<String, TrimestreTemplateElement> loadTemplateInfo() throws ComptaException {
 
-		HashMap<String, String[]> infos = new HashMap<>();
+		HashMap<String, TrimestreTemplateElement> infos = new HashMap<>();
 
 		String query = "SELECT ID,nom,montant,type_ope,frequence,occurence,compte_source_id,compte_cible_id FROM TEMPLATE;";
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
@@ -597,17 +635,7 @@ public class DBManager {
 
 			while (queryRes.next()) {
 				// parsing du résultat
-				String[] elt = new String[7];
-
-				elt[0] = queryRes.getString("nom");
-				elt[1] = String.valueOf(queryRes.getDouble("montant"));
-				elt[2] = String.valueOf(queryRes.getString("type_ope"));
-				elt[3] = String.valueOf(queryRes.getString("frequence"));
-				elt[4] = String.valueOf(queryRes.getInt("occurence"));
-				elt[5] = String.valueOf(queryRes.getInt("compte_source_id"));
-				elt[6] = String.valueOf(queryRes.getInt("compte_cible_id"));
-
-				infos.put(queryRes.getString("ID"), elt);
+				infos.put(queryRes.getString("ID"), parseTrimestreTemplateElement(queryRes));
 			}
 
 		} catch (Exception e) {
@@ -615,6 +643,22 @@ public class DBManager {
 		}
 
 		return infos;
+	}
+
+	private TrimestreTemplateElement parseTrimestreTemplateElement(ResultSet queryRes) throws SQLException {
+
+		TrimestreTemplateElement elt = new TrimestreTemplateElement();
+		elt.setNom(queryRes.getString("nom"));
+		elt.setMontant(queryRes.getDouble("montant"));
+		elt.setType(queryRes.getString("type_ope"));
+		elt.setFreq(TrimestreTemplateElementFrequence.valueOf(queryRes.getString("frequence")));
+		elt.setOccurence(queryRes.getInt("occurence"));
+		elt.setCompteSource(
+				CompteManager.getInstance().getAppCompteFromId(String.valueOf(queryRes.getInt("compte_source_id"))));
+		elt.setCompteCible(
+				CompteManager.getInstance().getAppCompteFromId(String.valueOf(queryRes.getInt("compte_cible_id"))));
+
+		return elt;
 	}
 
 	/**
@@ -724,9 +768,9 @@ public class DBManager {
 	 * @return
 	 * @throws ComptaException
 	 */
-	public HashMap<String, String[]> getOperationInfo(String exId) throws ComptaException {
+	public HashMap<String, Operation> getOperationInfo(String exId) throws ComptaException {
 
-		HashMap<String, String[]> map = new HashMap<>();
+		HashMap<String, Operation> map = new HashMap<>();
 
 		// création de la requete
 		String query = "SELECT ID,nom,montant,type_ope,etat,compte_source_id,compte_cible_id FROM OPERATION WHERE mois_id=?;";
@@ -738,17 +782,7 @@ public class DBManager {
 			ResultSet queryRes = executeQuery(stmt);
 
 			while (queryRes.next()) {
-				// parsing du résultat
-				String[] elt = new String[6];
-
-				elt[0] = queryRes.getString("nom");
-				elt[1] = String.valueOf(queryRes.getDouble("montant"));
-				elt[2] = queryRes.getString("type_ope");
-				elt[3] = queryRes.getString("etat");
-				elt[4] = String.valueOf(queryRes.getInt("compte_source_id"));
-				elt[5] = String.valueOf(queryRes.getInt("compte_cible_id"));
-
-				map.put(queryRes.getString("ID"), elt);
+				map.put(queryRes.getString("ID"), parseOperationFromRes(queryRes));
 			}
 
 		} catch (Exception e) {
@@ -756,6 +790,35 @@ public class DBManager {
 		}
 
 		return map;
+	}
+
+	private Operation parseOperationFromRes(ResultSet queryRes) throws SQLException {
+
+		Operation dep = null;
+		if (queryRes.getString("type_ope").equals(OperationType.DEPENSE.toString())) {
+			dep = new Operation(OperationType.DEPENSE,
+					CompteManager.getInstance().getAppCompteFromId(String.valueOf(queryRes.getInt("compte_source_id")))
+							.getCompte(),
+					queryRes.getString("nom"), queryRes.getDouble("montant"),
+					EtatOperation.valueOf(queryRes.getString("etat")));
+		}
+		if (queryRes.getString("type_ope").equals(OperationType.RESSOURCE.toString())) {
+			dep = new Operation(OperationType.RESSOURCE,
+					CompteManager.getInstance().getAppCompteFromId(String.valueOf(queryRes.getInt("compte_source_id")))
+							.getCompte(),
+					queryRes.getString("nom"), queryRes.getDouble("montant"),
+					EtatOperation.valueOf(queryRes.getString("etat")));
+		}
+		if (queryRes.getString("type_ope").equals(OperationType.TRANSFERT.toString())) {
+			dep = new TransfertOperation(
+					CompteManager.getInstance().getAppCompteFromId(String.valueOf(queryRes.getInt("compte_source_id")))
+							.getCompte(),
+					queryRes.getString("nom"), queryRes.getDouble("montant"),
+					EtatOperation.valueOf(queryRes.getString("etat")), CompteManager.getInstance()
+							.getAppCompteFromId(String.valueOf(queryRes.getInt("compte_cible_id"))).getCompte());
+		}
+
+		return dep;
 	}
 
 	/**
@@ -872,10 +935,10 @@ public class DBManager {
 	 * @return
 	 * @throws ComptaException
 	 */
-	public HashMap<String, String[]> searchOperation(String lib, String montant, String tolerance)
+	public HashMap<String, OperationSearchResult> searchOperation(String lib, String montant, String tolerance)
 			throws ComptaException {
 
-		HashMap<String, String[]> res = new HashMap<>();
+		HashMap<String, OperationSearchResult> res = new HashMap<>();
 
 		String query = "SELECT O.ID,O.nom,O.montant,O.mois_id,E.date_debut FROM OPERATION O INNER JOIN EXERCICE_MENSUEL E ON O.mois_id=E.ID";
 
@@ -939,18 +1002,12 @@ public class DBManager {
 			ResultSet queryRes = executeQuery(stmt);
 
 			while (queryRes.next()) {
-				// parsing du résultat
-				String[] elt = new String[3];
 
-				elt[0] = queryRes.getString("nom");
-				elt[1] = queryRes.getString("montant");
-				elt[2] = ApplicationFormatter.databaseDateFormat.format(queryRes.getDate("date_debut").toInstant());
-
-				res.put(queryRes.getString("ID"), elt);
+				res.put(queryRes.getString("ID"), parseOperationSearchResultFromRes(queryRes));
 			}
 		} catch (Exception e) {
 
-			throw new ComptaException("Echec de la recherche", e);
+			throw new ComptaException("Echec de la recherche des opérations", e);
 
 		}
 
@@ -958,41 +1015,67 @@ public class DBManager {
 	}
 
 	/**
-	 * Récupère les comptes actifs
+	 * Instancie une Opération depuis la persistance
+	 * 
+	 * @param queryRes
+	 * @return
+	 * @throws SQLException
+	 */
+	private OperationSearchResult parseOperationSearchResultFromRes(ResultSet queryRes) throws SQLException {
+
+		return new OperationSearchResult(queryRes.getString("nom"), queryRes.getDouble("montant"),
+				queryRes.getDate("date_debut").toLocalDate());
+	}
+
+	/**
+	 * Récupère les budget actifs
 	 * 
 	 * @return couple clé : identifiant et valeurs [nom,objectif,utilise,priority]
 	 * @throws ComptaException Echec de la récupération
 	 */
-	public HashMap<String, String[]> getActiveBudget() throws ComptaException {
+	public HashMap<String, Budget> getActiveBudget() throws ComptaException {
 
-		HashMap<String, String[]> res = new HashMap<>();
+		HashMap<String, Budget> res = new HashMap<>();
 
-		String query = "SELECT 	ID,nom,objectif,utilise,priority,label_recurrent,date_recurrent FROM BUDGET WHERE is_actif=True;";
+		String query = "SELECT ID,nom,objectif,utilise,priority,is_actif,label_recurrent,date_recurrent FROM BUDGET WHERE is_actif=True;";
 
 		try (PreparedStatement stmt = getConnexion().prepareStatement(query)) {
 
 			ResultSet queryRes = executeQuery(stmt);
 
 			while (queryRes.next()) {
-				// parsing du résultat
-				String[] elt = new String[6];
 
-				elt[0] = queryRes.getString("nom");
-				elt[1] = String.valueOf(queryRes.getDouble("objectif"));
-				elt[2] = String.valueOf(queryRes.getDouble("utilise"));
-				elt[3] = String.valueOf(queryRes.getInt("priority"));
-				elt[4] = queryRes.getString("label_recurrent");
-				elt[5] = ApplicationFormatter.databaseDateFormat
-						.format(queryRes.getDate("date_recurrent").toLocalDate());
-
-				res.put(queryRes.getString("ID"), elt);
+				res.put(queryRes.getString("ID"), parseBudgetFromRes(queryRes));
 			}
 
 		} catch (Exception e) {
-			throw new ComptaException("Impossible de récupérer les comptes", e);
+			throw new ComptaException("Impossible de récupérer tous les comptes de la base", e);
 		}
 
 		return res;
+	}
+
+	/**
+	 * 
+	 * 
+	 * @param queryRes
+	 * @return
+	 * @throws SQLException
+	 */
+	private Budget parseBudgetFromRes(ResultSet queryRes) throws SQLException {
+
+		// parsing du résultat
+		Budget elt = new Budget();
+
+		elt.setNom(queryRes.getString("nom"));
+		elt.setObjectif(queryRes.getDouble("objectif"));
+		elt.setMontantUtilise(queryRes.getDouble("utilise"));
+		elt.setPriority(queryRes.getInt("priority"));
+		elt.setIsActif(queryRes.getBoolean("is_actif"));
+		elt.setLabelRecurrent(queryRes.getString("label_recurrent"));
+		elt.setDateRecurrent(queryRes.getDate("date_recurrent").toLocalDate());
+
+		return elt;
 	}
 
 	/**
@@ -1195,9 +1278,9 @@ public class DBManager {
 	 * @return
 	 * @throws ComptaException Echec de la recupération
 	 */
-	public HashMap<String, String[]> getUtilisationInfos(String id) throws ComptaException {
+	public HashMap<String, Utilisation> getUtilisationInfos(String id) throws ComptaException {
 
-		HashMap<String, String[]> res = new HashMap<>();
+		HashMap<String, Utilisation> res = new HashMap<>();
 
 		// création de la requete
 		String query = "SELECT ID,nom,montant,date_util FROM UTILISATION WHERE budget_id=?";
@@ -1209,13 +1292,7 @@ public class DBManager {
 
 			while (queryRes.next()) {
 				// parsing du résultat
-				String[] elt = new String[3];
-
-				elt[0] = queryRes.getString("nom");
-				elt[1] = String.valueOf(queryRes.getDouble("montant"));
-				elt[2] = ApplicationFormatter.databaseDateFormat.format(queryRes.getDate("date_util").toInstant());
-
-				res.put(queryRes.getString("ID"), elt);
+				res.put(queryRes.getString("ID"), parseUtilisationFromRes(queryRes));
 			}
 
 		} catch (Exception e) {
@@ -1223,6 +1300,19 @@ public class DBManager {
 		}
 
 		return res;
+	}
+
+	/**
+	 * Instancie une Utilisation depuis la persistance
+	 * 
+	 * @param queryRes
+	 * @return
+	 * @throws SQLException
+	 */
+	private Utilisation parseUtilisationFromRes(ResultSet queryRes) throws SQLException {
+
+		return new Utilisation(queryRes.getDouble("montant"), queryRes.getString("nom"),
+				queryRes.getDate("date_util").toLocalDate());
 	}
 
 	/**

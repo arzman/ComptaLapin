@@ -24,22 +24,29 @@ public class Compte {
 	private boolean _isLivret;
 
 	/**
-	 * Indique si la somme sur le compte peut être utilisé pour remplir les
-	 * budgets
+	 * Indique si la somme sur le compte peut être utilisé pour remplir les budgets
 	 */
 	private boolean _budgetAllowed;
 
 	/**
-	 * Constructeur du Compte
-	 * 
-	 * @param aNom
-	 *            le nom du Compte
+	 * Constructeur par défaut
 	 */
-	public Compte(String aNom) {
-		setNom(aNom);
+	public Compte() {
+		_nom = "";
 		setSolde(0.0);
 		_isLivret = false;
 		_budgetAllowed = true;
+	}
+
+	/**
+	 * Constructeur du Compte
+	 * 
+	 * @param aNom le nom du Compte
+	 */
+	public Compte(String aNom) {
+		this();
+		setNom(aNom);
+
 	}
 
 	/**
@@ -81,8 +88,7 @@ public class Compte {
 	/**
 	 * Modifie l'autorisation de remplissage des budgets
 	 * 
-	 * @param budgetAllowed
-	 *            True si le compte est autorisé à remplir les budgets
+	 * @param budgetAllowed True si le compte est autorisé à remplir les budgets
 	 */
 	public void setBudgetAllowed(boolean budgetAllowed) {
 		_budgetAllowed = budgetAllowed;
@@ -91,8 +97,7 @@ public class Compte {
 	/**
 	 * Modifie le caractère "livret" du compte
 	 * 
-	 * @param isLivret
-	 *            True si le compte est un "livret"
+	 * @param isLivret True si le compte est un "livret"
 	 */
 	public void setLivret(boolean isLivret) {
 		_isLivret = isLivret;
@@ -101,8 +106,7 @@ public class Compte {
 	/**
 	 * Modifie le nom du compte
 	 * 
-	 * @param nom
-	 *            le nouveau nom
+	 * @param nom le nouveau nom
 	 */
 	public void setNom(String nom) {
 		_nom = nom;
@@ -111,8 +115,7 @@ public class Compte {
 	/**
 	 * Modifie le solde du compte
 	 * 
-	 * @param _olde
-	 *            le nouveau solde
+	 * @param _olde le nouveau solde
 	 */
 	public void setSolde(double solde) {
 		_solde = solde;

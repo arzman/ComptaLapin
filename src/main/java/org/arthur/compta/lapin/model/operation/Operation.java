@@ -45,6 +45,7 @@ public class Operation {
 
 	}
 
+
 	/**
 	 * Retourne le compte
 	 * 

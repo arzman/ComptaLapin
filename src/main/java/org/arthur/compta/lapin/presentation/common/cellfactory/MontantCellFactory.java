@@ -24,15 +24,25 @@ public class MontantCellFactory<T> implements Callback<TableColumn<T, Number>, T
 			protected void updateItem(Number item, boolean empty) {
 				// surcharge de la mise à jour du text
 				super.updateItem(item, empty);
-				if (empty || item == null) {
-					setText(null);
-				} else {
-					// on format le texte comme une valeur monnaitaire
-					setText(ApplicationFormatter.montantFormat.format(item));
-				}
+
+				setText(getTextFromItem(item, empty));
+
 			}
 
 		};
+	}
+
+	protected String getTextFromItem(Number item, boolean empty) {
+
+		String res;
+		if (empty || item == null) {
+			res = "";
+		} else {
+			// on format le texte comme une valeur monnaitaire
+			res = ApplicationFormatter.montantFormat.format(item);
+		}
+
+		return res;
 	}
 
 }

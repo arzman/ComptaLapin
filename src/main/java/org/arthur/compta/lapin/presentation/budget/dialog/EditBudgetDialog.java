@@ -207,7 +207,7 @@ public class EditBudgetDialog extends ComptaDialog<AppBudget> {
 
 		if (isReccurent) {
 
-			if (_dateBudgetDP.getValue() != null && !_listBudRecuCB.getSelectionModel().getSelectedItem().isEmpty()) {
+			if (_dateBudgetDP.getValue() != null && _listBudRecuCB.getSelectionModel().getSelectedItem()!=null) {
 				recError = false;
 			}
 
@@ -268,6 +268,13 @@ public class EditBudgetDialog extends ComptaDialog<AppBudget> {
 		_isReccurentChckB.selectedProperty().addListener((observable, oldValue, newValue) -> {
 			checkInput();
 
+		});
+		_listBudRecuCB.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+			checkInput();
+		});
+
+		_dateBudgetDP.valueProperty().addListener((observable, oldValue, newValue) -> {
+			checkInput();
 		});
 
 	}

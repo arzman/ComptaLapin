@@ -1,7 +1,9 @@
 package org.arthur.compta.lapin.application.manager;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.model.AppCompte;
@@ -41,17 +43,11 @@ public class CompteManager {
 
 		try {
 			// récupération en base des métadonnée des comptes
-			HashMap<String, String[]> fromPersistancy = DBManager.getInstance().getAllCompte();
+			HashMap<String, Compte> fromPersistancy = DBManager.getInstance().getAllCompte();
 
 			for (String id : fromPersistancy.keySet()) {
 
-				// création du modèle
-				Compte compte = new Compte(fromPersistancy.get(id)[0]);
-				compte.setSolde(Double.parseDouble(fromPersistancy.get(id)[1]));
-				compte.setLivret(Boolean.parseBoolean(fromPersistancy.get(id)[2]));
-				compte.setBudgetAllowed(Boolean.parseBoolean(fromPersistancy.get(id)[3]));
-				// encapsulation applicative
-				AppCompte appC = new AppCompte(compte);
+				AppCompte appC = new AppCompte(fromPersistancy.get(id));
 				appC.setAppID(id);
 
 				// ajout dans l'application
@@ -90,17 +86,12 @@ public class CompteManager {
 	/**
 	 * Création d'un nouveau compte
 	 * 
-	 * @param nom
-	 *            le nom du compte
-	 * @param solde
-	 *            le solde du compte
-	 * @param livret
-	 *            est livret ?
-	 * @param budgetAllowed
-	 *            budget autorisé ?
+	 * @param nom           le nom du compte
+	 * @param solde         le solde du compte
+	 * @param livret        est livret ?
+	 * @param budgetAllowed budget autorisé ?
 	 * @return le compte application créé
-	 * @throws ComptaException
-	 *             Exception si la création a échoué
+	 * @throws ComptaException Exception si la création a échoué
 	 */
 	public AppCompte addCompte(String nom, double solde, boolean livret, boolean budgetAllowed) throws ComptaException {
 
@@ -135,10 +126,8 @@ public class CompteManager {
 	/**
 	 * Suppression d'un compte
 	 * 
-	 * @param appCompte
-	 *            le compte a supprimer
-	 * @throws ComptaException
-	 *             La suppression a échouer
+	 * @param appCompte le compte a supprimer
+	 * @throws ComptaException La suppression a échouer
 	 */
 	public void removeCompte(AppCompte appCompte) throws ComptaException {
 
@@ -160,19 +149,13 @@ public class CompteManager {
 	/**
 	 * Met à jour le compte
 	 * 
-	 * @param appCompte
-	 *            le compte application associé
-	 * @param nom
-	 *            le nouveau nom
-	 * @param solde
-	 *            le nouveau solde
-	 * @param isLivret
-	 *            le nouveau flag isLivret
-	 * @param isBudget
-	 *            le nouveau floag isBudget
+	 * @param appCompte le compte application associé
+	 * @param nom       le nouveau nom
+	 * @param solde     le nouveau solde
+	 * @param isLivret  le nouveau flag isLivret
+	 * @param isBudget  le nouveau floag isBudget
 	 * @return le compte applicatif mis à jour
-	 * @throws ComptaException
-	 *             La mise à jour a échouée
+	 * @throws ComptaException La mise à jour a échouée
 	 */
 	public AppCompte editCompte(AppCompte appCompte, String nom, double solde, boolean isLivret, boolean isBudget)
 			throws ComptaException {
@@ -204,14 +187,31 @@ public class CompteManager {
 	 * @param id
 	 * @return
 	 */
-	public AppCompte getCompte(String id) {
+	public AppCompte getAppCompteFromCompte(Compte compte) {
 
 		AppCompte res = null;
 
 		boolean stop = false;
 		for (int i = 0; i < _compteList.size() && !stop; i++) {
 
-			if (_compteList.get(i).getAppId().equals(id)) {
+			if (_compteList.get(i).getCompte().getNom().equals(compte.getNom())) {
+				res = _compteList.get(i);
+				stop = true;
+			}
+
+		}
+
+		return res;
+	}
+
+	public AppCompte getAppCompteFromId(String appId) {
+
+		AppCompte res = null;
+
+		boolean stop = false;
+		for (int i = 0; i < _compteList.size() && !stop; i++) {
+
+			if (_compteList.get(i).getAppId().equals(appId)) {
 				res = _compteList.get(i);
 				stop = true;
 			}
@@ -236,8 +236,7 @@ public class CompteManager {
 	/**
 	 * Calcule les différents solde prévisionnel pour le compte donné
 	 * 
-	 * @param compte
-	 *            le compte , peut être null
+	 * @param compte le compte , peut être null
 	 */
 	public void calculateSoldePrev(AppCompte compte) {
 		// ajout des prévisions
@@ -260,10 +259,8 @@ public class CompteManager {
 	/**
 	 * Prise en compte du changement d'état d'une opération
 	 * 
-	 * @param appOp
-	 *            l'opération
-	 * @throws SQLException
-	 *             Erreur lors de l'opération
+	 * @param appOp l'opération
+	 * @throws SQLException Erreur lors de l'opération
 	 */
 	public void operationSwitched(AppOperation appOp) throws ComptaException {
 
@@ -294,6 +291,22 @@ public class CompteManager {
 			DBManager.getInstance().updateCompte(((AppTransfert) appOp).getCompteCible());
 		}
 
+	}
+
+	/**
+	 * Retourne la liste des noms de compte déjà existant
+	 * 
+	 * @return
+	 */
+	public List<String> getCompteNameList() {
+
+		ArrayList<String> res = new ArrayList<>();
+
+		for (AppCompte cpt : _compteList) {
+			res.add(cpt.getNom());
+		}
+
+		return res;
 	}
 
 }

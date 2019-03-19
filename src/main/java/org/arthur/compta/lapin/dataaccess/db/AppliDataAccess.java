@@ -11,7 +11,19 @@ import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
 public class AppliDataAccess extends ComptaDataAccess {
 
-	public AppliDataAccess() {
+	/** instance du singleton */
+	private static AppliDataAccess _instance;
+
+	public static AppliDataAccess getInstance() {
+
+		if (_instance == null) {
+			_instance = new AppliDataAccess();
+		}
+
+		return _instance;
+	}
+
+	private AppliDataAccess() {
 		super();
 	}
 
@@ -19,7 +31,8 @@ public class AppliDataAccess extends ComptaDataAccess {
 	 * Retourne la date de dernière vérification sauvée en base
 	 * 
 	 * @return
-	 * @throws ComptaException Echec de la récupération
+	 * @throws ComptaException
+	 *             Echec de la récupération
 	 */
 	public String getDateDerVerif() throws ComptaException {
 
@@ -48,11 +61,12 @@ public class AppliDataAccess extends ComptaDataAccess {
 	 * Récupère en base l'id du trimestre courant
 	 * 
 	 * @return les champ du compte courant
-	 * @throws ComptaException Echec de la récupération
+	 * @throws ComptaException
+	 *             Echec de la récupération
 	 */
-	public String getTrimestreCourantId() throws ComptaException {
+	public int getTrimestreCourantId() throws ComptaException {
 
-		String res = "";
+		int res = -1;
 
 		// création de la requete
 		String query = "SELECT ID_TRIMESTRE FROM CONFIGURATION limit 1";
@@ -62,7 +76,7 @@ public class AppliDataAccess extends ComptaDataAccess {
 			// parse du resultat
 			while (queryRes.next()) {
 
-				res = String.valueOf(queryRes.getInt("ID_TRIMESTRE"));
+				res = queryRes.getInt("ID_TRIMESTRE");
 
 			}
 		} catch (Exception e) {
@@ -76,7 +90,8 @@ public class AppliDataAccess extends ComptaDataAccess {
 	 * Sauve en base la date de dernière modif
 	 * 
 	 * @param date
-	 * @throws ComptaException Echec de l'écriture en base
+	 * @throws ComptaException
+	 *             Echec de l'écriture en base
 	 */
 	public void setDateDerVerif(LocalDate date) throws ComptaException {
 
@@ -94,17 +109,18 @@ public class AppliDataAccess extends ComptaDataAccess {
 	/**
 	 * Sauvegarde l'id du trimestre courant en base
 	 * 
-	 * @param appId le nouvel id
-	 * @throws ComptaException Echec de l'insertion
+	 * @param appId
+	 *            le nouvel id
+	 * @throws ComptaException
+	 *             Echec de l'insertion
 	 */
-	public void setTrimestreCourant(String appId) throws ComptaException {
+	public void setTrimestreCourant(int appId) throws ComptaException {
 
 		// préparation de la requête
 		String query = "UPDATE CONFIGURATION SET ID_TRIMESTRE=?;";
-		try (PreparedStatement stmt = DBManager.getInstance().getConnexion().prepareStatement(query,
-				Statement.RETURN_GENERATED_KEYS)) {
+		try (PreparedStatement stmt = DBManager.getInstance().getConnexion().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
-			stmt.setInt(1, Integer.parseInt(appId));
+			stmt.setInt(1, appId);
 			executeUpdate(stmt);
 
 			if (stmt.getUpdateCount() == 0) {
@@ -112,7 +128,7 @@ public class AppliDataAccess extends ComptaDataAccess {
 				String query2 = "INSERT INTO CONFIGURATION (date_verif,ID_TRIMESTRE) VALUES (?,?);";
 				try (PreparedStatement stmt2 = DBManager.getInstance().getConnexion().prepareStatement(query2)) {
 					stmt2.setDate(1, Date.valueOf(LocalDate.now()));
-					stmt2.setInt(2, Integer.parseInt(appId));
+					stmt2.setInt(2, appId);
 					executeUpdate(stmt2);
 				} catch (Exception e) {
 					throw new ComptaException("Impossible d'insérer la nouvelle configuration en base", e);

@@ -112,7 +112,7 @@ public class RapportTrimDialog extends ComptaDialog<ButtonData> {
 					if (file != null) {
 						// création du rapport
 						try {
-							SyntheseService.writeRapportForTrim(idTrim, file);
+							SyntheseService.writeRapportForTrim(Integer.parseInt(idTrim), file);
 						} catch (ComptaException e) {
 							ExceptionDisplayService.showException(e);
 						}

@@ -11,10 +11,8 @@ import javafx.beans.property.SimpleStringProperty;
  * couche de présentation et la persistance
  *
  */
-public class AppCompte extends AppObject {
+public class AppCompte extends AppObject<Compte> {
 
-	/** le compte métier */
-	private Compte _compte;
 	/** Le nom du compte */
 	private SimpleStringProperty _nom;
 	/** Le solde du compte */
@@ -36,14 +34,15 @@ public class AppCompte extends AppObject {
 	 * @param compte_
 	 *            le compte métier relié
 	 */
-	public AppCompte(Compte compte_) {
-		_compte = compte_;
+	public AppCompte(Compte compte) {
+
+		setAppID(compte.getId());
 
 		// encapsulation des attributs du compte
-		_nom = new SimpleStringProperty(_compte.getNom());
-		_solde = new SimpleDoubleProperty(_compte.getSolde());
-		_isLivretProp = new SimpleBooleanProperty(_compte.isLivret());
-		_isBudgetProp = new SimpleBooleanProperty(_compte.isBudgetAllowed());
+		_nom = new SimpleStringProperty(compte.getNom());
+		_solde = new SimpleDoubleProperty(compte.getSolde());
+		_isLivretProp = new SimpleBooleanProperty(compte.isLivret());
+		_isBudgetProp = new SimpleBooleanProperty(compte.isBudgetAllowed());
 
 		// solde prévisionnel
 		_soldePrev1 = new SimpleDoubleProperty(0);
@@ -76,7 +75,6 @@ public class AppCompte extends AppObject {
 	 * @param nom
 	 */
 	public void setNom(String nom) {
-		_compte.setNom(nom);
 		_nom.set(nom);
 
 	}
@@ -105,7 +103,6 @@ public class AppCompte extends AppObject {
 	 * @param solde
 	 */
 	public void setSolde(double soldes) {
-		_compte.setSolde(soldes);
 		_solde.set(soldes);
 
 	}
@@ -137,7 +134,6 @@ public class AppCompte extends AppObject {
 	 */
 	public void setIsLivret(boolean isLivret) {
 		_isLivretProp.set(isLivret);
-		_compte.setLivret(isLivret);
 
 	}
 
@@ -148,7 +144,6 @@ public class AppCompte extends AppObject {
 	 */
 	public void setIsBudget(boolean isBudget) {
 		_isBudgetProp.set(isBudget);
-		_compte.setBudgetAllowed(isBudget);
 
 	}
 
@@ -156,15 +151,6 @@ public class AppCompte extends AppObject {
 	public String toString() {
 
 		return _nom.get();
-	}
-
-	/**
-	 * Retourne le compte associé
-	 * 
-	 * @return
-	 */
-	public Compte getCompte() {
-		return _compte;
 	}
 
 	/**
@@ -204,6 +190,11 @@ public class AppCompte extends AppObject {
 	 */
 	public double getSoldePrev3() {
 		return _soldePrev3.get();
+	}
+
+	@Override
+	public Compte getDBObject() {
+		return new Compte(getAppId(), getSolde(), getNom(), isLivret(), isBudget());
 	}
 
 }

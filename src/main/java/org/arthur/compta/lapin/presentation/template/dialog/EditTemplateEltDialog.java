@@ -43,13 +43,12 @@ public class EditTemplateEltDialog extends ComptaDialog<TrimestreTemplateElement
 	private ComboBox<AppCompte> _srcCombo;
 	/** Saisie du compte cible */
 	private ComboBox<AppCompte> _cibleCombo;
-	/** le bouton ok */
-	private ButtonType _okButton;
 
 	/**
 	 * Constructeur
 	 * 
-	 * @param elt l'element a éditer , null si création
+	 * @param elt
+	 *            l'element a éditer , null si création
 	 */
 	public EditTemplateEltDialog(TrimestreTemplateElement elt) {
 
@@ -85,7 +84,7 @@ public class EditTemplateEltDialog extends ComptaDialog<TrimestreTemplateElement
 
 				TrimestreTemplateElement elt = _templateElt;
 				// appuis sur ok
-				if (param.equals(_okButton)) {
+				if (param.equals(_buttonTypeOk)) {
 
 					if (elt == null) {
 						elt = new TrimestreTemplateElement();
@@ -93,8 +92,7 @@ public class EditTemplateEltDialog extends ComptaDialog<TrimestreTemplateElement
 					elt.setNom(_nomTxt.getText());
 					elt.setMontant(Double.parseDouble(_montantTxt.getText()));
 					elt.setType(_typeCombo.getSelectionModel().getSelectedItem());
-					elt.setFreq(TrimestreTemplateElementFrequence
-							.valueOf(_freqCombo.getSelectionModel().getSelectedItem()));
+					elt.setFreq(TrimestreTemplateElementFrequence.valueOf(_freqCombo.getSelectionModel().getSelectedItem()));
 					if (!_occComb.isDisable()) {
 						elt.setOccurence(_occComb.getSelectionModel().getSelectedItem());
 					}
@@ -179,8 +177,7 @@ public class EditTemplateEltDialog extends ComptaDialog<TrimestreTemplateElement
 			_montantTxt.setText(String.valueOf(_templateElt.getMontant()));
 			_typeCombo.getSelectionModel().select(String.valueOf(_templateElt.getType()));
 			_freqCombo.getSelectionModel().select(String.valueOf(_templateElt.getFreq()));
-			_occComb.getItems()
-					.addAll(TemplateService.getOccurenceForFreq(_freqCombo.getSelectionModel().getSelectedItem()));
+			_occComb.getItems().addAll(TemplateService.getOccurenceForFreq(_freqCombo.getSelectionModel().getSelectedItem()));
 			_occComb.getSelectionModel().select(new Integer(_templateElt.getOccurence()));
 			_srcCombo.getSelectionModel().select(_templateElt.getCompteSource());
 			_cibleCombo.getSelectionModel().select(_templateElt.getCompteCible());
@@ -202,14 +199,15 @@ public class EditTemplateEltDialog extends ComptaDialog<TrimestreTemplateElement
 	 * Création des boutons
 	 */
 	protected void createButtonBar() {
+		super.createButtonBar();
 		// bouton annuler
 		ButtonType cancelButton = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(cancelButton);
 	}
 
 	/**
-	 * Affecte des écouteurs de modification sur les champs de saisie. Ces écouteurs
-	 * déclenchent la vérification de la saisie
+	 * Affecte des écouteurs de modification sur les champs de saisie. Ces
+	 * écouteurs déclenchent la vérification de la saisie
 	 */
 	private void hookListeners() {
 		// nom
@@ -267,25 +265,22 @@ public class EditTemplateEltDialog extends ComptaDialog<TrimestreTemplateElement
 		}
 		// vérif du type
 
-		_cibleCombo.setDisable(
-				!TrimestreManager.getInstance().isTransfertType(_typeCombo.getSelectionModel().getSelectedItem()));
+		_cibleCombo.setDisable(!TrimestreManager.getInstance().isTransfertType(_typeCombo.getSelectionModel().getSelectedItem()));
 
 		// Vérif de la frequence
 		if (_freqCombo.getSelectionModel().getSelectedItem() != null) {
-			_occComb.setDisable(_freqCombo.getSelectionModel().getSelectedItem()
-					.equals(TrimestreTemplateElementFrequence.MENSUEL.toString()));
+			_occComb.setDisable(_freqCombo.getSelectionModel().getSelectedItem().equals(TrimestreTemplateElementFrequence.MENSUEL.toString()));
 
 			if (changeOcc) {
 				_occComb.getItems().clear();
-				_occComb.getItems()
-						.addAll(TemplateService.getOccurenceForFreq(_freqCombo.getSelectionModel().getSelectedItem()));
+				_occComb.getItems().addAll(TemplateService.getOccurenceForFreq(_freqCombo.getSelectionModel().getSelectedItem()));
 				_occComb.getSelectionModel().select(0);
 			}
 
 		}
 
-		if (_okButton != null) {
-			Node OkButton = getDialogPane().lookupButton(_okButton);
+		if (_buttonTypeOk != null) {
+			Node OkButton = getDialogPane().lookupButton(_buttonTypeOk);
 			OkButton.setDisable(nomError || soldeError);
 		}
 	}

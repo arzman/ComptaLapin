@@ -40,25 +40,28 @@ public class CreateOperationDialog extends ComptaDialog<String> {
 	private ComboBox<AppCompte> _srcCombo;
 	/** Saisie du compte cible */
 	private ComboBox<AppCompte> _cibleCombo;
-	/** le bouton ok */
-	private ButtonType _okButton;
 
 	/**
 	 * Constructeur
 	 * 
-	 * @param op l'opération à éditer, null si création
+	 * @param op
+	 *            l'opération à éditer, null si création
 	 */
-	public CreateOperationDialog(AppOperation op, int numMois) {
+	public CreateOperationDialog(AppOperation op, int numMois, String dString) {
 
 		super(CreateOperationDialog.class.getSimpleName());
 
-		setTitle("Création d'un opération");
+		if (op == null) {
+			setTitle("Création d'une opération");
+		} else {
+			setTitle("Edition d'une opération");
+		}
 		_operation = op;
 		_numMois = numMois;
 		// création du contenu
 		createContent();
 		// initialisation des valeurs
-		initValues();
+		initValues(dString);
 		// ajout des listeners sur les champs
 		hookListeners();
 
@@ -71,16 +74,14 @@ public class CreateOperationDialog extends ComptaDialog<String> {
 				String res = null;
 
 				// appuis sur ok
-				if (param.equals(_okButton)) {
+				if (param.equals(_buttonTypeOk)) {
 
 					// création
 					if (_operation == null) {
 
 						try {
-							_operation = TrimestreManager.getInstance().addOperation(_libTxt.getText(),
-									Double.parseDouble(_montantTxt.getText()),
-									_typeCombo.getSelectionModel().getSelectedItem(),
-									_srcCombo.getSelectionModel().getSelectedItem(),
+							_operation = TrimestreManager.getInstance().addOperation(_libTxt.getText(), Double.parseDouble(_montantTxt.getText()),
+									_typeCombo.getSelectionModel().getSelectedItem(), _srcCombo.getSelectionModel().getSelectedItem(),
 									_cibleCombo.getSelectionModel().getSelectedItem(), _numMois);
 						} catch (Exception e) {
 							ExceptionDisplayService.showException(e);
@@ -89,10 +90,8 @@ public class CreateOperationDialog extends ComptaDialog<String> {
 					} else {
 						// édition
 						try {
-							_operation = OperationService.editOperation(_operation, _libTxt.getText(),
-									Double.parseDouble(_montantTxt.getText()),
-									_srcCombo.getSelectionModel().getSelectedItem(),
-									_cibleCombo.getSelectionModel().getSelectedItem());
+							_operation = OperationService.editOperation(_operation, _libTxt.getText(), Double.parseDouble(_montantTxt.getText()),
+									_srcCombo.getSelectionModel().getSelectedItem(), _cibleCombo.getSelectionModel().getSelectedItem());
 						} catch (Exception e) {
 							ExceptionDisplayService.showException(e);
 						}
@@ -155,7 +154,7 @@ public class CreateOperationDialog extends ComptaDialog<String> {
 	/**
 	 * Positionne les valeurs de l'ihm à partir de l'élément de template
 	 */
-	private void initValues() {
+	private void initValues(String typeOpe) {
 
 		if (_operation != null) {
 			// édition
@@ -172,7 +171,7 @@ public class CreateOperationDialog extends ComptaDialog<String> {
 			// création
 			_libTxt.setText("");
 			_montantTxt.setText("0");
-			_typeCombo.getSelectionModel().select(0);
+			_typeCombo.getSelectionModel().select(typeOpe);
 			_srcCombo.getSelectionModel().select(0);
 			_cibleCombo.getSelectionModel().select(0);
 		}
@@ -183,14 +182,17 @@ public class CreateOperationDialog extends ComptaDialog<String> {
 	 * Création des boutons
 	 */
 	protected void createButtonBar() {
+
+		super.createButtonBar();
+
 		// bouton annuler
 		ButtonType cancelButton = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(cancelButton);
 	}
 
 	/**
-	 * Affecte des écouteurs de modification sur les champs de saisie. Ces écouteurs
-	 * déclenchent la vérification de la saisie
+	 * Affecte des écouteurs de modification sur les champs de saisie. Ces
+	 * écouteurs déclenchent la vérification de la saisie
 	 */
 	private void hookListeners() {
 		// nom
@@ -244,11 +246,10 @@ public class CreateOperationDialog extends ComptaDialog<String> {
 		}
 		// vérif du type
 
-		_cibleCombo.setDisable(
-				!TrimestreManager.getInstance().isTransfertType(_typeCombo.getSelectionModel().getSelectedItem()));
+		_cibleCombo.setDisable(!TrimestreManager.getInstance().isTransfertType(_typeCombo.getSelectionModel().getSelectedItem()));
 
-		if (_okButton != null) {
-			Node OkButton = getDialogPane().lookupButton(_okButton);
+		if (_buttonTypeOk != null) {
+			Node OkButton = getDialogPane().lookupButton(_buttonTypeOk);
 			OkButton.setDisable(nomError || soldeError);
 		}
 	}

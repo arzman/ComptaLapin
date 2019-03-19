@@ -11,6 +11,9 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.dataaccess.files.FilesManager;
 
@@ -21,6 +24,8 @@ public class DBManager {
 
 	/** l'instance du singleton */
 	private static DBManager _instance;
+
+	private final Logger _logger;
 
 	/**
 	 * Connexion à la base
@@ -45,6 +50,8 @@ public class DBManager {
 	/** Le constructeur par défaut */
 	private DBManager() {
 
+		_logger = LogManager.getLogger(DBManager.class);
+
 		Path pathToDb = Paths.get(FilesManager.getInstance().getDBFolder().toString(), "db_data");
 
 		try {
@@ -56,9 +63,12 @@ public class DBManager {
 		}
 
 		// on met la base a jour ( si besoin)
-		if (Boolean
-				.valueOf(ConfigurationManager.getInstance().getProp("DBManager.checkupdate", Boolean.toString(true)))) {
-			DBUpdateService.checkUpdate(_connexionDB);
+		if (Boolean.valueOf(ConfigurationManager.getInstance().getProp("DBManager.checkupdate", Boolean.toString(true)))) {
+			try {
+				DBUpdateService.checkUpdate(_connexionDB);
+			} catch (ComptaException e) {
+				_logger.fatal(e);
+			}
 		}
 
 	}
@@ -66,13 +76,14 @@ public class DBManager {
 	/**
 	 * Exécute un script SQL "interne"
 	 * 
-	 * @param connexion la connexion à la base
-	 * @param script    le script a executer
+	 * @param connexion
+	 *            la connexion à la base
+	 * @param script
+	 *            le script a executer
 	 */
 	private void loadScript(Connection connexion, String script) {
 
-		try (InputStream input = getClass()
-				.getResourceAsStream("/org/arthur/compta/lapin/dataaccess/db/ressource/" + script);
+		try (InputStream input = getClass().getResourceAsStream("/org/arthur/compta/lapin/dataaccess/db/ressource/" + script);
 				InputStreamReader reader = new InputStreamReader(input);
 				BufferedReader bReader = new BufferedReader(reader);) {
 
@@ -96,14 +107,14 @@ public class DBManager {
 	/**
 	 * Méthode de création de la base de donnée
 	 *
-	 * @param pathToDb le fichier de donnée de la base
+	 * @param pathToDb
+	 *            le fichier de donnée de la base
 	 */
 	private void createDB(Path pathToDb) {
 
 		// création de la base
 		try {
-			_connexionDB = DriverManager.getConnection("jdbc:hsqldb:file:" + pathToDb.toString() + ";ifexists=false",
-					"sa", "");
+			_connexionDB = DriverManager.getConnection("jdbc:hsqldb:file:" + pathToDb.toString() + ";ifexists=false", "sa", "");
 
 			loadScript(_connexionDB, "create_db.sql");
 
@@ -146,8 +157,7 @@ public class DBManager {
 			pst.execute();
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			_logger.fatal(e);
 		}
 
 	}

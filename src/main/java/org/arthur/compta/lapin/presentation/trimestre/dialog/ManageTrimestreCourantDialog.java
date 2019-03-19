@@ -10,6 +10,7 @@ import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import org.arthur.compta.lapin.presentation.trimestre.cellfactory.TrimestreListCellFactory;
 
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -29,7 +30,7 @@ import javafx.util.Callback;
  * trimestre
  *
  */
-public class ManageTrimestreCourantDialog extends ComptaDialog<String> {
+public class ManageTrimestreCourantDialog extends ComptaDialog<Integer> {
 
 	/**
 	 * Les id des trimestre à afficher ainsi que leur date de début.
@@ -75,8 +76,27 @@ public class ManageTrimestreCourantDialog extends ComptaDialog<String> {
 		// Création du menu contextuel
 		createContextMenu();
 
-		// création des boutons
-		createBoutonBar();
+		// Retourne le Compte créé sur le OK
+		setResultConverter(new Callback<ButtonType, Integer>() {
+
+			@Override
+			public Integer call(ButtonType param) {
+
+				int zeReturn = -1;
+
+				// appuie sur Ok : on crée le trimestre
+				if (param.getButtonData().equals(ButtonData.OK_DONE)) {
+
+					// recup du trimestre
+					zeReturn = Integer.parseInt(_listV.getSelectionModel().getSelectedItem());
+
+				}
+
+				return zeReturn;
+			}
+		});
+
+		getDialogPane().lookupButton(_buttonTypeOk).disableProperty().bind(Bindings.isEmpty(_listV.getSelectionModel().getSelectedItems()));
 
 	}
 
@@ -100,7 +120,7 @@ public class ManageTrimestreCourantDialog extends ComptaDialog<String> {
 				if (idToDel != null && !idToDel.isEmpty()) {
 
 					try {
-						TrimestreManager.getInstance().removeTrimestre(idToDel);
+						TrimestreManager.getInstance().removeTrimestre(Integer.parseInt(idToDel));
 						_trimDdList.remove(idToDel);
 					} catch (ComptaException e) {
 						ExceptionDisplayService.showException(e);
@@ -117,35 +137,15 @@ public class ManageTrimestreCourantDialog extends ComptaDialog<String> {
 	/**
 	 * Crée les boutons OK et Cancel
 	 */
-	private void createBoutonBar() {
-
-		// Création du bouton OK
-		ButtonType _buttonTypeOk = new ButtonType("Ok", ButtonData.OK_DONE);
-		getDialogPane().getButtonTypes().add(_buttonTypeOk);
+	@Override
+	protected void createButtonBar() {
+		// TODO Auto-generated method stub
+		super.createButtonBar();
 
 		// Création du bouton Cancel
 		ButtonType buttonTypeCancel = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(buttonTypeCancel);
 
-		// Retourne le Compte créé sur le OK
-		setResultConverter(new Callback<ButtonType, String>() {
-
-			@Override
-			public String call(ButtonType param) {
-
-				String zeReturn = null;
-
-				// appuie sur Ok : on crée le trimestre
-				if (param.getButtonData().equals(ButtonData.OK_DONE)) {
-
-					// recup du trimestre
-					zeReturn = _listV.getSelectionModel().getSelectedItem();
-
-				}
-
-				return zeReturn;
-			}
-		});
 	}
 
 }

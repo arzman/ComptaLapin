@@ -42,8 +42,7 @@ public class Budget {
 	/** Date récurrente */
 	private LocalDate _dateRecurrent;
 
-	public Budget(int id, double objectif_, double montantUtilise, String nom, boolean isActif, int priority,
-			String labelRec, LocalDate dateRecurrent) {
+	public Budget(int id, double objectif_, double montantUtilise, String nom, boolean isActif, int priority, String labelRec, LocalDate dateRecurrent) {
 
 		_id = id;
 		_objectif = objectif_;
@@ -57,7 +56,7 @@ public class Budget {
 			_labelRec = labelRec;
 		}
 
-		if (_dateRecurrent == null) {
+		if (dateRecurrent == null) {
 			_dateRecurrent = LocalDate.of(1986, 6, 27);
 		} else {
 			_dateRecurrent = dateRecurrent;

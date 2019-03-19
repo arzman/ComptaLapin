@@ -12,10 +12,8 @@ import javafx.beans.property.SimpleStringProperty;
  * Encapsulation applicative d'une Utilisation de Budget
  *
  */
-public class AppUtilisation extends AppObject {
+public class AppUtilisation extends AppObject<Utilisation> {
 
-	/** L'utilisation métier */
-	private Utilisation _utilisation;
 	/** Le libellé */
 	private SimpleStringProperty _nomProp;
 	/** La date */
@@ -26,14 +24,15 @@ public class AppUtilisation extends AppObject {
 	/**
 	 * Constructeur
 	 * 
-	 * @param utilisation utilisation métier
+	 * @param utilisation
+	 *            utilisation métier
 	 */
 	public AppUtilisation(Utilisation utilisation) {
 
-		_utilisation = utilisation;
-		_nomProp = new SimpleStringProperty(_utilisation.getLibelle());
-		_dateProp = new SimpleObjectProperty<>(_utilisation.getDate());
-		_montantProp = new SimpleDoubleProperty(_utilisation.getMontant());
+		setAppID(utilisation.getId());
+		_nomProp = new SimpleStringProperty(utilisation.getLibelle());
+		_dateProp = new SimpleObjectProperty<>(utilisation.getDate());
+		_montantProp = new SimpleDoubleProperty(utilisation.getMontant());
 	}
 
 	/**
@@ -71,7 +70,6 @@ public class AppUtilisation extends AppObject {
 	public void setNom(String nom) {
 
 		_nomProp.set(nom);
-		_utilisation.setLibelle(nom);
 	}
 
 	/**
@@ -81,7 +79,6 @@ public class AppUtilisation extends AppObject {
 	 */
 	public void setMontant(double montant) {
 		_montantProp.set(montant);
-		_utilisation.setMontant(montant);
 
 	}
 
@@ -92,7 +89,6 @@ public class AppUtilisation extends AppObject {
 	 */
 	public void setDate(LocalDate date) {
 		_dateProp.set(date);
-		_utilisation.setDate(date);
 
 	}
 
@@ -121,6 +117,12 @@ public class AppUtilisation extends AppObject {
 	 */
 	public LocalDate getDate() {
 		return _dateProp.get();
+	}
+
+	@Override
+	public Utilisation getDBObject() {
+
+		return new Utilisation(getAppId(), getMontant(), getNom(), getDate());
 	}
 
 }

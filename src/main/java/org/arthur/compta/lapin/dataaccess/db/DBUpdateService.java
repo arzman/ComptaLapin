@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import org.arthur.compta.lapin.application.exception.ComptaException;
+
 /**
  * Service de mise à jour de la base. Ce service centralise les modifications du
  * schéma depuis la v1 du schéma de la base ie : on enchaine les modif du schéma
@@ -14,7 +16,7 @@ import java.util.ArrayList;
  */
 public class DBUpdateService {
 
-	public static void checkUpdate(Connection _connexionDB) {
+	public static void checkUpdate(Connection _connexionDB) throws ComptaException {
 
 		// ajout des champs label_recurrent et date_recurrent dans BUDGET
 		String query = "SELECT COLUMN_NAME as c FROM INFORMATION_SCHEMA.SYSTEM_COLUMNS WHERE TABLE_NAME='BUDGET';";
@@ -36,7 +38,7 @@ public class DBUpdateService {
 					stmt2.executeUpdate();
 
 				} catch (Exception e) {
-					e.printStackTrace();
+					throw new ComptaException("Impossible d'ajouter la colonne label_recurrent", e);
 				}
 
 			}
@@ -49,13 +51,13 @@ public class DBUpdateService {
 					stmt2.executeUpdate();
 
 				} catch (Exception e) {
-					e.printStackTrace();
+					throw new ComptaException("Impossible d'ajouter la colonne DATE_RECURRENT", e);
 				}
 
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ComptaException("Impossible de récupérer la table BUDGET", e);
 		}
 
 		// ajout de la table LABEL_BUDGET_RECURRENT
@@ -72,12 +74,11 @@ public class DBUpdateService {
 					stmt2.executeUpdate();
 
 				} catch (Exception e) {
-					e.printStackTrace();
+					throw new ComptaException("Impossible d'ajouter la table LABEL_BUDGET_RECURRENT", e);
 				}
 			}
 		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			throw new ComptaException("Impossible de récupérer la table LABEL_BUDGET_RECURRENT", e1);
 		}
 
 	}

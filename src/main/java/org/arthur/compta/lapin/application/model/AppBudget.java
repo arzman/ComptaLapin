@@ -11,10 +11,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
-public class AppBudget extends AppObject {
-
-	/** Le budget métier encapsulé */
-	private Budget _budget;
+public class AppBudget extends AppObject<Budget> {
 
 	/** Le nom */
 	private SimpleStringProperty _nompProp;
@@ -44,7 +41,7 @@ public class AppBudget extends AppObject {
 	 */
 	public AppBudget(Budget budget) {
 
-		_budget = budget;
+		setAppID(budget.getId());
 
 		// caractéristique propre des budgets
 		_nompProp = new SimpleStringProperty(budget.getNom());
@@ -60,8 +57,7 @@ public class AppBudget extends AppObject {
 		_montantCourantProp = new SimpleDoubleProperty();
 		_montantLivretProp = new SimpleDoubleProperty();
 		_isTermine = new SimpleBooleanProperty();
-		_isTermine.bind(Bindings.createBooleanBinding(() -> budget.getMontantUtilise() == budget.getObjectif(),
-				_objectifProp, _montantUtiliseProp));
+		_isTermine.bind(Bindings.createBooleanBinding(() -> budget.getMontantUtilise() == budget.getObjectif(), _objectifProp, _montantUtiliseProp));
 
 	}
 
@@ -91,7 +87,6 @@ public class AppBudget extends AppObject {
 	public void setNom(String nom) {
 
 		_nompProp.set(nom);
-		_budget.setNom(nom);
 
 	}
 
@@ -112,7 +107,6 @@ public class AppBudget extends AppObject {
 	 */
 	public void setObjectif(double objectif) {
 		_objectifProp.set(objectif);
-		_budget.setObjectif(objectif);
 
 	}
 
@@ -189,7 +183,6 @@ public class AppBudget extends AppObject {
 	 */
 	public void setMontantUtilise(double utilise) {
 		_montantUtiliseProp.set(utilise);
-		_budget.setMontantUtilise(utilise);
 
 	}
 
@@ -229,7 +222,6 @@ public class AppBudget extends AppObject {
 	 */
 	public void setIsActif(boolean isActif) {
 		_isActifProp.set(isActif);
-		_budget.setIsActif(isActif);
 
 	}
 
@@ -251,7 +243,6 @@ public class AppBudget extends AppObject {
 	public void setPriority(int prio) {
 
 		_priorityProp.set(prio);
-		_budget.setPriority(prio);
 
 	}
 
@@ -320,6 +311,11 @@ public class AppBudget extends AppObject {
 	public void setDateReccurent(LocalDate dateRecurrent) {
 		_dateRecurrentProp.setValue(dateRecurrent);
 
+	}
+
+	@Override
+	public Budget getDBObject() {
+		return new Budget(getAppId(), getObjectif(), getMontantUtilise(), getNom(), isActif(), getPriority(), getLabelRecurrent(), getDateRecurrent());
 	}
 
 }

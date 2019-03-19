@@ -27,8 +27,7 @@ public class Operation {
 	/**
 	 * Construction par défaut
 	 */
-	public Operation(int id, OperationType type, int srcCompteId, String nom, double montant, EtatOperation etat,
-			int cibleCompteId) {
+	public Operation(int id, OperationType type, int srcCompteId, String nom, double montant, EtatOperation etat, int cibleCompteId) {
 		_id = id;
 		_type = type;
 		_etat = etat;
@@ -86,6 +85,10 @@ public class Operation {
 
 	public int getCibleCompteId() {
 		return _cibleCompteId;
+	}
+
+	public int getId() {
+		return _id;
 	}
 
 	/**

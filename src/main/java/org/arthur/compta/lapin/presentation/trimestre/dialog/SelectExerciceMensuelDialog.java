@@ -44,8 +44,6 @@ public class SelectExerciceMensuelDialog extends ComptaDialog<AppExerciceMensuel
 
 		// Création des champ de saisi
 		createContent();
-		// création des boutons de control
-		createBoutonBar();
 
 		hookListeners();
 
@@ -77,8 +75,8 @@ public class SelectExerciceMensuelDialog extends ComptaDialog<AppExerciceMensuel
 
 			_listV.setItems(_trimDdList);
 		} catch (ComptaException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			ExceptionDisplayService.showException(e);
 		}
 
 		grid.add(_listV, 0, 0);
@@ -100,11 +98,10 @@ public class SelectExerciceMensuelDialog extends ComptaDialog<AppExerciceMensuel
 	/**
 	 * Crée les boutons OK et Cancel
 	 */
-	private void createBoutonBar() {
+	@Override
+	protected void createButtonBar() {
 
-		// Création du bouton OK
-		_buttonTypeOk = new ButtonType("Ok", ButtonData.OK_DONE);
-		getDialogPane().getButtonTypes().add(_buttonTypeOk);
+		super.createButtonBar();
 
 		// Création du bouton Cancel
 		ButtonType buttonTypeCancel = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
@@ -126,8 +123,8 @@ public class SelectExerciceMensuelDialog extends ComptaDialog<AppExerciceMensuel
 					if (id != null && !id.isEmpty()) {
 
 						try {
-							zeReturn = new AppExerciceMensuelLightId(
-									TrimestreManager.getInstance().getExerciceMensuelId(id, num), id, num);
+							zeReturn = new AppExerciceMensuelLightId(TrimestreManager.getInstance().getExerciceMensuelId(Integer.parseInt(id), num),
+									Integer.parseInt(id), num);
 						} catch (ComptaException e) {
 							ExceptionDisplayService.showException(e);
 						}
@@ -170,8 +167,8 @@ public class SelectExerciceMensuelDialog extends ComptaDialog<AppExerciceMensuel
 	}
 
 	/**
-	 * Affecte des écouteurs de modification sur les champs de saisie. Ces écouteurs
-	 * déclenchent la vérification de la saisie
+	 * Affecte des écouteurs de modification sur les champs de saisie. Ces
+	 * écouteurs déclenchent la vérification de la saisie
 	 */
 	private void hookListeners() {
 

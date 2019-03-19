@@ -3,15 +3,17 @@ package org.arthur.compta.lapin.application.manager;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.model.AppBudget;
 import org.arthur.compta.lapin.application.model.AppCompte;
 import org.arthur.compta.lapin.application.model.AppUtilisation;
-import org.arthur.compta.lapin.dataaccess.db.DBManager;
+import org.arthur.compta.lapin.dataaccess.db.BudgetDataAccess;
+import org.arthur.compta.lapin.dataaccess.db.UtilisationDataAccess;
 import org.arthur.compta.lapin.model.Budget;
 import org.arthur.compta.lapin.model.Utilisation;
 
@@ -28,6 +30,8 @@ public class BudgetManager {
 	private static BudgetManager _instance;
 	/** La liste des budgets actifs */
 	private ObservableList<AppBudget> _budgetList;
+	/** logger */
+	private final Logger logger;
 
 	/** Comparateur de budget */
 
@@ -36,29 +40,25 @@ public class BudgetManager {
 	 */
 	private BudgetManager() {
 
+		logger = LogManager.getLogger(BudgetManager.class);
+
 		_budgetList = FXCollections.observableArrayList();
 
 		try {
 			// récupération en base des métadonnée des budget
-			HashMap<String, Budget> fromPersistancy = DBManager.getInstance().getActiveBudget();
+			List<Budget> fromPersistancy = BudgetDataAccess.getInstance().getActiveBudget();
 
-			for (String id : fromPersistancy.keySet()) {
-
-				Budget budget = fromPersistancy.get(id);
-
-				// encapsulation applicative
-				AppBudget appB = new AppBudget(budget);
-				appB.setAppID(id);
+			for (Budget budget : fromPersistancy) {
 
 				// ajout dans l'application
-				_budgetList.add(appB);
+				_budgetList.add(new AppBudget(budget));
 
 			}
 
 			calculateData();
 
 		} catch (ComptaException e) {
-			e.printStackTrace();
+			logger.fatal(e);
 		}
 	}
 
@@ -95,8 +95,8 @@ public class BudgetManager {
 	public void desactivateBudget(AppBudget appB) throws ComptaException {
 
 		_budgetList.remove(appB);
-		editBudget(appB, appB.getNom(), appB.getObjectif(), appB.getMontantUtilise(), false, appB.getPriority(),
-				appB.getLabelRecurrent(), appB.getDateRecurrent());
+		editBudget(appB, appB.getNom(), appB.getObjectif(), appB.getMontantUtilise(), false, appB.getPriority(), appB.getLabelRecurrent(),
+				appB.getDateRecurrent());
 
 	}
 
@@ -197,58 +197,53 @@ public class BudgetManager {
 	/**
 	 * Ajoute un budget dans l'application
 	 * 
-	 * @param nom            le num du budget
-	 * @param objectif       l'objectif a atteindre
-	 * @param utilise        le montant utilise
+	 * @param nom
+	 *            le num du budget
+	 * @param objectif
+	 *            l'objectif a atteindre
+	 * @param utilise
+	 *            le montant utilise
 	 * @param localDate
 	 * @param labelRecurrent
 	 * @return
-	 * @throws ComptaException Echec dans l'ajout du budget
+	 * @throws ComptaException
+	 *             Echec dans l'ajout du budget
 	 */
-	public AppBudget addBudget(String nom, double objectif, double utilise, String labelRecurrent,
-			LocalDate dateRecurrent) throws ComptaException {
-
-		AppBudget appB = null;
-
-		// création du modèle
-		Budget budget = new Budget();
-		budget.setNom(nom);
-		budget.setMontantUtilise(utilise);
-		budget.setObjectif(objectif);
-		budget.setIsActif(true);
-		budget.setPriority(_budgetList.size());
-		budget.setLabelRecurrent(labelRecurrent);
-		budget.setDateRecurrent(dateRecurrent);
+	public AppBudget addBudget(String nom, double objectif, double utilise, String labelRecurrent, LocalDate dateRecurrent) throws ComptaException {
 
 		// encapsulation applicative
-		appB = new AppBudget(budget);
-		String id = DBManager.getInstance().addBudget(nom, objectif, utilise, true, _budgetList.size(), labelRecurrent,
-				dateRecurrent);
-		appB.setAppID(id);
+		AppBudget appB = new AppBudget(BudgetDataAccess.getInstance().addBudget(nom, objectif, utilise, true, _budgetList.size(), labelRecurrent, dateRecurrent));
 
 		// ajout dans l'application
 		_budgetList.add(appB);
 		calculateData();
 
 		return appB;
+
 	}
 
 	/**
 	 * Modifie le budget
 	 * 
-	 * @param appBudget      le budget
-	 * @param nom            le nouveau nom
-	 * @param objectif       le nouvel objectif
-	 * @param utilise        le nouveau montant utilise
-	 * @param isActif        la nouvelle valeur actif
-	 * @param prio           la nouvelle priorité
+	 * @param appBudget
+	 *            le budget
+	 * @param nom
+	 *            le nouveau nom
+	 * @param objectif
+	 *            le nouvel objectif
+	 * @param utilise
+	 *            le nouveau montant utilise
+	 * @param isActif
+	 *            la nouvelle valeur actif
+	 * @param prio
+	 *            la nouvelle priorité
 	 * @param dateRecurrent
 	 * @param labelRecurrent
 	 * @return
 	 * @throws ComptaException
 	 */
-	public AppBudget editBudget(AppBudget appBudget, String nom, double objectif, double utilise, boolean isActif,
-			int prio, String labelRecurrent, LocalDate dateRecurrent) throws ComptaException {
+	public AppBudget editBudget(AppBudget appBudget, String nom, double objectif, double utilise, boolean isActif, int prio, String labelRecurrent,
+			LocalDate dateRecurrent) throws ComptaException {
 
 		if (appBudget != null) {
 
@@ -264,7 +259,7 @@ public class BudgetManager {
 				// modif du prévisionnel des Budgets
 				calculateData();
 				// écriture en base
-				DBManager.getInstance().updateBudget(appBudget);
+				BudgetDataAccess.getInstance().updateBudget(appBudget.getDBObject());
 
 			} catch (Exception e) {
 				throw new ComptaException("Impossible de mettre à jour le budget", e);
@@ -279,23 +274,20 @@ public class BudgetManager {
 	 * Retourne tous les budgets
 	 * 
 	 * @return
-	 * @throws ComptaException Echec de la récupération
+	 * @throws ComptaException
+	 *             Echec de la récupération
 	 */
 	public List<AppBudget> getAllBudgets() throws ComptaException {
 
 		ArrayList<AppBudget> list = new ArrayList<>();
 
 		// récupération en base des métadonnée des budget
-		HashMap<String, Budget> fromPersistancy = DBManager.getInstance().getAllBudget();
+		List<Budget> fromPersistancy = BudgetDataAccess.getInstance().getAllBudget();
 
-		for (String id : fromPersistancy.keySet()) {
+		for (Budget bud : fromPersistancy) {
 
-			// encapsulation applicative
-			AppBudget appB = new AppBudget(fromPersistancy.get(id));
-			appB.setAppID(id);
-
-			// ajout dans la liste
-			list.add(appB);
+			// encapsulation applicative et ajout dans la liste
+			list.add(new AppBudget(bud));
 		}
 
 		return list;
@@ -304,22 +296,25 @@ public class BudgetManager {
 	/**
 	 * Ajoute une utilisation pour le budget
 	 * 
-	 * @param appB   le budget
-	 * @param nom    le nom de l'utilisation
-	 * @param montat le montant
-	 * @param date   la date
+	 * @param appB
+	 *            le budget
+	 * @param nom
+	 *            le nom de l'utilisation
+	 * @param montat
+	 *            le montant
+	 * @param date
+	 *            la date
 	 * @throws ComptaException
 	 */
-	public void addUtilisationForBudget(AppBudget appB, String nom, double montat, LocalDate date)
-			throws ComptaException {
+	public void addUtilisationForBudget(AppBudget appB, String nom, double montat, LocalDate date) throws ComptaException {
 
 		// enregistrement de l'utilisation
-		DBManager.getInstance().addUtilisationForBudget(appB.getAppId(), nom, montat, date);
+		UtilisationDataAccess.getInstance().addUtilisationForBudget(appB.getAppId(), nom, montat, date);
 
 		// modification du montant utilisé
 		appB.setMontantUtilise(appB.getMontantUtilise() + montat);
 		// sauvegarde du budget
-		DBManager.getInstance().updateBudget(appB);
+		BudgetDataAccess.getInstance().updateBudget(appB.getDBObject());
 		// MaJ des avancements
 		calculateData();
 
@@ -328,28 +323,22 @@ public class BudgetManager {
 	/**
 	 * Retourne les utilisations du budget
 	 * 
-	 * @param appId l'id du budget
+	 * @param appId
+	 *            l'id du budget
 	 * @return
 	 * @throws ComptaException
 	 */
-	public List<AppUtilisation> getUtilisation(String appId) throws ComptaException {
+	public List<AppUtilisation> getUtilisation(int appId) throws ComptaException {
 
 		ArrayList<AppUtilisation> listeRes = new ArrayList<>();
 		// récupération des champs en base
-		try {
 
-			HashMap<String, Utilisation> infos = DBManager.getInstance().getUtilisationInfos(appId);
+		List<Utilisation> fromPersist = UtilisationDataAccess.getInstance().getUtilisationInfos(appId);
 
-			for (String id : infos.keySet()) {
-				// Création de l'utilisation applicative
-				AppUtilisation appUtil = new AppUtilisation(infos.get(id));
-				appUtil.setAppID(id);
-				// ajout au resultat
-				listeRes.add(appUtil);
+		for (Utilisation util : fromPersist) {
+			// Création de l'utilisation applicative et ajout au resultat
+			listeRes.add(new AppUtilisation(util));
 
-			}
-		} catch (Exception e) {
-			throw new ComptaException("Impossible de récupérer les utilisations", e);
 		}
 
 		return listeRes;
@@ -364,8 +353,7 @@ public class BudgetManager {
 	 * @param date
 	 * @throws ComptaException
 	 */
-	public void editUtilisation(AppUtilisation utilisation, String nom, double montant, LocalDate date)
-			throws ComptaException {
+	public void editUtilisation(AppUtilisation utilisation, String nom, double montant, LocalDate date) throws ComptaException {
 
 		// affectation des nouvelles valeurs
 		utilisation.setNom(nom);
@@ -373,7 +361,7 @@ public class BudgetManager {
 		utilisation.setDate(date);
 
 		// MaJ en base
-		DBManager.getInstance().upDateUtilisation(utilisation);
+		UtilisationDataAccess.getInstance().upDateUtilisation(utilisation);
 
 	}
 
@@ -385,7 +373,7 @@ public class BudgetManager {
 	 */
 	public void removeUtilisation(AppUtilisation util) throws ComptaException {
 
-		DBManager.getInstance().removeUtilisation(util);
+		UtilisationDataAccess.getInstance().removeUtilisation(util.getAppId());
 
 	}
 
@@ -397,7 +385,7 @@ public class BudgetManager {
 	 */
 	public void removeBudget(AppBudget appB) throws ComptaException {
 
-		DBManager.getInstance().removeBudget(appB);
+		BudgetDataAccess.getInstance().removeBudget(appB);
 
 		// suppression de la liste ( le remove ne marche pas)
 		Iterator<AppBudget> iter = _budgetList.iterator();
@@ -405,7 +393,7 @@ public class BudgetManager {
 		while (iter.hasNext() && goOn) {
 
 			AppBudget bud = iter.next();
-			if (bud.getAppId().equals(appB.getAppId())) {
+			if (bud.getAppId() == appB.getAppId()) {
 				iter.remove();
 				goOn = false;
 			}
@@ -422,7 +410,7 @@ public class BudgetManager {
 	 */
 	public List<String> getLabelRecurrentList() throws ComptaException {
 
-		return DBManager.getInstance().getLabelRecurrentList();
+		return BudgetDataAccess.getInstance().getLabelRecurrentList();
 	}
 
 	/**
@@ -432,12 +420,24 @@ public class BudgetManager {
 	 * @throws ComptaException
 	 */
 	public void addLabelRecurrent(String labelRec) throws ComptaException {
-		DBManager.getInstance().addLabelRecurrent(labelRec);
+		BudgetDataAccess.getInstance().addLabelRecurrent(labelRec);
 
 	}
 
-	public void updateBudgets(ObservableList<AppBudget> _activesBudgets) {
-		DBManager.getInstance().updateBudgets(_activesBudgets);
+	/**
+	 * Mets a jour la liste des budgets actif (l'ordre surtout)
+	 * 
+	 * @param _activesBudgets
+	 * @throws ComptaException
+	 */
+	public void updateBudgets(ObservableList<AppBudget> _activesBudgets) throws ComptaException {
+
+		ArrayList<Budget> tmp = new ArrayList<Budget>();
+		for (AppBudget appB : _activesBudgets) {
+			tmp.add(appB.getDBObject());
+		}
+
+		BudgetDataAccess.getInstance().updateBudgets(tmp);
 
 	}
 

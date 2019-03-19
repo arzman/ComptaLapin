@@ -34,8 +34,6 @@ public class DateDialog extends ComptaDialog<LocalDate> {
 		getDialogPane().setContent(root);
 		root.add(datPick, 0, 0);
 
-		ButtonType _okButton = new ButtonType("Ok", ButtonData.OK_DONE);
-		getDialogPane().getButtonTypes().add(_okButton);
 		// bouton annuler
 		ButtonType cancelButton = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(cancelButton);
@@ -48,7 +46,7 @@ public class DateDialog extends ComptaDialog<LocalDate> {
 
 				LocalDate deb = null;
 
-				if (param == _okButton) {
+				if (param.equals(_buttonTypeOk)) {
 					deb = datPick.getValue();
 
 				}

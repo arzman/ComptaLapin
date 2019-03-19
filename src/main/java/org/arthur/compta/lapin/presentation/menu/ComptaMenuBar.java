@@ -155,9 +155,9 @@ public class ComptaMenuBar extends MenuBar {
 			public void handle(ActionEvent event) {
 				// ouverture de la fenêtre de saisie
 				ManageTrimestreCourantDialog dia = new ManageTrimestreCourantDialog();
-				Optional<String> id = dia.showAndWait();
+				Optional<Integer> id = dia.showAndWait();
 
-				if (id.isPresent() && !id.get().isEmpty()) {
+				if (id.isPresent() && id.get() != -1) {
 					try {
 						// si un trimestre est choisi on ordonne le changement
 						TrimestreManager.getInstance().loadTrimestreCourant(id.get());

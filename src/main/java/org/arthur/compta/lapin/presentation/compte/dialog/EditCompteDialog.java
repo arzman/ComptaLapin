@@ -49,11 +49,43 @@ public class EditCompteDialog extends ComptaDialog<AppCompte> {
 		// Création des champ de saisi
 		createContent();
 
-		// Création de la barre des boutons
-		createBoutonBar();
-
 		// verification de la saisie
 		checkInput();
+
+		// Retourne le Compte créé sur le OK
+		setResultConverter(new Callback<ButtonType, AppCompte>() {
+
+			@Override
+			public AppCompte call(ButtonType param) {
+
+				AppCompte zeReturn = null;
+
+				if (param.equals(_buttonTypeOk)) {
+
+					try {
+
+						if (_appCompte != null) {
+							// édition
+							CompteManager.getInstance().editCompte(_appCompte, _nomTxt.getText().trim(), Double.parseDouble(_soldeTxt.getText().trim()),
+									_livretCheck.isSelected(), _budgetCheck.isSelected());
+							zeReturn = _appCompte;
+
+						} else {
+							// création
+							zeReturn = CompteManager.getInstance().addCompte(_nomTxt.getText().trim(), Double.parseDouble(_soldeTxt.getText().trim()),
+									_livretCheck.isSelected(), _budgetCheck.isSelected());
+						}
+
+					} catch (ComptaException e) {
+						ExceptionDisplayService.showException(e);
+
+					}
+
+				}
+
+				return zeReturn;
+			}
+		});
 
 	}
 
@@ -118,51 +150,13 @@ public class EditCompteDialog extends ComptaDialog<AppCompte> {
 	/**
 	 * Crée les boutons OK et Cancel
 	 */
-	private void createBoutonBar() {
+	protected void createButtonBar() {
 
-		// Création du bouton OK
-		_buttonTypeOk = new ButtonType("Ok", ButtonData.OK_DONE);
-		getDialogPane().getButtonTypes().add(_buttonTypeOk);
+		super.createButtonBar();
 
 		// Création du bouton Cancel
 		ButtonType buttonTypeCancel = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(buttonTypeCancel);
-
-		// Retourne le Compte créé sur le OK
-		setResultConverter(new Callback<ButtonType, AppCompte>() {
-
-			@Override
-			public AppCompte call(ButtonType param) {
-
-				AppCompte zeReturn = null;
-
-				if (param.getButtonData().equals(ButtonData.OK_DONE)) {
-
-					try {
-
-						if (_appCompte != null) {
-							// édition
-							zeReturn = CompteManager.getInstance().editCompte(_appCompte, _nomTxt.getText().trim(),
-									Double.parseDouble(_soldeTxt.getText().trim()), _livretCheck.isSelected(),
-									_budgetCheck.isSelected());
-
-						} else {
-							// création
-							zeReturn = CompteManager.getInstance().addCompte(_nomTxt.getText().trim(),
-									Double.parseDouble(_soldeTxt.getText().trim()), _livretCheck.isSelected(),
-									_budgetCheck.isSelected());
-						}
-
-					} catch (ComptaException e) {
-						ExceptionDisplayService.showException(e);
-
-					}
-
-				}
-
-				return zeReturn;
-			}
-		});
 
 	}
 
@@ -173,8 +167,7 @@ public class EditCompteDialog extends ComptaDialog<AppCompte> {
 
 		// Vérif du nom
 		boolean nomError = true;
-		if (!_nomTxt.getText().trim().isEmpty()
-				&& !CompteManager.getInstance().getCompteNameList().contains(_nomTxt.getText().trim())) {
+		if (!_nomTxt.getText().trim().isEmpty()) {
 
 			_nomTxt.setBorder(null);
 			nomError = false;

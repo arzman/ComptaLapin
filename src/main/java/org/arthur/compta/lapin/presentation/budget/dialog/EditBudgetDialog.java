@@ -1,5 +1,7 @@
 package org.arthur.compta.lapin.presentation.budget.dialog;
 
+import java.time.LocalDate;
+
 import org.arthur.compta.lapin.application.manager.BudgetManager;
 import org.arthur.compta.lapin.application.model.AppBudget;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
@@ -43,7 +45,8 @@ public class EditBudgetDialog extends ComptaDialog<AppBudget> {
 	/**
 	 * Constructeur
 	 * 
-	 * @param budget le budget a éditer, null si création
+	 * @param budget
+	 *            le budget a éditer, null si création
 	 */
 	public EditBudgetDialog(AppBudget budget) {
 
@@ -77,10 +80,9 @@ public class EditBudgetDialog extends ComptaDialog<AppBudget> {
 					if (_budget == null) {
 
 						try {
-							_budget = BudgetManager.getInstance().addBudget(_nomTxt.getText().trim(),
-									Double.parseDouble(_objTxt.getText().trim()),
-									Double.parseDouble(_utilsTxt.getText().trim()),
-									_listBudRecuCB.getSelectionModel().getSelectedItem(), _dateBudgetDP.getValue());
+							_budget = BudgetManager.getInstance().addBudget(_nomTxt.getText().trim(), Double.parseDouble(_objTxt.getText().trim()),
+									Double.parseDouble(_utilsTxt.getText().trim()), _listBudRecuCB.getSelectionModel().getSelectedItem(),
+									_dateBudgetDP.getValue());
 						} catch (Exception e) {
 							ExceptionDisplayService.showException(e);
 						}
@@ -88,11 +90,19 @@ public class EditBudgetDialog extends ComptaDialog<AppBudget> {
 					} else {
 						// édition
 						try {
-							_budget = BudgetManager.getInstance().editBudget(_budget, _nomTxt.getText().trim(),
-									Double.parseDouble(_objTxt.getText().trim()),
-									Double.parseDouble(_utilsTxt.getText().trim()), _budget.isActif(),
-									_budget.getPriority(), _listBudRecuCB.getSelectionModel().getSelectedItem(),
-									_dateBudgetDP.getValue());
+
+							String lblRec;
+							LocalDate date = LocalDate.of(1986, 6, 27);
+
+							if (_isReccurentChckB.isSelected()) {
+								lblRec = _listBudRecuCB.getSelectionModel().getSelectedItem();
+								date = _dateBudgetDP.getValue();
+							} else {
+								lblRec = "";
+							}
+
+							_budget = BudgetManager.getInstance().editBudget(_budget, _nomTxt.getText().trim(), Double.parseDouble(_objTxt.getText().trim()),
+									Double.parseDouble(_utilsTxt.getText().trim()), _budget.isActif(), _budget.getPriority(), lblRec, date);
 						} catch (Exception e) {
 							ExceptionDisplayService.showException(e);
 						}
@@ -207,7 +217,7 @@ public class EditBudgetDialog extends ComptaDialog<AppBudget> {
 
 		if (isReccurent) {
 
-			if (_dateBudgetDP.getValue() != null && _listBudRecuCB.getSelectionModel().getSelectedItem()!=null) {
+			if (_dateBudgetDP.getValue() != null && _listBudRecuCB.getSelectionModel().getSelectedItem() != null) {
 				recError = false;
 			}
 
@@ -227,8 +237,7 @@ public class EditBudgetDialog extends ComptaDialog<AppBudget> {
 
 		try {
 
-			_listBudRecuCB
-					.setItems(FXCollections.observableArrayList(BudgetManager.getInstance().getLabelRecurrentList()));
+			_listBudRecuCB.setItems(FXCollections.observableArrayList(BudgetManager.getInstance().getLabelRecurrentList()));
 
 			if (_budget != null) {
 

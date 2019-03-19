@@ -2,17 +2,17 @@ package org.arthur.compta.lapin.application.model;
 
 import java.time.LocalDate;
 
+import org.arthur.compta.lapin.application.exception.ComptaException;
+import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.model.Trimestre;
 
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 
 /**
  * Encapsulation applicative d'un trimestre
  *
  */
-public class AppTrimestre extends AppObject {
+public class AppTrimestre extends AppObject<Trimestre> {
 
 	/**
 	 * Premier mois du trimestre
@@ -28,65 +28,19 @@ public class AppTrimestre extends AppObject {
 	private SimpleObjectProperty<AppExerciceMensuel> _troisiemeMois;
 
 	/**
-	 * le trimestre a encapsuler
-	 */
-	private Trimestre _trimeste;
-
-	/**
 	 * Constructeur
 	 * 
-	 * @param trimestre le trimestre a encapsuler
+	 * @param trimestre
+	 *            le trimestre a encapsuler
+	 * @throws ComptaException
 	 */
-	public AppTrimestre(Trimestre trimestre) {
+	public AppTrimestre(Trimestre trimestre) throws ComptaException {
 
-		_trimeste = trimestre;
+		setAppID(trimestre.getId());
 
-		_premierMois = new SimpleObjectProperty<AppExerciceMensuel>();
-		_deuxiemeMois = new SimpleObjectProperty<AppExerciceMensuel>();
-		_troisiemeMois = new SimpleObjectProperty<AppExerciceMensuel>();
-
-		bindListener();
-
-	}
-
-	/**
-	 * Mise en place des listeners
-	 */
-	private void bindListener() {
-
-		// modification du premier mois
-		_premierMois.addListener(new ChangeListener<AppExerciceMensuel>() {
-
-			@Override
-			public void changed(ObservableValue<? extends AppExerciceMensuel> observable, AppExerciceMensuel oldValue,
-					AppExerciceMensuel newValue) {
-				// répercution sur le modele
-				_trimeste.getExerciceMensuel()[0] = newValue.getExcerciceMensuel();
-
-			}
-		});
-		// modification du deuxieme mois
-		_deuxiemeMois.addListener(new ChangeListener<AppExerciceMensuel>() {
-
-			@Override
-			public void changed(ObservableValue<? extends AppExerciceMensuel> observable, AppExerciceMensuel oldValue,
-					AppExerciceMensuel newValue) {
-				// répercution sur le modele
-				_trimeste.getExerciceMensuel()[1] = newValue.getExcerciceMensuel();
-
-			}
-		});
-		// modification du troisieme mois
-		_troisiemeMois.addListener(new ChangeListener<AppExerciceMensuel>() {
-
-			@Override
-			public void changed(ObservableValue<? extends AppExerciceMensuel> observable, AppExerciceMensuel oldValue,
-					AppExerciceMensuel newValue) {
-				// répercution sur le modele
-				_trimeste.getExerciceMensuel()[2] = newValue.getExcerciceMensuel();
-
-			}
-		});
+		_premierMois = new SimpleObjectProperty<AppExerciceMensuel>(TrimestreManager.getInstance().loadExerciceMensuel(trimestre.getExerciceMensuelIds()[0]));
+		_deuxiemeMois = new SimpleObjectProperty<AppExerciceMensuel>(TrimestreManager.getInstance().loadExerciceMensuel(trimestre.getExerciceMensuelIds()[1]));
+		_troisiemeMois = new SimpleObjectProperty<AppExerciceMensuel>(TrimestreManager.getInstance().loadExerciceMensuel(trimestre.getExerciceMensuelIds()[2]));
 
 	}
 
@@ -127,15 +81,17 @@ public class AppTrimestre extends AppObject {
 	 */
 	public LocalDate getDateDebut() {
 
-		return _trimeste.getDateDebut();
+		return premierMoisProperty().get().getDateDebut();
 	}
 
 	/**
-	 * Positionne un exercice mensuel applicatif par sa position. 0 = premier mois ,
-	 * 1 = deuxieme mois , 2 = troisieme mois
+	 * Positionne un exercice mensuel applicatif par sa position. 0 = premier
+	 * mois , 1 = deuxieme mois , 2 = troisieme mois
 	 * 
-	 * @param i     position
-	 * @param appEm l'exercice applicatif
+	 * @param i
+	 *            position
+	 * @param appEm
+	 *            l'exercice applicatif
 	 */
 	public void setAppExerciceMensuel(int i, AppExerciceMensuel appEm) {
 
@@ -183,7 +139,12 @@ public class AppTrimestre extends AppObject {
 	 * @return
 	 */
 	public LocalDate getDateFin() {
-		return _trimeste.getDateFin();
+		return _troisiemeMois.get().getDateFin();
+	}
+
+	@Override
+	public Trimestre getDBObject() {
+		return new Trimestre(getAppId(), _premierMois.get().getAppId(), _deuxiemeMois.get().getAppId(), _troisiemeMois.get().getAppId());
 	}
 
 }

@@ -1,7 +1,6 @@
 package org.arthur.compta.lapin.application.service;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
@@ -11,11 +10,10 @@ import org.arthur.compta.lapin.application.model.AppTransfert;
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplate;
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElement;
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElementFrequence;
-import org.arthur.compta.lapin.dataaccess.db.DBManager;
+import org.arthur.compta.lapin.dataaccess.db.OperationDataAccess;
+import org.arthur.compta.lapin.dataaccess.db.TrimestreDataAccess;
 import org.arthur.compta.lapin.model.operation.EtatOperation;
-import org.arthur.compta.lapin.model.operation.Operation;
 import org.arthur.compta.lapin.model.operation.OperationType;
-import org.arthur.compta.lapin.model.operation.TransfertOperation;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -30,33 +28,21 @@ public class TemplateService {
 	 * Retourne le template de trimestre
 	 * 
 	 * @return
+	 * @throws ComptaException
 	 */
-	public static TrimestreTemplate getTrimestreTemplate() {
+	public static TrimestreTemplate getTrimestreTemplate() throws ComptaException {
 
-		TrimestreTemplate tmp = new TrimestreTemplate();
-		try {
-			HashMap<String, TrimestreTemplateElement> tmpInfo = DBManager.getInstance().loadTemplateInfo();
+		return TrimestreDataAccess.getInstance().loadTemplateInfo();
 
-			for (String key : tmpInfo.keySet()) {
-				// récupération des infos
-
-				tmp.addElement(tmpInfo.get(key));
-
-			}
-
-		} catch (ComptaException e) {
-			e.printStackTrace();
-			// Impossible de récupérer le template, on en génère un vide
-		}
-
-		return tmp;
 	}
 
 	/**
 	 * Ajoute les opérations du template au mois
 	 * 
-	 * @param exMen l'exercice mensuel
-	 * @param num   l'indice du mois dans le trimestre
+	 * @param exMen
+	 *            l'exercice mensuel
+	 * @param num
+	 *            l'indice du mois dans le trimestre
 	 * @return
 	 * @throws ComptaException
 	 */
@@ -109,43 +95,24 @@ public class TemplateService {
 	}
 
 	/**
-	 * Crée et ajoute une opération dans l'exercice depuis un élément de template
+	 * Crée et ajoute une opération dans l'exercice depuis un élément de
+	 * template
 	 * 
-	 * @param exMen l'exercice
-	 * @param elt   l'element
+	 * @param exMen
+	 *            l'exercice
+	 * @param elt
+	 *            l'element
 	 * @throws ComptaException
 	 */
-	private static void createOperationFromTmpElt(AppExerciceMensuel exMen, TrimestreTemplateElement elt)
-			throws ComptaException {
-		if (elt.getType().equals(OperationType.DEPENSE.toString())
-				|| elt.getType().equals(OperationType.RESSOURCE.toString())) {
-
-			// création
-			Operation op = new Operation(OperationType.valueOf(elt.getType()), elt.getCompteSource().getCompte(),
-					elt.getNom(), elt.getMontant(), EtatOperation.PREVISION);
-			String idOp = DBManager.getInstance().addOperation(op, elt.getCompteSource().getAppId(), null,
-					exMen.getAppId());
-
-			// ajout dans l'application
-			AppOperation appDep = new AppOperation(op);
-			appDep.setAppID(idOp);
-			appDep.setCompteSrc(elt.getCompteSource());
-			exMen.addOperation(appDep);
-
-		}
+	private static void createOperationFromTmpElt(AppExerciceMensuel exMen, TrimestreTemplateElement elt) throws ComptaException {
 
 		if (elt.getType().equals(OperationType.TRANSFERT.toString())) {
-			// création
-			TransfertOperation trans = new TransfertOperation(elt.getCompteSource().getCompte(), elt.getNom(),
-					elt.getMontant(), EtatOperation.PREVISION, elt.getCompteCible().getCompte());
-			String idOp = DBManager.getInstance().addOperation(trans, elt.getCompteSource().getAppId(),
-					elt.getCompteCible().getAppId(), exMen.getAppId());
-			// ajout dans l'application
-			AppTransfert apptr = new AppTransfert(trans);
-			apptr.setAppID(idOp);
-			apptr.setCompteSrc(elt.getCompteSource());
-			apptr.setCompteCible(elt.getCompteCible());
-			exMen.addOperation(apptr);
+			exMen.addOperation(
+					new AppTransfert(OperationDataAccess.getInstance().addOperation(elt.getNom(), elt.getMontant(), OperationType.valueOf(elt.getType()),
+							EtatOperation.PREVISION, elt.getCompteSource().getAppId(), elt.getCompteCible().getAppId(), exMen.getAppId())));
+		} else {
+			exMen.addOperation(new AppOperation(OperationDataAccess.getInstance().addOperation(elt.getNom(), elt.getMontant(),
+					OperationType.valueOf(elt.getType()), EtatOperation.PREVISION, elt.getCompteSource().getAppId(), -1, exMen.getAppId())));
 		}
 
 	}
@@ -154,12 +121,13 @@ public class TemplateService {
 	 * Met à jour le modèle de trimestre
 	 * 
 	 * @param elementList
-	 * @throws ComptaException Echec
+	 * @throws ComptaException
+	 *             Echec
 	 */
 	public static void updateTrimestreTemplate(List<TrimestreTemplateElement> elementList) throws ComptaException {
 
-		DBManager.getInstance().clearTrimTemplate();
-		DBManager.getInstance().addTrimstreTempElts(elementList);
+		TrimestreDataAccess.getInstance().clearTrimTemplate();
+		TrimestreDataAccess.getInstance().addTrimstreTempElts(elementList);
 
 	}
 
@@ -249,7 +217,7 @@ public class TemplateService {
 		return gain;
 	}
 
-	public static double getPrevFromtemplate() {
+	public static double getPrevFromtemplate() throws ComptaException {
 
 		return getGainMoyen(getTrimestreTemplate().getElements());
 	}

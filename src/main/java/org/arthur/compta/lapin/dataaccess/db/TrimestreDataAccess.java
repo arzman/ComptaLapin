@@ -7,35 +7,56 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.CompteManager;
+import org.arthur.compta.lapin.application.model.template.TrimestreTemplate;
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElement;
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElementFrequence;
+import org.arthur.compta.lapin.model.Trimestre;
 
 public class TrimestreDataAccess extends ComptaDataAccess {
+
+	/** instance du singleton */
+	private static TrimestreDataAccess _instance;
+
+	public static TrimestreDataAccess getInstance() {
+
+		if (_instance == null) {
+			_instance = new TrimestreDataAccess();
+		}
+
+		return _instance;
+	}
+
+	private TrimestreDataAccess() {
+
+		super();
+	}
 
 	/**
 	 * Ajoute un trimestre en base
 	 * 
-	 * @param idMois1 identifiant applicatif du premier mois
-	 * @param idMois2 identifiant applicatif du deuxieme mois
-	 * @param idMois3 identifiant applicatif du troisieme mois
+	 * @param idMois1
+	 *            identifiant applicatif du premier mois
+	 * @param idMois2
+	 *            identifiant applicatif du deuxieme mois
+	 * @param idMois3
+	 *            identifiant applicatif du troisieme mois
 	 * @return
-	 * @throws ComptaException Echec de l'insertion
+	 * @throws ComptaException
+	 *             Echec de l'insertion
 	 */
-	public String addTrimestre(String idMois1, String idMois2, String idMois3) throws ComptaException {
+	public Trimestre addTrimestre(int idMois1, int idMois2, int idMois3) throws ComptaException {
 
-		String id = null;
+		int id = -1;
 		// préparation de la requête
 		String query = "INSERT INTO TRIMESTRE (premier_mois_id,deux_mois_id,trois_mois_id) VALUES (?,?,?);";
-		try (PreparedStatement stmt = DBManager.getInstance().getConnexion().prepareStatement(query,
-				Statement.RETURN_GENERATED_KEYS)) {
-			stmt.setString(1, idMois1);
-			stmt.setString(2, idMois2);
-			stmt.setString(3, idMois3);
+		try (PreparedStatement stmt = DBManager.getInstance().getConnexion().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+			stmt.setInt(1, idMois1);
+			stmt.setInt(2, idMois2);
+			stmt.setInt(3, idMois3);
 
 			// execution
 			executeUpdate(stmt);
@@ -43,17 +64,18 @@ public class TrimestreDataAccess extends ComptaDataAccess {
 			// récupération de l'id en base du compte créé
 			ResultSet res = stmt.getGeneratedKeys();
 			if (res.getMetaData().getColumnCount() == 1 && res.next()) {
-				id = res.getString(1).trim();
+				id = res.getInt(1);
 			}
 		} catch (Exception e) {
 			throw new ComptaException("Impossible d'ajouter un trimestre", e);
 		}
 
-		return id;
+		return new Trimestre(id, idMois1, idMois2, idMois3);
 	}
 
 	/**
-	 * AAjoute les éléments de template aau modèle de trimestre en base de donnée
+	 * AAjoute les éléments de template aau modèle de trimestre en base de
+	 * donnée
 	 * 
 	 * @param elements
 	 * @throws ComptaException
@@ -70,9 +92,9 @@ public class TrimestreDataAccess extends ComptaDataAccess {
 				stmt.setString(3, elt.getType());
 				stmt.setString(4, elt.getFreq().toString());
 				stmt.setInt(5, elt.getOccurence());
-				stmt.setInt(6, Integer.parseInt(elt.getCompteSource().getAppId()));
+				stmt.setInt(6, elt.getCompteSource().getAppId());
 				if (elt.getCompteCible() != null) {
-					stmt.setInt(7, Integer.parseInt(elt.getCompteCible().getAppId()));
+					stmt.setInt(7, elt.getCompteCible().getAppId());
 				} else {
 					stmt.setNull(7, Types.INTEGER);
 				}
@@ -92,7 +114,8 @@ public class TrimestreDataAccess extends ComptaDataAccess {
 	/**
 	 * Vide le modèle de trimestre
 	 * 
-	 * @throws ComptaException Echec de la suppression
+	 * @throws ComptaException
+	 *             Echec de la suppression
 	 */
 	public void clearTrimTemplate() throws ComptaException {
 
@@ -109,7 +132,8 @@ public class TrimestreDataAccess extends ComptaDataAccess {
 	 * Retourne une liste avec tout les identifiants des trimestres en base
 	 * 
 	 * @return
-	 * @throws ComptaException Echec de la récupération
+	 * @throws ComptaException
+	 *             Echec de la récupération
 	 */
 	public ArrayList<String> getAllTrimestreId() throws ComptaException {
 
@@ -133,9 +157,11 @@ public class TrimestreDataAccess extends ComptaDataAccess {
 	/**
 	 * Récupération de la date de début d'un trimestre
 	 * 
-	 * @param id l'id du trimestre
+	 * @param id
+	 *            l'id du trimestre
 	 * @return
-	 * @throws ComptaException Echec de la récupération
+	 * @throws ComptaException
+	 *             Echec de la récupération
 	 */
 	public LocalDate getDateDebutFromTrimestre(String id) throws ComptaException {
 
@@ -165,25 +191,34 @@ public class TrimestreDataAccess extends ComptaDataAccess {
 	 * 2eme mois, id 3 eme mois]
 	 * 
 	 * @return les champ du compte courant
-	 * @throws SQLException Echec de la récupération
+	 * @throws ComptaException
+	 *             Echec de la récupération
+	 * 
 	 */
-	public String[] getTrimestreInfo(String appId) throws SQLException {
+	public Trimestre getTrimestreInfo(int appId) throws ComptaException {
 
-		String[] res = new String[4];
+		Trimestre res = null;
 
-		// création de requete
-		String query = "SELECT ID,premier_mois_id,deux_mois_id,trois_mois_id FROM TRIMESTRE WHERE ID=?";
-		PreparedStatement stmt = DBManager.getInstance().getConnexion().prepareStatement(query);
-		stmt.setInt(1, Integer.parseInt(appId));
-		ResultSet queryRes = executeQuery(stmt);
+		try {
 
-		while (queryRes.next()) {
+			// création de requete
+			String query = "SELECT ID,premier_mois_id,deux_mois_id,trois_mois_id FROM TRIMESTRE WHERE ID=?";
+			PreparedStatement stmt = DBManager.getInstance().getConnexion().prepareStatement(query);
+			stmt.setInt(1, appId);
+			ResultSet queryRes = executeQuery(stmt);
 
-			res[0] = queryRes.getString(1);
-			res[1] = queryRes.getString(2);
-			res[2] = queryRes.getString(3);
-			res[3] = queryRes.getString(4);
+			while (queryRes.next()) {
 
+				res = parseTrimestreFromRes(queryRes);
+
+			}
+
+		} catch (SQLException e) {
+			throw new ComptaException("Impossible de charger le trimestre", e);
+		}
+
+		if (res == null) {
+			throw new ComptaException("Impossible de charger le trimestre, inexistant " + appId);
 		}
 
 		return res;
@@ -198,9 +233,9 @@ public class TrimestreDataAccess extends ComptaDataAccess {
 	 * @return une map contenant les infos du template
 	 * @throws ComptaException
 	 */
-	public HashMap<String, TrimestreTemplateElement> loadTemplateInfo() throws ComptaException {
+	public TrimestreTemplate loadTemplateInfo() throws ComptaException {
 
-		HashMap<String, TrimestreTemplateElement> infos = new HashMap<>();
+		TrimestreTemplate infos = new TrimestreTemplate();
 
 		String query = "SELECT ID,nom,montant,type_ope,frequence,occurence,compte_source_id,compte_cible_id FROM TEMPLATE;";
 		try (PreparedStatement stmt = DBManager.getInstance().getConnexion().prepareStatement(query)) {
@@ -209,7 +244,7 @@ public class TrimestreDataAccess extends ComptaDataAccess {
 
 			while (queryRes.next()) {
 				// parsing du résultat
-				infos.put(queryRes.getString("ID"), parseTrimestreTemplateElement(queryRes));
+				infos.addElement(parseTrimestreTemplateElement(queryRes));
 			}
 
 		} catch (Exception e) {
@@ -217,6 +252,17 @@ public class TrimestreDataAccess extends ComptaDataAccess {
 		}
 
 		return infos;
+	}
+
+	/**
+	 * 
+	 * @param queryRes
+	 * @return
+	 * @throws SQLException
+	 */
+	private Trimestre parseTrimestreFromRes(ResultSet queryRes) throws SQLException {
+
+		return new Trimestre(queryRes.getInt("id"), queryRes.getInt("premier_mois_id"), queryRes.getInt("deux_mois_id"), queryRes.getInt("trois_mois_id"));
 	}
 
 	private TrimestreTemplateElement parseTrimestreTemplateElement(ResultSet queryRes) throws SQLException {
@@ -227,50 +273,31 @@ public class TrimestreDataAccess extends ComptaDataAccess {
 		elt.setType(queryRes.getString("type_ope"));
 		elt.setFreq(TrimestreTemplateElementFrequence.valueOf(queryRes.getString("frequence")));
 		elt.setOccurence(queryRes.getInt("occurence"));
-		elt.setCompteSource(
-				CompteManager.getInstance().getAppCompteFromId(String.valueOf(queryRes.getInt("compte_source_id"))));
-		elt.setCompteCible(
-				CompteManager.getInstance().getAppCompteFromId(String.valueOf(queryRes.getInt("compte_cible_id"))));
+		elt.setCompteSource(CompteManager.getInstance().getAppCompteFromId(queryRes.getInt("compte_source_id")));
+		elt.setCompteCible(CompteManager.getInstance().getAppCompteFromId(queryRes.getInt("compte_cible_id")));
 
 		return elt;
 	}
 
 	/**
-	 * Supprime un trimestre de la base de donnée
+	 * Supprime un trimestre de la base de donnée, mais pas les exercice
+	 * mensuels
 	 * 
-	 * @param idTrimestrel'id du trimestre
-	 * @throws SQLException Echec de la suppression
+	 * @param idTrimestrel'id
+	 *            du trimestre
+	 * @throws SQLException
+	 *             Echec de la suppression
 	 */
-	public void removeTrimestre(String idTrimestre) throws ComptaException {
+	public void removeTrimestre(int idTrimestre) throws ComptaException {
 
-		// suppression des excercices mensuels
-		String queryEM = "SELECT premier_mois_id,deux_mois_id,trois_mois_id FROM TRIMESTRE WHERE ID=?;";
-		try (PreparedStatement stmtEM = DBManager.getInstance().getConnexion().prepareStatement(queryEM)) {
+		// suppression du trimestre
+		String query = "DELETE FROM TRIMESTRE WHERE ID=? ;";
+		try (PreparedStatement stmt = DBManager.getInstance().getConnexion().prepareStatement(query)) {
 
-			stmtEM.setInt(1, Integer.valueOf(idTrimestre));
-			ResultSet queryRes = stmtEM.executeQuery();
+			stmt.setInt(1, idTrimestre);
+			executeUpdate(stmt);
 
-			// suppression du trimestre
-			String query = "DELETE FROM TRIMESTRE WHERE ID=? ;";
-			try (PreparedStatement stmt = DBManager.getInstance().getConnexion().prepareStatement(query)) {
-
-				stmt.setInt(1, Integer.parseInt(idTrimestre));
-				executeUpdate(stmt);
-			} catch (Exception e) {
-				throw new ComptaException("Impossible de supprimer le trimestre", e);
-			}
-
-			while (queryRes.next()) {
-				// suppression des exercice mensuel
-				String idPremierMois = String.valueOf(queryRes.getInt("premier_mois_id"));
-				removeExcerciceMensuel(idPremierMois);
-				String idDeuxMois = String.valueOf(queryRes.getInt("deux_mois_id"));
-				removeExcerciceMensuel(idDeuxMois);
-				String idTroisMois = String.valueOf(queryRes.getInt("trois_mois_id"));
-				removeExcerciceMensuel(idTroisMois);
-			}
-
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			throw new ComptaException("Impossible de supprimer le trimestre", e);
 		}
 

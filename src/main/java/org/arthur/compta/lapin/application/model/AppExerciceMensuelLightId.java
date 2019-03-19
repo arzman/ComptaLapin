@@ -10,12 +10,12 @@ public class AppExerciceMensuelLightId {
 	/**
 	 * L'id de l'exercice mensuel
 	 */
-	private String _exerciceMensuelId;
+	private int _exerciceMensuelId;
 
 	/**
 	 * L'id du trimestre
 	 */
-	private String _trimestreId;
+	private int _trimestreId;
 
 	/**
 	 * La position dans le mois
@@ -28,7 +28,7 @@ public class AppExerciceMensuelLightId {
 	 * @param appTrimestreId
 	 * @param numMois
 	 */
-	public AppExerciceMensuelLightId(String exerciceMensuelId, String appTrimestreId, int numMois) {
+	public AppExerciceMensuelLightId(int exerciceMensuelId, int appTrimestreId, int numMois) {
 
 		_exerciceMensuelId = exerciceMensuelId;
 		_trimestreId = appTrimestreId;
@@ -36,11 +36,11 @@ public class AppExerciceMensuelLightId {
 
 	}
 
-	public String getExerciceMensuelId() {
+	public int getExerciceMensuelId() {
 		return _exerciceMensuelId;
 	}
 
-	public String getTrimestreId() {
+	public int getTrimestreId() {
 		return _trimestreId;
 	}
 

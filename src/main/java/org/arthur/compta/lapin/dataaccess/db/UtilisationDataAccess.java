@@ -6,13 +6,26 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.model.AppUtilisation;
 import org.arthur.compta.lapin.model.Utilisation;
 
 public class UtilisationDataAccess extends ComptaDataAccess {
+
+	/** instance du singleton */
+	private static UtilisationDataAccess _instance;
+
+	public static UtilisationDataAccess getInstance() {
+
+		if (_instance == null) {
+			_instance = new UtilisationDataAccess();
+		}
+
+		return _instance;
+	}
 
 	public UtilisationDataAccess() {
 		super();
@@ -21,23 +34,25 @@ public class UtilisationDataAccess extends ComptaDataAccess {
 	/**
 	 * Ajoute une utilisation en base de donnée
 	 * 
-	 * @param budId  l'id du budget utilisé
-	 * @param nom    le nom de l'utilisation
-	 * @param montat le montant de l'utilisation
-	 * @param date   la date
+	 * @param budId
+	 *            l'id du budget utilisé
+	 * @param nom
+	 *            le nom de l'utilisation
+	 * @param montat
+	 *            le montant de l'utilisation
+	 * @param date
+	 *            la date
 	 * @throws ComptaException
 	 */
-	public void addUtilisationForBudget(String budId, String nom, double montat, LocalDate date)
-			throws ComptaException {
+	public void addUtilisationForBudget(int budId, String nom, double montat, LocalDate date) throws ComptaException {
 
 		// préparation de la requête
 		String query = "INSERT INTO UTILISATION (nom,montant,date_util,budget_id) VALUES (?,?,?,?);";
-		try (PreparedStatement stmt = DBManager.getInstance().getConnexion().prepareStatement(query,
-				Statement.RETURN_GENERATED_KEYS)) {
+		try (PreparedStatement stmt = DBManager.getInstance().getConnexion().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 			stmt.setString(1, nom);
 			stmt.setDouble(2, montat);
 			stmt.setDate(3, Date.valueOf(date));
-			stmt.setInt(4, Integer.parseInt(budId));
+			stmt.setInt(4, budId);
 			// execution
 			executeUpdate(stmt);
 
@@ -50,25 +65,27 @@ public class UtilisationDataAccess extends ComptaDataAccess {
 	/**
 	 * Retourne les champs en base des utilisations du budget
 	 * 
-	 * @param id l'id du budget
+	 * @param id
+	 *            l'id du budget
 	 * @return
-	 * @throws ComptaException Echec de la recupération
+	 * @throws ComptaException
+	 *             Echec de la recupération
 	 */
-	public HashMap<String, Utilisation> getUtilisationInfos(String id) throws ComptaException {
+	public List<Utilisation> getUtilisationInfos(int id) throws ComptaException {
 
-		HashMap<String, Utilisation> res = new HashMap<>();
+		ArrayList<Utilisation> res = new ArrayList<Utilisation>();
 
 		// création de la requete
 		String query = "SELECT ID,nom,montant,date_util FROM UTILISATION WHERE budget_id=?";
 		try (PreparedStatement stmt = DBManager.getInstance().getConnexion().prepareStatement(query)) {
 
-			stmt.setString(1, id);
+			stmt.setInt(1, id);
 
 			ResultSet queryRes = executeQuery(stmt);
 
 			while (queryRes.next()) {
 				// parsing du résultat
-				res.put(queryRes.getString("ID"), parseUtilisationFromRes(queryRes));
+				res.add(parseUtilisationFromRes(queryRes));
 			}
 
 		} catch (Exception e) {
@@ -87,8 +104,7 @@ public class UtilisationDataAccess extends ComptaDataAccess {
 	 */
 	private Utilisation parseUtilisationFromRes(ResultSet queryRes) throws SQLException {
 
-		return new Utilisation(queryRes.getInt("id"), queryRes.getDouble("montant"), queryRes.getString("nom"),
-				queryRes.getDate("date_util").toLocalDate());
+		return new Utilisation(queryRes.getInt("id"), queryRes.getDouble("montant"), queryRes.getString("nom"), queryRes.getDate("date_util").toLocalDate());
 	}
 
 	/**
@@ -97,15 +113,14 @@ public class UtilisationDataAccess extends ComptaDataAccess {
 	 * @param util
 	 * @throws ComptaException
 	 */
-	public void removeUtilisation(AppUtilisation util) throws ComptaException {
+	public void removeUtilisation(int utilId) throws ComptaException {
 
 		String query = "DELETE FROM UTILISATION WHERE ID=?;";
 
 		try (PreparedStatement stmt = DBManager.getInstance().getConnexion().prepareStatement(query)) {
 
-			stmt.setString(1, util.getAppId());
-
-			stmt.executeUpdate();
+			stmt.setInt(1, utilId);
+			executeUpdate(stmt);
 		} catch (Exception e) {
 			throw new ComptaException("Impossible de supprimer l'utilisation", e);
 		}
@@ -116,7 +131,8 @@ public class UtilisationDataAccess extends ComptaDataAccess {
 	 * Mets à jour l'utilisation en base de donnée
 	 * 
 	 * @param utilisation
-	 * @throws ComptaException Echec de la mise à jour
+	 * @throws ComptaException
+	 *             Echec de la mise à jour
 	 */
 	public void upDateUtilisation(AppUtilisation utilisation) throws ComptaException {
 		// préparation de la requête
@@ -127,7 +143,7 @@ public class UtilisationDataAccess extends ComptaDataAccess {
 			stmt.setString(1, utilisation.getNom());
 			stmt.setDouble(2, utilisation.getMontant());
 			stmt.setDate(3, Date.valueOf(utilisation.getDate()));
-			stmt.setString(4, utilisation.getAppId());
+			stmt.setInt(4, utilisation.getAppId());
 
 			// execution
 			executeUpdate(stmt);

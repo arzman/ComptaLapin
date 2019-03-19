@@ -22,9 +22,12 @@ public class OperationSearchResult {
 	/**
 	 * Constructeur
 	 * 
-	 * @param libelle le libelle
-	 * @param montant le montant
-	 * @param date    le mois
+	 * @param libelle
+	 *            le libelle
+	 * @param montant
+	 *            le montant
+	 * @param date
+	 *            le mois
 	 */
 	public OperationSearchResult(String libelle, double montant, LocalDate date) {
 
@@ -33,8 +36,7 @@ public class OperationSearchResult {
 		// positionnement du montant
 		_montantProp = new SimpleDoubleProperty(montant);
 		// positionnement du mois
-		LocalDate cal = LocalDate.now();
-		_moisProp = new SimpleObjectProperty<LocalDate>(cal);
+		_moisProp = new SimpleObjectProperty<LocalDate>(date);
 	}
 
 	/**

@@ -3,8 +3,6 @@
  */
 package org.arthur.compta.lapin.model;
 
-import java.time.LocalDate;
-
 /**
  * Exerice comptable comprennant trois ExerciceMensuel.
  * 
@@ -13,36 +11,28 @@ import java.time.LocalDate;
  */
 public class Trimestre {
 
-	/**
-	 * Les exercices mensuels ordonnés.
-	 */
-	private ExerciceMensuel[] _exerciceMensuelTable;
+	/** id */
+	private int _id;
+	/** Les exercices mensuels ordonnés */
+	private Integer[] _exerciceMensuelIds;
 
 	/**
 	 * Constructeur par défaut
 	 */
-	public Trimestre() {
-		setExerciceMensuel(new ExerciceMensuel[3]);
+	public Trimestre(int id, int premierMoisid, int deuxMoisId, int troisMoisId) {
+		_id = id;
+		_exerciceMensuelIds = new Integer[] { premierMoisid, deuxMoisId, troisMoisId };
 
-	}
-
-	public LocalDate getDateDebut() {
-
-		return getExerciceMensuel()[0].getDateDebut();
 	}
 
 	// GETTER'N'SETTER -------------------------------------------------
 
-	public LocalDate getDateFin() {
-		return getExerciceMensuel()[2].getDateDebut();
+	public int getId() {
+		return _id;
 	}
 
-	public ExerciceMensuel[] getExerciceMensuel() {
-		return _exerciceMensuelTable;
-	}
-
-	public void setExerciceMensuel(ExerciceMensuel[] exerciceMensuel) {
-		this._exerciceMensuelTable = exerciceMensuel;
+	public Integer[] getExerciceMensuelIds() {
+		return _exerciceMensuelIds;
 	}
 
 }

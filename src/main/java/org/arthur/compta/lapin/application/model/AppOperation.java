@@ -1,5 +1,6 @@
 package org.arthur.compta.lapin.application.model;
 
+import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.model.operation.EtatOperation;
 import org.arthur.compta.lapin.model.operation.Operation;
 import org.arthur.compta.lapin.model.operation.OperationType;
@@ -12,12 +13,8 @@ import javafx.beans.property.SimpleStringProperty;
  * Encapsulation applicative d'une opération
  *
  */
-public class AppOperation extends AppObject {
+public class AppOperation extends AppObject<Operation> {
 
-	/**
-	 * L'operation
-	 */
-	protected Operation _operation;
 	/** Le libellé de l'opération */
 	protected SimpleStringProperty _libelleProp;
 	/** Le montant de l'opération */
@@ -25,18 +22,21 @@ public class AppOperation extends AppObject {
 	/** Le compte source */
 	protected SimpleObjectProperty<AppCompte> _compteSourceProp;
 	/** Etat de l'opération */
-	protected SimpleStringProperty _etatProp;
+	protected SimpleObjectProperty<EtatOperation> _etatProp;
+	/** le Type */
+	protected SimpleObjectProperty<OperationType> _typeProp;
 
 	/**
 	 * Constructeur
 	 */
 	public AppOperation(Operation operation) {
 
-		_operation = operation;
-		_libelleProp = new SimpleStringProperty(_operation.getNom());
-		_montantProp = new SimpleDoubleProperty(_operation.getMontant());
-		_etatProp = new SimpleStringProperty(_operation.getEtat().toString());
-		_compteSourceProp = new SimpleObjectProperty<AppCompte>();
+		setAppID(operation.getId());
+		_libelleProp = new SimpleStringProperty(operation.getNom());
+		_montantProp = new SimpleDoubleProperty(operation.getMontant());
+		_etatProp = new SimpleObjectProperty<EtatOperation>(operation.getEtat());
+		_compteSourceProp = new SimpleObjectProperty<AppCompte>(CompteManager.getInstance().getAppCompteFromId(operation.getCompteId()));
+		_typeProp = new SimpleObjectProperty<OperationType>(operation.getType());
 
 	}
 
@@ -78,15 +78,6 @@ public class AppOperation extends AppObject {
 	}
 
 	/**
-	 * Retourne l'opération encapsulée
-	 * 
-	 * @return
-	 */
-	public Operation getOperation() {
-		return _operation;
-	}
-
-	/**
 	 * Positionne le compte source
 	 * 
 	 * @param compte
@@ -105,7 +96,7 @@ public class AppOperation extends AppObject {
 		return _compteSourceProp;
 	}
 
-	public SimpleStringProperty etatProperty() {
+	public SimpleObjectProperty<EtatOperation> etatProperty() {
 		return _etatProp;
 	}
 
@@ -114,33 +105,36 @@ public class AppOperation extends AppObject {
 	 * 
 	 * @return
 	 */
-	public String getEtat() {
+	public EtatOperation getEtat() {
 		return _etatProp.get();
 	}
 
 	public OperationType getType() {
-		return _operation.getType();
+		return _typeProp.get();
 	}
 
 	/**
 	 * Permutte l'état de l'opération
 	 */
 	public void switchEtat() {
-		if (_operation.getEtat() == EtatOperation.PREVISION) {
 
-			_operation.setEtat(EtatOperation.PRISE_EN_COMPTE);
+		switch (getEtat()) {
 
-		} else {
-
-			if (_operation.getEtat() == EtatOperation.PRISE_EN_COMPTE) {
-
-				_operation.setEtat(EtatOperation.PREVISION);
-
-			}
+		case PRISE_EN_COMPTE:
+			setEtat(EtatOperation.PREVISION);
+			break;
+		case PREVISION:
+			setEtat(EtatOperation.PRISE_EN_COMPTE);
+			break;
 
 		}
 
-		_etatProp.set(_operation.getEtat().toString());
+	}
+
+	public void setEtat(EtatOperation etatF) {
+
+		_etatProp.set(etatF);
+
 	}
 
 	/**
@@ -161,6 +155,11 @@ public class AppOperation extends AppObject {
 	public void setMontant(double newMontant) {
 		_montantProp.set(newMontant);
 
+	}
+
+	@Override
+	public Operation getDBObject() {
+		return new Operation(getAppId(), getType(), getCompteSource().getAppId(), getLibelle(), getMontant(), getEtat(), -1);
 	}
 
 }

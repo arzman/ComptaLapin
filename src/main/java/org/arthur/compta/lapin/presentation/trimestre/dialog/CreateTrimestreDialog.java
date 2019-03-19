@@ -1,5 +1,7 @@
 package org.arthur.compta.lapin.presentation.trimestre.dialog;
 
+import java.time.LocalDate;
+
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.application.model.AppTrimestre;
@@ -30,48 +32,6 @@ public class CreateTrimestreDialog extends ComptaDialog<AppTrimestre> {
 
 		// Création des champ de saisi
 		createContent();
-		// création des boutons de control
-		createBoutonBar();
-		// verification de la saisie
-		checkInput();
-
-	}
-
-	/**
-	 * Création des champs de saisie
-	 */
-	private void createContent() {
-		GridPane grid = new GridPane();
-		getDialogPane().setContent(grid);
-
-		// saisie de la date
-		Label dateDebutLbl = new Label("Date de début : ");
-		grid.add(dateDebutLbl, 0, 0);
-
-		_dpick = new DatePicker();
-		_dpick.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
-		});
-		grid.add(_dpick, 1, 0);
-
-	}
-
-	/**
-	 * Crée les boutons OK et Cancel
-	 */
-	private void createBoutonBar() {
-
-		// Création du bouton OK
-		_buttonTypeOk = new ButtonType("Ok", ButtonData.OK_DONE);
-		getDialogPane().getButtonTypes().add(_buttonTypeOk);
-
-		// Création du bouton OK
-		_buttonTypeOkAndLoad = new ButtonType("Ok et charger", ButtonData.APPLY);
-		getDialogPane().getButtonTypes().add(_buttonTypeOkAndLoad);
-
-		// Création du bouton Cancel
-		ButtonType buttonTypeCancel = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
-		getDialogPane().getButtonTypes().add(buttonTypeCancel);
 
 		// Retourne le Compte créé sur le OK
 		setResultConverter(new Callback<ButtonType, AppTrimestre>() {
@@ -116,6 +76,44 @@ public class CreateTrimestreDialog extends ComptaDialog<AppTrimestre> {
 				return zeReturn;
 			}
 		});
+
+	}
+
+	/**
+	 * Création des champs de saisie
+	 */
+	private void createContent() {
+		GridPane grid = new GridPane();
+		getDialogPane().setContent(grid);
+
+		// saisie de la date
+		Label dateDebutLbl = new Label("Date de début : ");
+		grid.add(dateDebutLbl, 0, 0);
+
+		_dpick = new DatePicker();
+		_dpick.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+			checkInput();
+		});
+		grid.add(_dpick, 1, 0);
+
+		_dpick.setValue(LocalDate.now());
+
+	}
+
+	/**
+	 * Crée les boutons OK et Cancel
+	 */
+	protected void createButtonBar() {
+
+		super.createButtonBar();
+
+		// Création du bouton OK
+		_buttonTypeOkAndLoad = new ButtonType("Ok et charger", ButtonData.APPLY);
+		getDialogPane().getButtonTypes().add(_buttonTypeOkAndLoad);
+
+		// Création du bouton Cancel
+		ButtonType buttonTypeCancel = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
+		getDialogPane().getButtonTypes().add(buttonTypeCancel);
 
 	}
 

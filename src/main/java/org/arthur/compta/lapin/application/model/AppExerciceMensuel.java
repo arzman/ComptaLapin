@@ -1,18 +1,19 @@
 package org.arthur.compta.lapin.application.model;
 
 import java.time.LocalDate;
+import java.util.List;
 
+import org.arthur.compta.lapin.application.exception.ComptaException;
+import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.model.ExerciceMensuel;
+import org.arthur.compta.lapin.model.operation.Operation;
 
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-public class AppExerciceMensuel extends AppObject {
-
-	/**
-	 * L'exercice encapsulé
-	 */
-	private ExerciceMensuel _exMensuel;
+public class AppExerciceMensuel extends AppObject<ExerciceMensuel> {
 
 	/** La liste des dépenses */
 	private ObservableList<AppOperation> _appDepenseList;
@@ -20,14 +21,44 @@ public class AppExerciceMensuel extends AppObject {
 	private ObservableList<AppOperation> _appRessourceList;
 	/** La liste des transferts */
 	private ObservableList<AppTransfert> _appTransfertList;
+	/** date de début */
+	private SimpleObjectProperty<LocalDate> _dateDebutProp;
+	/** date de fin */
+	private SimpleObjectProperty<LocalDate> _dateFinProp;
+	/** Resultat previsionnel */
+	private SimpleDoubleProperty _resPrevProp;
 
-	public AppExerciceMensuel(ExerciceMensuel exerciceMensuel) {
+	public AppExerciceMensuel(ExerciceMensuel exerciceMensuel) throws ComptaException {
 
-		_exMensuel = exerciceMensuel;
+		setAppID(exerciceMensuel.getId());
+		_dateDebutProp = new SimpleObjectProperty<LocalDate>(exerciceMensuel.getDateDebut());
+		_dateFinProp = new SimpleObjectProperty<LocalDate>(exerciceMensuel.getDateFin());
+
+		_resPrevProp = new SimpleDoubleProperty(exerciceMensuel.getResultatPrev());
 
 		_appDepenseList = FXCollections.observableArrayList();
 		_appRessourceList = FXCollections.observableArrayList();
 		_appTransfertList = FXCollections.observableArrayList();
+
+		List<Operation> opList = TrimestreManager.getInstance().getOperationForEM(exerciceMensuel.getId());
+		for (Operation op : opList) {
+
+			switch (op.getType()) {
+
+			case DEPENSE:
+				_appDepenseList.add(new AppOperation(op));
+				break;
+			case RESSOURCE:
+				_appRessourceList.add(new AppOperation(op));
+				break;
+
+			case TRANSFERT:
+				_appTransfertList.add(new AppTransfert(op));
+				break;
+
+			}
+
+		}
 
 	}
 
@@ -37,16 +68,7 @@ public class AppExerciceMensuel extends AppObject {
 	 * @return
 	 */
 	public LocalDate getDateDebut() {
-		return _exMensuel.getDateDebut();
-	}
-
-	/**
-	 * Retourne l'exercice mensuel encapsulé
-	 * 
-	 * @return
-	 */
-	public ExerciceMensuel getExcerciceMensuel() {
-		return _exMensuel;
+		return _dateDebutProp.get();
 	}
 
 	public double getResultat() {
@@ -67,13 +89,14 @@ public class AppExerciceMensuel extends AppObject {
 	/**
 	 * Ajoute une dépense dans l'exercice mensuel
 	 * 
-	 * @param dep la dépense
-	 * @param id  l'identifiant applicatif
+	 * @param dep
+	 *            la dépense
+	 * @param id
+	 *            l'identifiant applicatif
 	 */
 	private void addDepense(AppOperation appDep) {
 
 		_appDepenseList.add(appDep);
-		_exMensuel.getDepensesList().add(appDep.getOperation());
 
 	}
 
@@ -89,25 +112,26 @@ public class AppExerciceMensuel extends AppObject {
 	/**
 	 * Ajoute une ressource dans l'exercice mensuel
 	 * 
-	 * @param res la ressource
-	 * @param id  l'identifiant applicatif
+	 * @param res
+	 *            la ressource
+	 * @param id
+	 *            l'identifiant applicatif
 	 */
 	private void addRessource(AppOperation appRes) {
 
 		_appRessourceList.add(appRes);
-		_exMensuel.getRessourcesList().add(appRes.getOperation());
 
 	}
 
 	/**
 	 * Ajoute un transfert dans l'exercice mensuel
 	 * 
-	 * @param apptrans le transfert
+	 * @param apptrans
+	 *            le transfert
 	 */
 	private void addTransfert(AppTransfert apptr) {
 
 		_appTransfertList.add(apptr);
-		_exMensuel.getTransfertList().add(apptr.getTransfert());
 
 	}
 
@@ -135,7 +159,7 @@ public class AppExerciceMensuel extends AppObject {
 	 * @return
 	 */
 	public double getResultatPrev() {
-		return _exMensuel.getResultatPrev();
+		return _resPrevProp.get();
 	}
 
 	public void addOperation(AppOperation apptr) {
@@ -154,6 +178,16 @@ public class AppExerciceMensuel extends AppObject {
 
 		}
 
+	}
+
+	@Override
+	public ExerciceMensuel getDBObject() {
+		return new ExerciceMensuel(getAppId(), getDateDebut(), getDateDebut(), getResultatPrev());
+	}
+
+	public LocalDate getDateFin() {
+
+		return _dateFinProp.get();
 	}
 
 }

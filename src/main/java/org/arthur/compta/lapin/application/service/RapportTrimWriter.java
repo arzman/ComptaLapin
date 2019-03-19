@@ -57,11 +57,13 @@ public class RapportTrimWriter {
 	/**
 	 * Constructeur
 	 * 
-	 * @param idTrim le trimestre
-	 * @param file   le fichier ou l'on sauve le rapport
+	 * @param idTrim
+	 *            le trimestre
+	 * @param file
+	 *            le fichier ou l'on sauve le rapport
 	 * @throws ComptaException
 	 */
-	public RapportTrimWriter(String idTrim) throws ComptaException {
+	public RapportTrimWriter(int idTrim) throws ComptaException {
 
 		_appTrim = TrimestreManager.getInstance().loadTrimestre(idTrim);
 
@@ -108,7 +110,8 @@ public class RapportTrimWriter {
 	/**
 	 * Création du chapitre du graphique récapitulatif
 	 * 
-	 * @param i le numéro du chapitre
+	 * @param i
+	 *            le numéro du chapitre
 	 * @return
 	 * @throws ComptaException
 	 */
@@ -140,20 +143,15 @@ public class RapportTrimWriter {
 		for (int month = 0; month < 3; month++) {
 
 			double dep = SyntheseService.getDepenseForMonth(_appTrim.getAppExerciceMensuel(month).get().getDateDebut());
-			double res = SyntheseService
-					.getRessourceForMonth(_appTrim.getAppExerciceMensuel(month).get().getDateDebut());
-			double bud = SyntheseService
-					.getBudgetUsageForMonth(_appTrim.getAppExerciceMensuel(month).get().getDateDebut());
+			double res = SyntheseService.getRessourceForMonth(_appTrim.getAppExerciceMensuel(month).get().getDateDebut());
+			double bud = SyntheseService.getBudgetUsageForMonth(_appTrim.getAppExerciceMensuel(month).get().getDateDebut());
 
-			depenseSerie.getData().add(new Data<String, Number>(
-					ApplicationFormatter.moisFormat.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut()),
-					dep));
-			ressourceSerie.getData().add(new Data<String, Number>(
-					ApplicationFormatter.moisFormat.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut()),
-					res));
-			budgetUseSerie.getData().add(new Data<String, Number>(
-					ApplicationFormatter.moisFormat.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut()),
-					bud));
+			depenseSerie.getData()
+					.add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut()), dep));
+			ressourceSerie.getData()
+					.add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut()), res));
+			budgetUseSerie.getData()
+					.add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut()), bud));
 
 		}
 		_lineChart.getData().add(depenseSerie);
@@ -185,7 +183,8 @@ public class RapportTrimWriter {
 	/**
 	 * Crée un rapport pour le mois
 	 * 
-	 * @param i index du mois dans le trimestre
+	 * @param i
+	 *            index du mois dans le trimestre
 	 * @return
 	 */
 	private Element createChapMois(int i) {
@@ -194,8 +193,7 @@ public class RapportTrimWriter {
 		AppExerciceMensuel em = _appTrim.getAppExerciceMensuel(i).getValue();
 
 		// paragraphe du mois
-		Paragraph moisTitle = new Paragraph(ApplicationFormatter.moiAnneedateFormat.format(em.getDateDebut()),
-				FONT_MOIS_TITLE);
+		Paragraph moisTitle = new Paragraph(ApplicationFormatter.moiAnneedateFormat.format(em.getDateDebut()), FONT_MOIS_TITLE);
 		Chapter chapMois = new Chapter(moisTitle, i + 1);
 
 		// ajout des dépenses
@@ -271,10 +269,8 @@ public class RapportTrimWriter {
 	 */
 	private Paragraph createRapportTitle() {
 
-		Chunk titlechunk = new Chunk(
-				"Rapport Trimestriel de " + ApplicationFormatter.moiAnneedateFormat.format(_appTrim.getDateDebut())
-						+ " à " + ApplicationFormatter.moiAnneedateFormat.format(_appTrim.getDateFin()),
-				FONT_TITLE);
+		Chunk titlechunk = new Chunk("Rapport Trimestriel de " + ApplicationFormatter.moiAnneedateFormat.format(_appTrim.getDateDebut()) + " à "
+				+ ApplicationFormatter.moiAnneedateFormat.format(_appTrim.getDateFin()), FONT_TITLE);
 
 		Paragraph parTitle = new Paragraph(titlechunk);
 		parTitle.setAlignment(Element.ALIGN_CENTER);

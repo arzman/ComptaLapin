@@ -1,6 +1,7 @@
 package org.arthur.compta.lapin.presentation.trimestre.cellfactory;
 
 import org.arthur.compta.lapin.application.model.AppOperation;
+import org.arthur.compta.lapin.model.operation.EtatOperation;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 
 import javafx.scene.control.TableCell;
@@ -15,15 +16,15 @@ import javafx.util.Callback;
  * @param <T>
  *            Sous-classe de l'opération
  */
-public class EtatCellFactory<T extends AppOperation> implements Callback<TableColumn<T, String>, TableCell<T, String>> {
+public class EtatCellFactory<T extends AppOperation> implements Callback<TableColumn<T, EtatOperation>, TableCell<T, EtatOperation>> {
 
 	@Override
-	public TableCell<T, String> call(TableColumn<T, String> param) {
+	public TableCell<T, EtatOperation> call(TableColumn<T, EtatOperation> param) {
 
-		TableCell<T, String> cell = new TableCell<T, String>() {
+		TableCell<T, EtatOperation> cell = new TableCell<T, EtatOperation>() {
 
 			@Override
-			protected void updateItem(String item, boolean empty) {
+			protected void updateItem(EtatOperation item, boolean empty) {
 
 				super.updateItem(item, empty);
 				if (item == null || empty) {
@@ -33,7 +34,7 @@ public class EtatCellFactory<T extends AppOperation> implements Callback<TableCo
 					// on affiche son nom
 					setText("");
 
-					if (item.equals("PRISE_EN_COMPTE")) {
+					if (item.equals(EtatOperation.PRISE_EN_COMPTE)) {
 
 						ImageView im = new ImageView(ImageLoader.getImage(ImageLoader.VALID_IMG));
 						setGraphic(im);

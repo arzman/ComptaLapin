@@ -104,7 +104,7 @@ public class VisuBudgetDialog extends ComptaDialog<ButtonData> {
 		montNom.setCellFactory(new MontantPresBudgetCellFactory());
 		_treeRecBud.getColumns().add(montNom);
 
-		TreeTableColumn<PresBudget, LocalDate> colDate = new TreeTableColumn<PresBudget, LocalDate>("Montant");
+		TreeTableColumn<PresBudget, LocalDate> colDate = new TreeTableColumn<PresBudget, LocalDate>("Date");
 		colDate.setId("date");
 		colDate.setResizable(true);
 		colDate.setCellValueFactory(cellData -> cellData.getValue().getValue().dateRecurrentProp());
@@ -136,7 +136,7 @@ public class VisuBudgetDialog extends ComptaDialog<ButtonData> {
 						while (iter.hasNext() && goOn) {
 
 							AppBudget bud = iter.next();
-							if (bud.getAppId().equals(item.getValue().getAppBudget().getAppId())) {
+							if (bud.getAppId() == item.getValue().getAppBudget().getAppId()) {
 								iter.remove();
 								goOn = false;
 							}
@@ -172,9 +172,9 @@ public class VisuBudgetDialog extends ComptaDialog<ButtonData> {
 		colNom.setEditable(false);
 		colNom.setId("nom");
 		// bind sur la nom
-		colNom.setCellValueFactory(cellData -> Bindings.createStringBinding(
-				() -> cellData.getValue().getNom() + "#" + String.valueOf(cellData.getValue().isTermine()),
-				cellData.getValue().nomProperty(), cellData.getValue().termineProperty()));
+		colNom.setCellValueFactory(
+				cellData -> Bindings.createStringBinding(() -> cellData.getValue().getNom() + "#" + String.valueOf(cellData.getValue().isTermine()),
+						cellData.getValue().nomProperty(), cellData.getValue().termineProperty()));
 		colNom.setCellFactory(new NomBudgetTableCell());
 		_tableNoRecuBud.getColumns().add(colNom);
 
@@ -214,7 +214,7 @@ public class VisuBudgetDialog extends ComptaDialog<ButtonData> {
 						while (iter.hasNext() && goOn) {
 
 							AppBudget bud = iter.next();
-							if (bud.getAppId().equals(item.getAppId())) {
+							if (bud.getAppId() == item.getAppId()) {
 								iter.remove();
 								goOn = false;
 							}
@@ -231,8 +231,6 @@ public class VisuBudgetDialog extends ComptaDialog<ButtonData> {
 		});
 		menu.getItems().add(delItem);
 		delItem.disableProperty().bind(_tableNoRecuBud.getSelectionModel().selectedItemProperty().isNull());
-		
-		
 
 	}
 
@@ -299,45 +297,46 @@ public class VisuBudgetDialog extends ComptaDialog<ButtonData> {
 
 	}
 
-//	
-//
-//
-//	ContextMenu menu = new ContextMenu();
-//	listAllBud.setContextMenu(menu);
-//
-//	MenuItem delItem = new MenuItem("Supprimer");
-//	delItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.DEL_IMG)));
-//	delItem.setOnAction(new EventHandler<ActionEvent>() {
-//
-//		@Override
-//		public void handle(ActionEvent event) {
-//
-//			AppBudget appB = listAllBud.getSelectionModel().getSelectedItem();
-//
-//			try {
-//				BudgetManager.getInstance().removeBudget(appB);
-//				listAllBud.getItems().remove(appB);
-//
-//				// suppression de la liste ( le remove ne marche pas)
-//				Iterator<AppBudget> iter = _activesBudgets.iterator();
-//				boolean goOn = true;
-//				while (iter.hasNext() && goOn) {
-//
-//					AppBudget bud = iter.next();
-//					if (bud.getAppId().equals(appB.getAppId())) {
-//						iter.remove();
-//						goOn = false;
-//					}
-//
-//				}
-//
-//			} catch (ComptaException e) {
-//				ExceptionDisplayService.showException(e);
-//			}
-//
-//		}
-//	});
-//
-//menu.getItems().add(delItem);
+	//
+	//
+	//
+	// ContextMenu menu = new ContextMenu();
+	// listAllBud.setContextMenu(menu);
+	//
+	// MenuItem delItem = new MenuItem("Supprimer");
+	// delItem.setGraphic(new
+	// ImageView(ImageLoader.getImage(ImageLoader.DEL_IMG)));
+	// delItem.setOnAction(new EventHandler<ActionEvent>() {
+	//
+	// @Override
+	// public void handle(ActionEvent event) {
+	//
+	// AppBudget appB = listAllBud.getSelectionModel().getSelectedItem();
+	//
+	// try {
+	// BudgetManager.getInstance().removeBudget(appB);
+	// listAllBud.getItems().remove(appB);
+	//
+	// // suppression de la liste ( le remove ne marche pas)
+	// Iterator<AppBudget> iter = _activesBudgets.iterator();
+	// boolean goOn = true;
+	// while (iter.hasNext() && goOn) {
+	//
+	// AppBudget bud = iter.next();
+	// if (bud.getAppId().equals(appB.getAppId())) {
+	// iter.remove();
+	// goOn = false;
+	// }
+	//
+	// }
+	//
+	// } catch (ComptaException e) {
+	// ExceptionDisplayService.showException(e);
+	// }
+	//
+	// }
+	// });
+	//
+	// menu.getItems().add(delItem);
 
 }

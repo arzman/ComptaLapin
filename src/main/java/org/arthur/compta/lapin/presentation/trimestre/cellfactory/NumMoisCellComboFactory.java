@@ -8,7 +8,7 @@ public class NumMoisCellComboFactory implements Callback<ListView<Integer>, List
 
 	@Override
 	public ListCell<Integer> call(ListView<Integer> arg0) {
-		// TODO Auto-generated method stub
+
 		return new ListCell<Integer>() {
 
 			@Override

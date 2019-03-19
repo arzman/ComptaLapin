@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
@@ -16,30 +15,46 @@ import org.arthur.compta.lapin.model.Budget;
 
 public class BudgetDataAccess extends ComptaDataAccess {
 
-	public BudgetDataAccess() {
+	/** instance du singleton */
+	private static BudgetDataAccess _instance;
+
+	public static BudgetDataAccess getInstance() {
+
+		if (_instance == null) {
+			_instance = new BudgetDataAccess();
+		}
+
+		return _instance;
+	}
+
+	private BudgetDataAccess() {
 		super();
 	}
 
 	/**
 	 * Ajoute un budget dans la base de donnée
 	 * 
-	 * @param nom            le nom
-	 * @param objectif       l'objectif
-	 * @param utilise        le montant utilise
-	 * @param isActif        est actif ?
+	 * @param nom
+	 *            le nom
+	 * @param objectif
+	 *            l'objectif
+	 * @param utilise
+	 *            le montant utilise
+	 * @param isActif
+	 *            est actif ?
 	 * @param dateRecurrent
 	 * @param labelRecurrent
 	 * @return l'id applicatif
-	 * @throws ComptaException Echec de l'ajout
+	 * @throws ComptaException
+	 *             Echec de l'ajout
 	 */
-	public String addBudget(String nom, double objectif, double utilise, boolean isActif, int priority,
-			String labelRecurrent, LocalDate dateRecurrent) throws ComptaException {
-		String id = "";
+	public Budget addBudget(String nom, double objectif, double utilise, boolean isActif, int priority, String labelRecurrent, LocalDate dateRecurrent)
+			throws ComptaException {
+		Budget bud;
 
 		// préparation de la requête
 		String query = "INSERT INTO BUDGET (nom,objectif,utilise,is_actif,priority,label_recurrent,date_recurrent) VALUES (?,?,?,?,?,?,?);";
-		try (PreparedStatement stmt = DBManager.getInstance().getConnexion().prepareStatement(query,
-				Statement.RETURN_GENERATED_KEYS)) {
+		try (PreparedStatement stmt = DBManager.getInstance().getConnexion().prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 			stmt.setString(1, nom);
 			stmt.setDouble(2, objectif);
 			stmt.setDouble(3, utilise);
@@ -61,14 +76,14 @@ public class BudgetDataAccess extends ComptaDataAccess {
 
 			// récupération de l'id en base du compte créé
 			ResultSet res = stmt.getGeneratedKeys();
-			if (res.getMetaData().getColumnCount() == 1 && res.next()) {
-				id = res.getString(1).trim();
-			}
+			res.next();
+			bud = new Budget(res.getInt(1), objectif, utilise, nom, isActif, priority, labelRecurrent, dateRecurrent);
+
 		} catch (Exception e) {
 			throw new ComptaException("Impossible d'ajouter le budget", e);
 		}
 
-		return id;
+		return bud;
 	}
 
 	/**
@@ -94,12 +109,14 @@ public class BudgetDataAccess extends ComptaDataAccess {
 	/**
 	 * Récupère les budget actifs
 	 * 
-	 * @return couple clé : identifiant et valeurs [nom,objectif,utilise,priority]
-	 * @throws ComptaException Echec de la récupération
+	 * @return couple clé : identifiant et valeurs
+	 *         [nom,objectif,utilise,priority]
+	 * @throws ComptaException
+	 *             Echec de la récupération
 	 */
-	public HashMap<String, Budget> getActiveBudget() throws ComptaException {
+	public List<Budget> getActiveBudget() throws ComptaException {
 
-		HashMap<String, Budget> res = new HashMap<>();
+		ArrayList<Budget> res = new ArrayList<>();
 
 		String query = "SELECT ID,nom,objectif,utilise,priority,is_actif,label_recurrent,date_recurrent FROM BUDGET WHERE is_actif=True;";
 
@@ -109,7 +126,7 @@ public class BudgetDataAccess extends ComptaDataAccess {
 
 			while (queryRes.next()) {
 
-				res.put(queryRes.getString("ID"), parseBudgetFromRes(queryRes));
+				res.add(parseBudgetFromRes(queryRes));
 			}
 
 		} catch (Exception e) {
@@ -124,7 +141,8 @@ public class BudgetDataAccess extends ComptaDataAccess {
 	 * 
 	 * @return couple clé : identifiant et valeurs
 	 *         [nom,objectif,utilise,priority,is_actif]
-	 * @throws ComptaException Echec de la récupération
+	 * @throws ComptaException
+	 *             Echec de la récupération
 	 */
 	public List<Budget> getAllBudget() throws ComptaException {
 
@@ -152,7 +170,8 @@ public class BudgetDataAccess extends ComptaDataAccess {
 	 * Retourne la liste des labels des budgets récurrent
 	 * 
 	 * @return
-	 * @throws ComptaException Problème en base
+	 * @throws ComptaException
+	 *             Problème en base
 	 */
 	public List<String> getLabelRecurrentList() throws ComptaException {
 
@@ -187,10 +206,9 @@ public class BudgetDataAccess extends ComptaDataAccess {
 	private Budget parseBudgetFromRes(ResultSet queryRes) throws SQLException {
 
 		// parsing du résultat
-
-		return new Budget(queryRes.getInt("id"), queryRes.getDouble("objectif"), queryRes.getDouble("utilise"),
-				queryRes.getString("nom"), queryRes.getBoolean("is_actif"), queryRes.getInt("priority"),
-				queryRes.getString("label_recurrent"), queryRes.getDate("date_recurrent").toLocalDate());
+		return new Budget(queryRes.getInt("id"), queryRes.getDouble("objectif"), queryRes.getDouble("utilise"), queryRes.getString("nom"),
+				queryRes.getBoolean("is_actif"), queryRes.getInt("priority"), queryRes.getString("label_recurrent"),
+				queryRes.getDate("date_recurrent").toLocalDate());
 	}
 
 	/**
@@ -205,14 +223,14 @@ public class BudgetDataAccess extends ComptaDataAccess {
 
 		try (PreparedStatement stmt = DBManager.getInstance().getConnexion().prepareStatement(query)) {
 			// suppression des utilisations
-			stmt.setString(1, appB.getAppId());
+			stmt.setInt(1, appB.getAppId());
 			executeUpdate(stmt);
 
 			// suppression du budget
 			String query2 = "DELETE FROM BUDGET WHERE ID=?;";
 			PreparedStatement stmt2 = DBManager.getInstance().getConnexion().prepareStatement(query2);
 
-			stmt2.setString(1, appB.getAppId());
+			stmt2.setInt(1, appB.getAppId());
 			executeUpdate(stmt2);
 
 		} catch (Exception e) {
@@ -224,10 +242,12 @@ public class BudgetDataAccess extends ComptaDataAccess {
 	/**
 	 * Met à jour le budget en base de donnée
 	 * 
-	 * @param budget le budget
-	 * @throws ComptaException Echec de la mise à jour
+	 * @param budget
+	 *            le budget
+	 * @throws ComptaException
+	 *             Echec de la mise à jour
 	 */
-	public void updateBudget(AppBudget budget) throws ComptaException {
+	public void updateBudget(Budget budget) throws ComptaException {
 
 		// préparation de la requête
 		String query = "UPDATE BUDGET SET nom=?,objectif=?,utilise=?,is_actif=?,priority=?,label_recurrent=?,date_recurrent=? WHERE ID = ?";
@@ -239,7 +259,7 @@ public class BudgetDataAccess extends ComptaDataAccess {
 			stmt.setInt(5, budget.getPriority());
 			stmt.setString(6, budget.getLabelRecurrent());
 			stmt.setDate(7, Date.valueOf(budget.getDateRecurrent()));
-			stmt.setInt(8, Integer.valueOf(budget.getAppId()));
+			stmt.setInt(8, Integer.valueOf(budget.getId()));
 			// execution
 			executeUpdate(stmt);
 		} catch (Exception e) {
@@ -251,17 +271,19 @@ public class BudgetDataAccess extends ComptaDataAccess {
 	/**
 	 * Met à jour les budgets en base de donnée
 	 * 
-	 * @param budgets les budgets
-	 * @throws ComptaException Echec de la mise à jour
+	 * @param budgets
+	 *            les budgets
+	 * @throws ComptaException
+	 *             Echec de la mise à jour
 	 */
-	public void updateBudgets(List<AppBudget> budgets) throws ComptaException {
+	public void updateBudgets(List<Budget> budgets) throws ComptaException {
 
 		// préparation de la requête
 		String query = "UPDATE BUDGET SET nom=?,objectif=?,utilise=?,is_actif=?,priority=?,label_recurrent=?,date_recurrent=? WHERE ID = ?";
 
 		try (PreparedStatement stmt = DBManager.getInstance().getConnexion().prepareStatement(query)) {
 
-			for (AppBudget budget : budgets) {
+			for (Budget budget : budgets) {
 
 				stmt.setString(1, budget.getNom());
 				stmt.setDouble(2, budget.getObjectif());
@@ -270,7 +292,7 @@ public class BudgetDataAccess extends ComptaDataAccess {
 				stmt.setInt(5, budget.getPriority());
 				stmt.setString(6, budget.getLabelRecurrent());
 				stmt.setDate(7, Date.valueOf(budget.getDateRecurrent()));
-				stmt.setInt(8, Integer.valueOf(budget.getAppId()));
+				stmt.setInt(8, Integer.valueOf(budget.getId()));
 
 				stmt.addBatch();
 			}

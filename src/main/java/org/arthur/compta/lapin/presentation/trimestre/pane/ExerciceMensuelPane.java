@@ -69,7 +69,8 @@ public class ExerciceMensuelPane extends GridPane {
 	/**
 	 * Constructeur
 	 * 
-	 * @param id l'id
+	 * @param id
+	 *            l'id
 	 */
 	public ExerciceMensuelPane(String id, int numMois) {
 
@@ -133,8 +134,7 @@ public class ExerciceMensuelPane extends GridPane {
 		add(accordion, 0, 1);
 
 		// ajout d'une borduer
-		Border bord = new Border(new BorderStroke(Color.LIGHTBLUE, BorderStrokeStyle.SOLID, new CornerRadii(5),
-				new BorderWidths(1), new Insets(2, 2, 2, 2)));
+		Border bord = new Border(new BorderStroke(Color.LIGHTBLUE, BorderStrokeStyle.SOLID, new CornerRadii(5), new BorderWidths(1), new Insets(2, 2, 2, 2)));
 		setBorder(bord);
 
 		hookStateListener();
@@ -148,8 +148,7 @@ public class ExerciceMensuelPane extends GridPane {
 	private void hookStateListener() {
 
 		// restauration de l'état
-		int idExp = Integer
-				.parseInt(ConfigurationManager.getInstance().getProp("ExerciceMensuelPane." + getId() + ".exp", "0"));
+		int idExp = Integer.parseInt(ConfigurationManager.getInstance().getProp("ExerciceMensuelPane." + getId() + ".exp", "0"));
 
 		switch (idExp) {
 
@@ -171,8 +170,7 @@ public class ExerciceMensuelPane extends GridPane {
 		accordion.expandedPaneProperty().addListener(new ChangeListener<TitledPane>() {
 
 			@Override
-			public void changed(ObservableValue<? extends TitledPane> observable, TitledPane oldValue,
-					TitledPane newValue) {
+			public void changed(ObservableValue<? extends TitledPane> observable, TitledPane oldValue, TitledPane newValue) {
 
 				if (newValue == depPane) {
 					ConfigurationManager.getInstance().setProp("ExerciceMensuelPane." + getId() + ".exp", "0");
@@ -189,19 +187,17 @@ public class ExerciceMensuelPane extends GridPane {
 		});
 
 		// restitution des largeur de colonnes
-		ConfigurationManager.getInstance().setPrefColumnWidth(_depenseTable,
-				"ExerciceMensuel" + getId() + ".tabledep.col");
-		ConfigurationManager.getInstance().setPrefColumnWidth(_ressourceTable,
-				"ExerciceMensuel" + getId() + ".tableres.col.");
-		ConfigurationManager.getInstance().setPrefColumnWidth(_transfertTable,
-				"ExerciceMensuel" + getId() + ".tabletrans.col");
+		ConfigurationManager.getInstance().setPrefColumnWidth(_depenseTable, "ExerciceMensuel" + getId() + ".tabledep.col");
+		ConfigurationManager.getInstance().setPrefColumnWidth(_ressourceTable, "ExerciceMensuel" + getId() + ".tableres.col.");
+		ConfigurationManager.getInstance().setPrefColumnWidth(_transfertTable, "ExerciceMensuel" + getId() + ".tabletrans.col");
 
 	}
 
 	/**
 	 * Création du menu contexuel sur le tableau des compte
 	 * 
-	 * @param table le tableau des comptes
+	 * @param table
+	 *            le tableau des comptes
 	 */
 	private void createContextMenu(TableView<? extends AppOperation> table) {
 
@@ -217,8 +213,18 @@ public class ExerciceMensuelPane extends GridPane {
 			@Override
 			public void handle(ActionEvent event) {
 
+				String defaultType = "";
+
+				if (accordion.getExpandedPane() == depPane) {
+					defaultType = "DEPENSE";
+				} else if (accordion.getExpandedPane() == resPane) {
+					defaultType = "RESSOURCE";
+				} else if (accordion.getExpandedPane() == transPane) {
+					defaultType = "TRANSFERT";
+				}
+
 				// remonte l'ihm de saisie
-				CreateOperationDialog cod = new CreateOperationDialog(null, _numMois);
+				CreateOperationDialog cod = new CreateOperationDialog(null, _numMois, defaultType);
 
 				Optional<String> st = cod.showAndWait();
 				if (st.isPresent()) {
@@ -227,7 +233,7 @@ public class ExerciceMensuelPane extends GridPane {
 						_depenseTable.sort();
 					} else if (st.get().equals("RESSOURCE")) {
 						_ressourceTable.sort();
-					} else if (st.get().equals("TRASNFERT")) {
+					} else if (st.get().equals("TRANSFERT")) {
 						_transfertTable.sort();
 					}
 
@@ -250,7 +256,7 @@ public class ExerciceMensuelPane extends GridPane {
 				AppOperation appOp = table.getSelectionModel().getSelectedItems().get(0);
 
 				// remonte l'ihm de saisie
-				CreateOperationDialog cod = new CreateOperationDialog(appOp, _numMois);
+				CreateOperationDialog cod = new CreateOperationDialog(appOp, _numMois, appOp.getType().toString());
 				Optional<String> st = cod.showAndWait();
 				if (st.isPresent()) {
 
@@ -258,7 +264,7 @@ public class ExerciceMensuelPane extends GridPane {
 						_depenseTable.sort();
 					} else if (st.get().equals("RESSOURCE")) {
 						_ressourceTable.sort();
-					} else if (st.get().equals("TRASNFERT")) {
+					} else if (st.get().equals("TRANSFERT")) {
 						_transfertTable.sort();
 					}
 				}
@@ -317,13 +323,12 @@ public class ExerciceMensuelPane extends GridPane {
 
 			}
 		});
-		// on désactive le menu si la selection est vide ou si l'opération est deja
+		// on désactive le menu si la selection est vide ou si l'opération est
+		// deja
 		// prise en compte
 
-		BooleanBinding booBind = Bindings.createBooleanBinding(
-				() -> (table.getSelectionModel().getSelectedItem() != null && table.getSelectionModel()
-						.getSelectedItem().getEtat().equals(EtatOperation.PRISE_EN_COMPTE.toString()))
-						|| (table.getSelectionModel().isEmpty()),
+		BooleanBinding booBind = Bindings.createBooleanBinding(() -> (table.getSelectionModel().getSelectedItem() != null
+				&& table.getSelectionModel().getSelectedItem().getEtat().equals(EtatOperation.PRISE_EN_COMPTE)) || (table.getSelectionModel().isEmpty()),
 				table.getSelectionModel().getSelectedItems());
 
 		trasnOp.disableProperty().bind(booBind);

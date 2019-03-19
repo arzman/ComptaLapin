@@ -61,7 +61,11 @@ public class ConfigureTemplateDialog extends ComptaDialog<ButtonType> {
 		super(ConfigureTemplateDialog.class.getSimpleName());
 
 		_elementList = FXCollections.observableArrayList();
-		_elementList.addAll(TemplateService.getTrimestreTemplate().getElements());
+		try {
+			_elementList.addAll(TemplateService.getTrimestreTemplate().getElements());
+		} catch (ComptaException e1) {
+			ExceptionDisplayService.showException(e1);
+		}
 
 		setTitle("Configuration du modèle");
 		setResizable(true);
@@ -77,8 +81,7 @@ public class ConfigureTemplateDialog extends ComptaDialog<ButtonType> {
 				// sauvegarde de la taille des colonnes
 				for (TableColumn<?, ?> col : _table.getColumns()) {
 
-					ConfigurationManager.getInstance().setProp("ConfigureTemplateDialog.col." + col.getId(),
-							String.valueOf(col.getWidth()));
+					ConfigurationManager.getInstance().setProp("ConfigureTemplateDialog.col." + col.getId(), String.valueOf(col.getWidth()));
 				}
 
 			}
@@ -192,8 +195,7 @@ public class ConfigureTemplateDialog extends ComptaDialog<ButtonType> {
 		// sauvegarde de la taille des colonnes
 		for (TableColumn<?, ?> col : _table.getColumns()) {
 
-			col.setPrefWidth(Double.parseDouble(
-					ConfigurationManager.getInstance().getProp("ConfigureTemplateDialog.col." + col.getId(), "50")));
+			col.setPrefWidth(Double.parseDouble(ConfigurationManager.getInstance().getProp("ConfigureTemplateDialog.col." + col.getId(), "50")));
 		}
 
 	}
@@ -238,12 +240,14 @@ public class ConfigureTemplateDialog extends ComptaDialog<ButtonType> {
 				refreshGainMoyen();
 			};
 		});
+
 	}
 
 	/**
 	 * Création du tableau
 	 * 
-	 * @param root Le noeud ou doit se placer le tableau
+	 * @param root
+	 *            Le noeud ou doit se placer le tableau
 	 */
 	private void createTable() {
 
@@ -315,6 +319,8 @@ public class ConfigureTemplateDialog extends ComptaDialog<ButtonType> {
 	 * Création des boutons
 	 */
 	protected void createButtonBar() {
+
+		super.createButtonBar();
 		// bouton annuler
 		ButtonType cancelButton = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(cancelButton);

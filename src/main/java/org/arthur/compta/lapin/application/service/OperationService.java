@@ -1,7 +1,5 @@
 package org.arthur.compta.lapin.application.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.arthur.compta.lapin.application.exception.ComptaException;
@@ -10,11 +8,9 @@ import org.arthur.compta.lapin.application.model.AppCompte;
 import org.arthur.compta.lapin.application.model.AppOperation;
 import org.arthur.compta.lapin.application.model.AppTransfert;
 import org.arthur.compta.lapin.application.model.OperationSearchResult;
-import org.arthur.compta.lapin.dataaccess.db.DBManager;
+import org.arthur.compta.lapin.dataaccess.db.OperationDataAccess;
 import org.arthur.compta.lapin.model.operation.EtatOperation;
-import org.arthur.compta.lapin.model.operation.Operation;
 import org.arthur.compta.lapin.model.operation.OperationType;
-import org.arthur.compta.lapin.model.operation.TransfertOperation;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,11 +18,13 @@ import javafx.collections.ObservableList;
 public class OperationService {
 
 	/**
-	 * Permutte l'état d'une opération et répercute les conséquences ( sauvegarde DB
-	 * + re-calcul du solde compte)
+	 * Permutte l'état d'une opération et répercute les conséquences (
+	 * sauvegarde DB + re-calcul du solde compte)
 	 * 
-	 * @param appOp l'operation
-	 * @throws ComptaException Echec de la mise à jour
+	 * @param appOp
+	 *            l'operation
+	 * @throws ComptaException
+	 *             Echec de la mise à jour
 	 */
 	public static void switchEtatOperation(AppOperation appOp) throws ComptaException {
 
@@ -35,7 +33,7 @@ public class OperationService {
 		// re-calcul du solde du compte
 		CompteManager.getInstance().operationSwitched(appOp);
 		// sauvegarde en base
-		DBManager.getInstance().updateOperation(appOp);
+		OperationDataAccess.getInstance().updateOperation(appOp.getDBObject());
 
 	}
 
@@ -56,68 +54,6 @@ public class OperationService {
 	}
 
 	/**
-	 * Crée une dépense applicative et la sauve en base
-	 * 
-	 * @param compteSrc le compte source de l'opération
-	 * @param libelle   le libelle
-	 * @param montant   le montant
-	 * @param appMoisId l'id applicatif de l'exercice mensuel
-	 * @return
-	 * @throws ComptaException
-	 */
-	public static AppOperation createDepense(String libelle, double montant, AppCompte compteSrc, String appMoisId)
-			throws ComptaException {
-
-		Operation op = new Operation(OperationType.DEPENSE, compteSrc.getCompte(), libelle, montant,
-				EtatOperation.PREVISION);
-
-		AppOperation appop = new AppOperation(op);
-		appop.setCompteSrc(compteSrc);
-		String id = DBManager.getInstance().addOperation(op, appop.getCompteSource().getAppId(), null, appMoisId);
-		appop.setAppID(id);
-
-		return appop;
-	}
-
-	/**
-	 * Crée une ressource applicative et la sauve en base
-	 * 
-	 * @param compteSrc le compte source de l'opération
-	 * @param libelle   le libelle
-	 * @param montant   le montant
-	 * @param appMoisId l'id applicatif de l'exercice mensuel
-	 * @return
-	 * @throws ComptaException
-	 */
-	public static AppOperation createRessource(String libelle, double montant, AppCompte compteSrc, String appId)
-			throws ComptaException {
-
-		Operation op = new Operation(OperationType.RESSOURCE, compteSrc.getCompte(), libelle, montant,
-				EtatOperation.PREVISION);
-
-		AppOperation appop = new AppOperation(op);
-		appop.setCompteSrc(compteSrc);
-		String id = DBManager.getInstance().addOperation(op, appop.getCompteSource().getAppId(), null, appId);
-		appop.setAppID(id);
-
-		return appop;
-	}
-
-	public static AppOperation createTransfert(String libelle, double montant, AppCompte compteSrc,
-			AppCompte compteCible, String appId) throws ComptaException {
-
-		TransfertOperation trans = new TransfertOperation(compteSrc.getCompte(), libelle, montant,
-				EtatOperation.PREVISION, compteCible.getCompte());
-		AppTransfert appop = new AppTransfert(trans);
-		appop.setCompteSrc(compteSrc);
-		((AppTransfert) appop).setCompteCible(compteCible);
-		String id = DBManager.getInstance().addOperation(trans, compteSrc.getAppId(), compteCible.getAppId(), appId);
-		appop.setAppID(id);
-
-		return appop;
-	}
-
-	/**
 	 * Edite l'opération passé en paramètre
 	 * 
 	 * @param _operation
@@ -128,12 +64,12 @@ public class OperationService {
 	 * @return
 	 * @throws ComptaException
 	 */
-	public static AppOperation editOperation(AppOperation _operation, String newLib, double newMontant,
-			AppCompte newCompteSrc, AppCompte newCompteCibles) throws ComptaException {
+	public static AppOperation editOperation(AppOperation _operation, String newLib, double newMontant, AppCompte newCompteSrc, AppCompte newCompteCibles)
+			throws ComptaException {
 
 		// si l'opération est prise en compte, on la déselectionne
 		boolean toSwitch = false;
-		if (_operation.getEtat().equals(EtatOperation.PRISE_EN_COMPTE.toString())) {
+		if (_operation.getEtat().equals(EtatOperation.PRISE_EN_COMPTE)) {
 			toSwitch = true;
 			switchEtatOperation(_operation);
 		}
@@ -148,7 +84,7 @@ public class OperationService {
 		}
 
 		// enregistrement en base
-		DBManager.getInstance().updateOperation(_operation);
+		OperationDataAccess.getInstance().updateOperation(_operation.getDBObject());
 
 		if (toSwitch) {
 			switchEtatOperation(_operation);
@@ -164,8 +100,8 @@ public class OperationService {
 	/**
 	 * Effectue une recherche sur les opérations.
 	 * 
-	 * Retourne les operation dont le libellé contient lib et dont le montant est
-	 * égale à montant +- tolerance
+	 * Retourne les operation dont le libellé contient lib et dont le montant
+	 * est égale à montant +- tolerance
 	 * 
 	 * Si un des champs est vide, alors il est ignoré
 	 * 
@@ -175,26 +111,9 @@ public class OperationService {
 	 * @return
 	 * @throws ComptaException
 	 */
-	public static List<OperationSearchResult> doSearch(String lib, String montant, String tolerance)
-			throws ComptaException {
+	public static List<OperationSearchResult> doSearch(String lib, String montant, String tolerance) throws ComptaException {
 
-		ArrayList<OperationSearchResult> res = new ArrayList<>();
-
-		try {
-
-			HashMap<String, OperationSearchResult> infos = DBManager.getInstance().searchOperation(lib, montant,
-					tolerance);
-
-			for (String idOp : infos.keySet()) {
-
-				res.add(infos.get(idOp));
-
-			}
-		} catch (Exception e) {
-			throw new ComptaException("Echec de la recherche des opérations", e);
-		}
-
-		return res;
+		return OperationDataAccess.getInstance().searchOperation(lib, montant, tolerance);
 	}
 
 }

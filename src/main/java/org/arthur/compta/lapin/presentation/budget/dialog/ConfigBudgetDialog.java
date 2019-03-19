@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.BudgetManager;
 import org.arthur.compta.lapin.application.model.AppBudget;
-import org.arthur.compta.lapin.dataaccess.db.DBManager;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
@@ -235,8 +234,7 @@ public class ConfigBudgetDialog extends ComptaDialog<ButtonData> {
 				dialog.getEditor().textProperty().addListener(new ChangeListener<String>() {
 
 					@Override
-					public void changed(ObservableValue<? extends String> observable, String oldValue,
-							String newValue) {
+					public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 
 						if (_existingLabels.contains(newValue)) {
 

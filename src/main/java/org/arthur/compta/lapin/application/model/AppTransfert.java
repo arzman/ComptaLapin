@@ -1,6 +1,7 @@
 package org.arthur.compta.lapin.application.model;
 
-import org.arthur.compta.lapin.model.operation.TransfertOperation;
+import org.arthur.compta.lapin.application.manager.CompteManager;
+import org.arthur.compta.lapin.model.operation.Operation;
 
 import javafx.beans.property.SimpleObjectProperty;
 
@@ -19,10 +20,10 @@ public class AppTransfert extends AppOperation {
 	 * @param transfert
 	 *            le transfert à encapsuler
 	 */
-	public AppTransfert(TransfertOperation transfert) {
+	public AppTransfert(Operation transfert) {
 
 		super(transfert);
-		_compteCibleProp = new SimpleObjectProperty<AppCompte>();
+		_compteCibleProp = new SimpleObjectProperty<AppCompte>(CompteManager.getInstance().getAppCompteFromId(transfert.getCibleCompteId()));
 
 	}
 
@@ -54,14 +55,10 @@ public class AppTransfert extends AppOperation {
 
 	}
 
-	/**
-	 * Retourne le transfert
-	 * 
-	 * @return
-	 */
-	public TransfertOperation getTransfert() {
+	@Override
+	public Operation getDBObject() {
 
-		return (TransfertOperation) _operation;
+		return new Operation(getAppId(), getType(), getCompteSource().getAppId(), getLibelle(), getMontant(), getEtat(), getCompteCible().getAppId());
 	}
 
 }

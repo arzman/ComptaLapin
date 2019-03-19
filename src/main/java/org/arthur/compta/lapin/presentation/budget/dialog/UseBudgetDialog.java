@@ -21,7 +21,6 @@ public class UseBudgetDialog extends ComptaDialog<ButtonData> {
 	/** Le budget */
 	private AppBudget _budget;
 
-
 	/** champ de saisie du montant */
 	private TextField _montantTxt;
 	/** champ de saisie du libelle */
@@ -78,8 +77,8 @@ public class UseBudgetDialog extends ComptaDialog<ButtonData> {
 				if (param == _buttonTypeOk) {
 
 					try {
-						BudgetManager.getInstance().addUtilisationForBudget(_budget, _nomTxt.getText().trim(),
-								Double.parseDouble(_montantTxt.getText().trim()), _datePck.getValue());
+						BudgetManager.getInstance().addUtilisationForBudget(_budget, _nomTxt.getText().trim(), Double.parseDouble(_montantTxt.getText().trim()),
+								_datePck.getValue());
 					} catch (Exception e) {
 						ExceptionDisplayService.showException(e);
 					}
@@ -145,7 +144,9 @@ public class UseBudgetDialog extends ComptaDialog<ButtonData> {
 			_datePck.setBorder(BORDER_ERROR);
 		}
 
-		getDialogPane().lookupButton(_buttonTypeOk).setDisable(nomError || montantError || dateError);
+		if (_buttonTypeOk != null) {
+			getDialogPane().lookupButton(_buttonTypeOk).setDisable(nomError || montantError || dateError);
+		}
 
 	}
 
@@ -153,6 +154,7 @@ public class UseBudgetDialog extends ComptaDialog<ButtonData> {
 	 * Création des boutons
 	 */
 	protected void createButtonBar() {
+		super.createButtonBar();
 		// bouton close
 		ButtonType close = new ButtonType("Fermer", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(close);

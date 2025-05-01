@@ -52,7 +52,7 @@ public class RapportTrimWriter {
 	/** Font pour le titre de la partie de mois */
 	private final Font FONT_MOIS_TITLE = FontFactory.getFont(FontFactory.COURIER, 20, Font.UNDERLINE, Color.GREEN);
 	/** Le trimestre */
-	private AppTrimestre _appTrim;
+	private final AppTrimestre _appTrim;
 
 	/**
 	 * Constructeur
@@ -125,7 +125,7 @@ public class RapportTrimWriter {
 		final NumberAxis yAxis = new NumberAxis();
 		yAxis.setAnimated(false);
 		// creating the chart
-		LineChart<String, Number> _lineChart = new LineChart<String, Number>(xAxis, yAxis);
+		LineChart<String, Number> _lineChart = new LineChart<>(xAxis, yAxis);
 		Pane chartContainer = new Pane();
 		chartContainer.getChildren().add(_lineChart);
 
@@ -134,11 +134,11 @@ public class RapportTrimWriter {
 		Scene snapshotScene = new Scene(chartContainer);
 
 		_lineChart.setAnimated(false);
-		Series<String, Number> depenseSerie = new Series<String, Number>();
+		Series<String, Number> depenseSerie = new Series<>();
 		depenseSerie.setName("Dépenses");
-		Series<String, Number> ressourceSerie = new Series<String, Number>();
+		Series<String, Number> ressourceSerie = new Series<>();
 		ressourceSerie.setName("Ressource");
-		Series<String, Number> budgetUseSerie = new Series<String, Number>();
+		Series<String, Number> budgetUseSerie = new Series<>();
 		budgetUseSerie.setName("Budget utilisé");
 		for (int month = 0; month < 3; month++) {
 
@@ -147,11 +147,11 @@ public class RapportTrimWriter {
 			double bud = SyntheseService.getBudgetUsageForMonth(_appTrim.getAppExerciceMensuel(month).get().getDateDebut());
 
 			depenseSerie.getData()
-					.add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut()), dep));
+					.add(new Data<>(ApplicationFormatter.moisFormat.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut()), dep));
 			ressourceSerie.getData()
-					.add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut()), res));
+					.add(new Data<>(ApplicationFormatter.moisFormat.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut()), res));
 			budgetUseSerie.getData()
-					.add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut()), bud));
+					.add(new Data<>(ApplicationFormatter.moisFormat.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut()), bud));
 
 		}
 		_lineChart.getData().add(depenseSerie);

@@ -72,7 +72,7 @@ public class ComptaLapin extends Application {
 			Configurator.initialize(null, confLog4j2Path.toString());
 
 			// mise en place du titre de la fenêtre
-			primaryStage.setTitle("Compta Du Lapin 2.1");
+			primaryStage.setTitle("Compta Du Lapin 2.2");
 			primaryStage.getIcons().add(ImageLoader.getImage(ImageLoader.LAPIN_IMG));
 			primaryStage.getIcons().add(ImageLoader.getImage(ImageLoader.LAPIN32_IMG));
 

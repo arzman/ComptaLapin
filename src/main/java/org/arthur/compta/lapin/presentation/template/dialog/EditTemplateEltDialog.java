@@ -131,28 +131,28 @@ public class EditTemplateEltDialog extends ComptaDialog<TrimestreTemplateElement
 		// saisie du type
 		Label typeLbl = new Label("Type :");
 		root.add(typeLbl, 0, 2);
-		_typeCombo = new ComboBox<String>();
+		_typeCombo = new ComboBox<>();
 		_typeCombo.setItems(OperationService.getOperationType());
 		root.add(_typeCombo, 1, 2);
 
 		// saisie de la frequence
 		Label freqLbl = new Label("Fréquence :");
 		root.add(freqLbl, 0, 3);
-		_freqCombo = new ComboBox<String>();
+		_freqCombo = new ComboBox<>();
 		_freqCombo.setItems(TemplateService.getTemplateEltFreq());
 		root.add(_freqCombo, 1, 3);
 
 		// saisie de l'occurence le contenu est positionné par checkInput()
 		Label occLbl = new Label("Occurence :");
 		root.add(occLbl, 0, 4);
-		_occComb = new ComboBox<Integer>();
+		_occComb = new ComboBox<>();
 		_occComb.setCellFactory(new OccurenceCellFactory(_freqCombo));
 		root.add(_occComb, 1, 4);
 
 		// saisie du compte source
 		Label srcLbl = new Label("Source :");
 		root.add(srcLbl, 0, 5);
-		_srcCombo = new ComboBox<AppCompte>();
+		_srcCombo = new ComboBox<>();
 		_srcCombo.setItems(CompteManager.getInstance().getCompteList());
 		_srcCombo.setCellFactory(new CompteCellComboFactory());
 		root.add(_srcCombo, 1, 5);
@@ -160,7 +160,7 @@ public class EditTemplateEltDialog extends ComptaDialog<TrimestreTemplateElement
 		// saisie du compte cible
 		Label cibleLbl = new Label("Cible");
 		root.add(cibleLbl, 0, 6);
-		_cibleCombo = new ComboBox<AppCompte>();
+		_cibleCombo = new ComboBox<>();
 		_cibleCombo.setItems(CompteManager.getInstance().getCompteList());
 		_cibleCombo.setCellFactory(new CompteCellComboFactory());
 		root.add(_cibleCombo, 1, 6);
@@ -178,7 +178,7 @@ public class EditTemplateEltDialog extends ComptaDialog<TrimestreTemplateElement
 			_typeCombo.getSelectionModel().select(String.valueOf(_templateElt.getType()));
 			_freqCombo.getSelectionModel().select(String.valueOf(_templateElt.getFreq()));
 			_occComb.getItems().addAll(TemplateService.getOccurenceForFreq(_freqCombo.getSelectionModel().getSelectedItem()));
-			_occComb.getSelectionModel().select(new Integer(_templateElt.getOccurence()));
+			_occComb.getSelectionModel().select(_templateElt.getOccurence());
 			_srcCombo.getSelectionModel().select(_templateElt.getCompteSource());
 			_cibleCombo.getSelectionModel().select(_templateElt.getCompteCible());
 
@@ -198,6 +198,7 @@ public class EditTemplateEltDialog extends ComptaDialog<TrimestreTemplateElement
 	/**
 	 * Création des boutons
 	 */
+        @Override
 	protected void createButtonBar() {
 		super.createButtonBar();
 		// bouton annuler
@@ -243,7 +244,7 @@ public class EditTemplateEltDialog extends ComptaDialog<TrimestreTemplateElement
 	private void checkInput(boolean changeOcc) {
 
 		// Vérif du nom
-		boolean nomError = true;
+		boolean nomError;
 
 		if (!_nomTxt.getText().trim().isEmpty()) {
 			_nomTxt.setBorder(null);
@@ -254,9 +255,9 @@ public class EditTemplateEltDialog extends ComptaDialog<TrimestreTemplateElement
 		}
 
 		// Vérif du montant
-		boolean soldeError = true;
+		boolean soldeError;
 		try {
-			Double.parseDouble(_montantTxt.getText().trim());
+			Double.valueOf(_montantTxt.getText().trim());
 			_montantTxt.setBorder(null);
 			soldeError = false;
 		} catch (NumberFormatException e) {

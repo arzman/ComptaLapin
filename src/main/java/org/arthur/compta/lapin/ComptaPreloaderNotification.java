@@ -10,7 +10,7 @@ import javafx.application.Preloader.PreloaderNotification;
 public class ComptaPreloaderNotification implements PreloaderNotification {
 
 	/** Le message de chargement */
-	private String _message;
+	private final String _message;
 
 	/**
 	 * Constructeur 
@@ -24,7 +24,7 @@ public class ComptaPreloaderNotification implements PreloaderNotification {
 	/**
 	 * Retourne le message de chargement
 	 * 
-	 * @return
+	 * @return le message
 	 */
 	public String getMessage() {
 		return _message;

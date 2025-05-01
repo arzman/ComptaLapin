@@ -1,5 +1,15 @@
 package org.arthur.compta.lapin.presentation.budget.pane;
 
+import javafx.beans.binding.Bindings;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.RowConstraints;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.BudgetManager;
 import org.arthur.compta.lapin.application.manager.ConfigurationManager;
@@ -12,21 +22,6 @@ import org.arthur.compta.lapin.presentation.budget.dialog.UseBudgetDialog;
 import org.arthur.compta.lapin.presentation.common.cellfactory.MontantCellFactory;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
-
-import javafx.beans.binding.Bindings;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.RowConstraints;
 
 /**
  * Panneau d'affichage des bugets
@@ -78,7 +73,7 @@ public class BudgetPane extends GridPane {
 		colNom.setId("nom");
 		// bind sur la nom
 		colNom.setCellValueFactory(cellData -> Bindings.createStringBinding(
-				() -> cellData.getValue().getNom() + "#" + String.valueOf(cellData.getValue().isTermine()),
+				() -> cellData.getValue().getNom() + "#" + cellData.getValue().isTermine(),
 				cellData.getValue().nomProperty(), cellData.getValue().termineProperty()));
 		colNom.setCellFactory(new NomBudgetTableCell());
 		_table.getColumns().add(colNom);

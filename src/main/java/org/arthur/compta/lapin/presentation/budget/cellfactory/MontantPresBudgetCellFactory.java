@@ -1,11 +1,10 @@
 package org.arthur.compta.lapin.presentation.budget.cellfactory;
 
-import org.arthur.compta.lapin.presentation.budget.model.PresBudget;
-import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
-
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.util.Callback;
+import org.arthur.compta.lapin.presentation.budget.model.PresBudget;
+import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
 public class MontantPresBudgetCellFactory
 		implements Callback<TreeTableColumn<PresBudget, Number>, TreeTableCell<PresBudget, Number>> {

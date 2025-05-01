@@ -11,14 +11,14 @@ import java.time.LocalDate;
 public class Utilisation {
 
 	/** id */
-	private int _id;
+	private final int _id;
 	/** le montant */
-	private double _montant;
+	private final double _montant;
 
 	/** le libelle */
-	private String _libelle;
+	private final String _libelle;
 	/** la date */
-	private LocalDate _date;
+	private final LocalDate _date;
 
 	/**
 	 * Constructeur de l'utilisation

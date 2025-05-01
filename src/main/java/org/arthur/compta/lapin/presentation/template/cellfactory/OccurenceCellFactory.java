@@ -1,13 +1,12 @@
 package org.arthur.compta.lapin.presentation.template.cellfactory;
 
-import java.text.DateFormatSymbols;
-
-import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElementFrequence;
-
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
+import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElementFrequence;
+
+import java.text.DateFormatSymbols;
 
 /**
  * Combo de choix d'un occurrence. Suivant le choix de la fréquence, l'affichage
@@ -17,7 +16,7 @@ import javafx.util.Callback;
 public class OccurenceCellFactory implements Callback<ListView<Integer>, ListCell<Integer>> {
 
 	/** La combo de choix de la fréquence */
-	private ComboBox<String> _freqCombo;
+	private final ComboBox<String> _freqCombo;
 
 	public OccurenceCellFactory(ComboBox<String> freqCombo) {
 		_freqCombo = freqCombo;

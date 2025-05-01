@@ -1,7 +1,16 @@
 package org.arthur.compta.lapin.presentation.trimestre.pane;
 
-import java.util.Optional;
-
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
@@ -15,29 +24,7 @@ import org.arthur.compta.lapin.presentation.operation.table.TransfertTableView;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import org.arthur.compta.lapin.presentation.trimestre.dialog.SelectExerciceMensuelDialog;
 
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.scene.control.Accordion;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TitledPane;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.RowConstraints;
-import javafx.scene.paint.Color;
+import java.util.Optional;
 
 /**
  * Panneau de présentation d'un exercice mensuel : tableau des dépenses ,
@@ -47,7 +34,7 @@ import javafx.scene.paint.Color;
 public class ExerciceMensuelPane extends GridPane {
 
 	/** Libellé de la date */
-	private ExerciceHeaderPane _title;
+	private final ExerciceHeaderPane _title;
 	/** Tableau des dépenses */
 	private OperationTableView<AppOperation> _depenseTable;
 	/** Tableau des ressources */
@@ -55,14 +42,14 @@ public class ExerciceMensuelPane extends GridPane {
 	/** Tableau des transferts */
 	private TransfertTableView _transfertTable;
 	/** Numéro du mois présenté */
-	private Integer _numMois;
+	private final Integer _numMois;
 	/** panneau des depenses */
 	private TitledPane depPane;
 	/** panneau des ressources */
 	private TitledPane resPane;
 	/** panneau des transfert */
 	private TitledPane transPane;
-	private double _prevRes;
+	private final double _prevRes;
 	/** Groupement des tableaux */
 	private Accordion accordion;
 

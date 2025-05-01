@@ -1,9 +1,7 @@
 package org.arthur.compta.lapin.application.manager;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.arthur.compta.lapin.application.exception.ComptaException;
@@ -15,8 +13,9 @@ import org.arthur.compta.lapin.model.Compte;
 import org.arthur.compta.lapin.model.operation.EtatOperation;
 import org.arthur.compta.lapin.model.operation.OperationType;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Singleton de gestion des AppCompte
@@ -28,7 +27,7 @@ public class CompteManager {
 	private static CompteManager _instance;
 
 	/** La liste des comptes géré par l'application */
-	private ObservableList<AppCompte> _compteList;
+	private final ObservableList<AppCompte> _compteList;
 
 	/** logger */
 	private final Logger _logger;

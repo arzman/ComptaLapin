@@ -20,27 +20,27 @@ import java.time.LocalDate;
 public class Budget {
 
 	/** id */
-	private int _id;
+	private final int _id;
 	/** Montant totale du bugdet */
-	private double _objectif;
+	private final double _objectif;
 
 	/** Montant déjà utilisé */
-	private double _montantUtilise;
+	private final double _montantUtilise;
 
 	/** Le nom du budget */
-	private String _nom;
+	private final String _nom;
 
 	/** Vrai si le budget est actif */
-	private boolean _isActif;
+	private final boolean _isActif;
 
 	/** La priorité du budget */
-	private int _priority;
+	private final int _priority;
 
 	/** Label recurrent */
-	private String _labelRec;
+	private final String _labelRec;
 
 	/** Date récurrente */
-	private LocalDate _dateRecurrent;
+	private final LocalDate _dateRecurrent;
 
 	public Budget(int id, double objectif_, double montantUtilise, String nom, boolean isActif, int priority, String labelRec, LocalDate dateRecurrent) {
 

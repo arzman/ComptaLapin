@@ -1,15 +1,5 @@
 package org.arthur.compta.lapin.presentation.budget.dialog;
 
-import java.util.Comparator;
-import java.util.Optional;
-
-import org.arthur.compta.lapin.application.exception.ComptaException;
-import org.arthur.compta.lapin.application.manager.BudgetManager;
-import org.arthur.compta.lapin.application.model.AppBudget;
-import org.arthur.compta.lapin.presentation.common.ComptaDialog;
-import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
-import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
-
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -17,17 +7,22 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
+import javafx.scene.control.*;
 import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextInputDialog;
-import javafx.scene.control.TitledPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.util.Callback;
+import org.arthur.compta.lapin.application.exception.ComptaException;
+import org.arthur.compta.lapin.application.manager.BudgetManager;
+import org.arthur.compta.lapin.application.model.AppBudget;
+import org.arthur.compta.lapin.presentation.common.ComptaDialog;
+import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
+import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
+
+import java.util.Comparator;
+import java.util.Optional;
 
 /**
  * Fenêtre permettant de gérer les budgets : les supprimer et modifier leur

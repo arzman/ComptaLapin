@@ -10,11 +10,11 @@ package org.arthur.compta.lapin.model.operation;
 public class Operation {
 
 	/** l'id */
-	private int _id;
+	private final int _id;
 	/** Etat de l'opération */
-	private EtatOperation _etat;
+	private final EtatOperation _etat;
 	/** Le montant de l'opération */
-	private double _montant;
+	private final double _montant;
 	/** Le nom */
 	protected String _nom;
 	/** Le type d'operation */

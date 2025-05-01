@@ -1,13 +1,5 @@
 package org.arthur.compta.lapin.presentation.synth;
 
-import java.time.LocalDate;
-
-import org.arthur.compta.lapin.application.exception.ComptaException;
-import org.arthur.compta.lapin.application.service.SyntheseService;
-import org.arthur.compta.lapin.presentation.common.ComptaDialog;
-import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
-import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
-
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -25,6 +17,13 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
+import org.arthur.compta.lapin.application.exception.ComptaException;
+import org.arthur.compta.lapin.application.service.SyntheseService;
+import org.arthur.compta.lapin.presentation.common.ComptaDialog;
+import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
+import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
+
+import java.time.LocalDate;
 
 /**
  * Fenetre traçant la synthèse sur l'année.
@@ -33,11 +32,11 @@ import javafx.scene.layout.RowConstraints;
 public class SynthAnnuelleDialog extends ComptaDialog<ButtonData> {
 
 	/** La combo pour choisir l'année */
-	private ComboBox<Integer> _yearCombo;
+	private final ComboBox<Integer> _yearCombo;
 	/** La liste des années disponibles */
-	private ObservableList<Integer> _yearList;
+	private final ObservableList<Integer> _yearList;
 	/** Le graphique présentant les totaux des dépense/ressource */
-	private LineChart<String, Number> _lineChart;
+	private final LineChart<String, Number> _lineChart;
 
 	/**
 	 * Constructeur

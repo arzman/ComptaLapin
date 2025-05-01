@@ -1,20 +1,15 @@
 package org.arthur.compta.lapin.presentation.compte.dialog;
 
+import javafx.scene.Node;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.util.Callback;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.model.AppCompte;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
-
-import javafx.scene.Node;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
-import javafx.scene.layout.GridPane;
-import javafx.util.Callback;
 
 /**
  * Fenêtre d'édition d'un compte
@@ -32,7 +27,7 @@ public class EditCompteDialog extends ComptaDialog<AppCompte> {
 	private CheckBox _budgetCheck;
 
 	/** Id application du compte a éditié ( vide si création) */
-	private AppCompte _appCompte;
+	private final AppCompte _appCompte;
 
 	public EditCompteDialog(AppCompte appCompte) {
 

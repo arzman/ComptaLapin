@@ -1,16 +1,12 @@
 package org.arthur.compta.lapin.dataaccess.db;
 
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import org.arthur.compta.lapin.application.exception.ComptaException;
+import org.arthur.compta.lapin.model.ExerciceMensuel;
+
+import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.arthur.compta.lapin.application.exception.ComptaException;
-import org.arthur.compta.lapin.model.ExerciceMensuel;
 
 public class ExerciceMensuelDataAccess extends ComptaDataAccess {
 
@@ -161,8 +157,7 @@ public class ExerciceMensuelDataAccess extends ComptaDataAccess {
 	public ExerciceMensuel getExMensuel(int id) throws ComptaException {
 
 		ExerciceMensuel res = null;
-		;
-		// création de la requete
+        // création de la requete
 		String query = "SELECT ID ,date_debut,date_fin,resultat_moyen_prevu FROM EXERCICE_MENSUEL WHERE ID=?";
 		PreparedStatement stmt;
 		try {

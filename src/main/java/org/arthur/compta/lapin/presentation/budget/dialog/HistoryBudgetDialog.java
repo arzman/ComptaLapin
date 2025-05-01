@@ -1,7 +1,16 @@
 package org.arthur.compta.lapin.presentation.budget.dialog;
 
-import java.time.LocalDate;
-
+import javafx.beans.binding.Bindings;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.BudgetManager;
 import org.arthur.compta.lapin.application.model.AppBudget;
@@ -13,23 +22,7 @@ import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
-import javafx.beans.binding.Bindings;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.Tooltip;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
+import java.time.LocalDate;
 
 /**
  * Fênetre de visualisation de l'historique d'un budget
@@ -38,9 +31,9 @@ import javafx.scene.layout.Priority;
 public class HistoryBudgetDialog extends ComptaDialog<ButtonData> {
 
 	/** Le budget */
-	private AppBudget _appBudget;
+	private final AppBudget _appBudget;
 	/** La liste des utilisations du budget */
-	private ObservableList<AppUtilisation> _useList;
+	private final ObservableList<AppUtilisation> _useList;
 	/** presentation de la liste */
 	private TableView<AppUtilisation> _table;
 

@@ -1,7 +1,5 @@
 package org.arthur.compta.lapin.presentation.budget.cellfactory;
 
-import org.arthur.compta.lapin.presentation.budget.model.PresBudget;
-
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.paint.Color;
@@ -9,6 +7,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.util.Callback;
+import org.arthur.compta.lapin.presentation.budget.model.PresBudget;
 
 public class NomPresBudgetTableCell
 		implements Callback<TreeTableColumn<PresBudget, String>, TreeTableCell<PresBudget, String>> {

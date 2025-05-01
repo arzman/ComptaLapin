@@ -1,11 +1,7 @@
 package org.arthur.compta.lapin.application.manager;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.arthur.compta.lapin.application.exception.ComptaException;
@@ -17,8 +13,11 @@ import org.arthur.compta.lapin.dataaccess.db.UtilisationDataAccess;
 import org.arthur.compta.lapin.model.Budget;
 import org.arthur.compta.lapin.model.Utilisation;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Gestionnaire des budgets
@@ -29,7 +28,7 @@ public class BudgetManager {
 	/** Instance unique du singleton */
 	private static BudgetManager _instance;
 	/** La liste des budgets actifs */
-	private ObservableList<AppBudget> _budgetList;
+	private final ObservableList<AppBudget> _budgetList;
 	/** logger */
 	private final Logger logger;
 

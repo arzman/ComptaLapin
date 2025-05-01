@@ -1,5 +1,9 @@
 package org.arthur.compta.lapin.presentation.operation.table;
 
+import javafx.event.EventHandler;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.input.MouseEvent;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.model.AppOperation;
 import org.arthur.compta.lapin.application.service.OperationService;
@@ -7,11 +11,6 @@ import org.arthur.compta.lapin.model.operation.EtatOperation;
 import org.arthur.compta.lapin.presentation.common.cellfactory.MontantCellFactory;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.trimestre.cellfactory.EtatCellFactory;
-
-import javafx.event.EventHandler;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.input.MouseEvent;
 
 public class OperationTableView<T extends AppOperation> extends TableView<T> {
 

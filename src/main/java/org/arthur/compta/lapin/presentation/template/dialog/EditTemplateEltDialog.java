@@ -1,5 +1,13 @@
 package org.arthur.compta.lapin.presentation.template.dialog;
 
+import javafx.scene.Node;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+import javafx.util.Callback;
 import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.application.model.AppCompte;
@@ -11,15 +19,6 @@ import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.template.cellfactory.CompteCellComboFactory;
 import org.arthur.compta.lapin.presentation.template.cellfactory.OccurenceCellFactory;
 
-import javafx.scene.Node;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
-import javafx.util.Callback;
-
 /**
  * Fenêtre de saisie d'un élément de template de trimestre
  *
@@ -27,7 +26,7 @@ import javafx.util.Callback;
 public class EditTemplateEltDialog extends ComptaDialog<TrimestreTemplateElement> {
 
 	/** L'élément de template */
-	private TrimestreTemplateElement _templateElt;
+	private final TrimestreTemplateElement _templateElt;
 
 	/** champ de saisie du nom */
 	private TextField _nomTxt;
@@ -70,11 +69,7 @@ public class EditTemplateEltDialog extends ComptaDialog<TrimestreTemplateElement
 		// mise en place des listener sur les modifications
 		hookListeners();
 		// vérif initiale
-		if (_templateElt == null) {
-			checkInput(true);
-		} else {
-			checkInput(false);
-		}
+        checkInput(_templateElt == null);
 
 		// crée l'élement de template après appuis sur Ok
 		setResultConverter(new Callback<ButtonType, TrimestreTemplateElement>() {

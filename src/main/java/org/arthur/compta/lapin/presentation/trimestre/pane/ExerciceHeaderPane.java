@@ -1,9 +1,5 @@
 package org.arthur.compta.lapin.presentation.trimestre.pane;
 
-import java.time.LocalDate;
-
-import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
-
 import javafx.geometry.HPos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
@@ -11,6 +7,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
+
+import java.time.LocalDate;
 
 /**
  * Panneau permettant d'afficher le mois et le résultat ( gain ou perte) pour un
@@ -20,9 +19,9 @@ import javafx.scene.text.Font;
 public class ExerciceHeaderPane extends GridPane {
 
 	/** Label du mois */
-	private Label _moisLbl;
+	private final Label _moisLbl;
 	/** Label du resultat */
-	private Label _resultatLbl;
+	private final Label _resultatLbl;
 	private double _prevRes;
 	/** Pas de date défini */
 	private static final String NO_CONTENT_DATE_STR = "######";

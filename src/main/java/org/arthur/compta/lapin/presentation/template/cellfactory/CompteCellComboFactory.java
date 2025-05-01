@@ -1,10 +1,9 @@
 package org.arthur.compta.lapin.presentation.template.cellfactory;
 
-import org.arthur.compta.lapin.application.model.AppCompte;
-
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
+import org.arthur.compta.lapin.application.model.AppCompte;
 /**
  * Factory permettant d'afficher des comptes dans un combobox
  *

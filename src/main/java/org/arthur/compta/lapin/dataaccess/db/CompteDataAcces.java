@@ -1,14 +1,14 @@
 package org.arthur.compta.lapin.dataaccess.db;
 
+import org.arthur.compta.lapin.application.exception.ComptaException;
+import org.arthur.compta.lapin.model.Compte;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.arthur.compta.lapin.application.exception.ComptaException;
-import org.arthur.compta.lapin.model.Compte;
 
 public class CompteDataAcces extends ComptaDataAccess {
 

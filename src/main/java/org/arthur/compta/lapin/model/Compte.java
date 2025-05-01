@@ -9,17 +9,17 @@ package org.arthur.compta.lapin.model;
 public class Compte {
 
 	/** Id en base */
-	private int _id;
+	private final int _id;
 	/** Le solde du compte */
-	private double _solde;
+	private final double _solde;
 	/** Le nom du compte */
-	private String _nom;
+	private final String _nom;
 	/** Indique s'il s'agit d'un compte "livret" */
-	private boolean _isLivret;
+	private final boolean _isLivret;
 	/**
 	 * Indique si la somme sur le compte peut être utilisé pour remplir les budgets
 	 */
-	private boolean _budgetAllowed;
+	private final boolean _budgetAllowed;
 
 	/**
 	 * Constructeur par défaut

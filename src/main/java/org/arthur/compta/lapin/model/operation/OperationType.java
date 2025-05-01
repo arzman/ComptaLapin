@@ -7,6 +7,6 @@ package org.arthur.compta.lapin.model.operation;
  */
 public enum OperationType {
 
-	DEPENSE, RESSOURCE, TRANSFERT;
+	DEPENSE, RESSOURCE, TRANSFERT
 
 }

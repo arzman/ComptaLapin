@@ -12,9 +12,9 @@ package org.arthur.compta.lapin.model;
 public class Trimestre {
 
 	/** id */
-	private int _id;
+	private final int _id;
 	/** Les exercices mensuels ordonnés */
-	private Integer[] _exerciceMensuelIds;
+	private final Integer[] _exerciceMensuelIds;
 
 	/**
 	 * Constructeur par défaut

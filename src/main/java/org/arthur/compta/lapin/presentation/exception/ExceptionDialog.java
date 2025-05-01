@@ -1,13 +1,13 @@
 package org.arthur.compta.lapin.presentation.exception;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /**
  * Fenêtre affichant une exception
@@ -19,7 +19,7 @@ public class ExceptionDialog extends Alert {
 	/**
 	 * exception a afficher
 	 */
-	private  Exception exception;
+	private final Exception exception;
 	
 	/**
 	 * Le constructeur

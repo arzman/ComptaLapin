@@ -1,8 +1,5 @@
 package org.arthur.compta.lapin.presentation.budget.cellfactory;
 
-import org.arthur.compta.lapin.application.model.AppBudget;
-import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
-
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -12,6 +9,8 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 import javafx.util.Callback;
+import org.arthur.compta.lapin.application.model.AppBudget;
+import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
 public class AvancementTableCell implements Callback<TableColumn<AppBudget, Number>, TableCell<AppBudget, Number>> {
 

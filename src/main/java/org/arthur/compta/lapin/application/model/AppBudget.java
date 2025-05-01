@@ -1,40 +1,35 @@
 package org.arthur.compta.lapin.application.model;
 
-import java.time.LocalDate;
-
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.*;
 import org.arthur.compta.lapin.model.Budget;
 
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import java.time.LocalDate;
 
 public class AppBudget extends AppObject<Budget> {
 
 	/** Le nom */
-	private SimpleStringProperty _nompProp;
+	private final SimpleStringProperty _nompProp;
 	/** L'objectif */
-	private SimpleDoubleProperty _objectifProp;
+	private final SimpleDoubleProperty _objectifProp;
 	/** L'avancement */
-	private SimpleDoubleProperty _avancementProp;
+	private final SimpleDoubleProperty _avancementProp;
 	/** Le montant sur compte courant */
-	private SimpleDoubleProperty _montantCourantProp;
+	private final SimpleDoubleProperty _montantCourantProp;
 	/** Le montant sur compte livret */
-	private SimpleDoubleProperty _montantLivretProp;
+	private final SimpleDoubleProperty _montantLivretProp;
 	/** est actif ou pas */
-	private SimpleBooleanProperty _isActifProp;
+	private final SimpleBooleanProperty _isActifProp;
 	/** Le montant utilise */
-	private SimpleDoubleProperty _montantUtiliseProp;
+	private final SimpleDoubleProperty _montantUtiliseProp;
 	/** La priorité 0 =priorite la plus haute */
-	private SimpleIntegerProperty _priorityProp;
+	private final SimpleIntegerProperty _priorityProp;
 	/** si le budget est terminé */
-	private SimpleBooleanProperty _isTermine;
+	private final SimpleBooleanProperty _isTermine;
 	/** Libellé du budget récurrent (peut être vide) */
-	private SimpleStringProperty _labelRecurrentProp;
+	private final SimpleStringProperty _labelRecurrentProp;
 	/** Date du budget récurrent (peut être nulle) */
-	private SimpleObjectProperty<LocalDate> _dateRecurrentProp;
+	private final SimpleObjectProperty<LocalDate> _dateRecurrentProp;
 
 	/**
 	 * Consructeur par défaut
@@ -252,7 +247,7 @@ public class AppBudget extends AppObject<Budget> {
 	@Override
 	public String toString() {
 
-		return getNom() + " " + String.valueOf(getObjectif()) + "€";
+		return getNom() + " " + getObjectif() + "€";
 	}
 
 	/**

@@ -1,11 +1,10 @@
 package org.arthur.compta.lapin.application.model.template;
 
-import org.arthur.compta.lapin.application.model.AppCompte;
-
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import org.arthur.compta.lapin.application.model.AppCompte;
 
 /**
  * Element d'un template d'exercice mensuel Il s'agit d'une operation ayant une
@@ -18,19 +17,19 @@ import javafx.beans.property.SimpleStringProperty;
 public class TrimestreTemplateElement {
 
 	/** nom */
-	private SimpleStringProperty _nomProp;
+	private final SimpleStringProperty _nomProp;
 	/** montant de l'opération */
-	private SimpleDoubleProperty _montantProp;
+	private final SimpleDoubleProperty _montantProp;
 	/** type de l'opération */
-	private SimpleStringProperty _typeProp;
+	private final SimpleStringProperty _typeProp;
 	/** La fréquence de l'opération */
-	private SimpleStringProperty _freqProp;
+	private final SimpleStringProperty _freqProp;
 	/** l'occurence */
-	private SimpleIntegerProperty _occurenceProp;
+	private final SimpleIntegerProperty _occurenceProp;
 	/** compte source */
-	private SimpleObjectProperty<AppCompte> _compteSource;
+	private final SimpleObjectProperty<AppCompte> _compteSource;
 	/** id compte cible */
-	private SimpleObjectProperty<AppCompte> _compteCible;
+	private final SimpleObjectProperty<AppCompte> _compteCible;
 
 	/**
 	 * Constructeur

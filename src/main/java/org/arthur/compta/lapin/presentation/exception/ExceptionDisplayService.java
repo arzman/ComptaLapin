@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class ExceptionDisplayService {
 
-	private static Logger logger = LogManager.getLogger(ExceptionDisplayService.class);
+	private static final Logger logger = LogManager.getLogger(ExceptionDisplayService.class);
 
 	/**
 	 * Affichage l'exception dans une pop-up

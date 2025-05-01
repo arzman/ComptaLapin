@@ -1,9 +1,17 @@
 package org.arthur.compta.lapin.presentation.budget.dialog;
 
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Iterator;
-
+import javafx.beans.binding.Bindings;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.RowConstraints;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.BudgetManager;
 import org.arthur.compta.lapin.application.manager.ConfigurationManager;
@@ -18,24 +26,9 @@ import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import org.arthur.compta.lapin.presentation.utils.PresBudgetSorter;
 
-import javafx.beans.binding.Bindings;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableColumn;
-import javafx.scene.control.TreeTableView;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.RowConstraints;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Iterator;
 
 public class VisuBudgetDialog extends ComptaDialog<ButtonData> {
 
@@ -173,7 +166,7 @@ public class VisuBudgetDialog extends ComptaDialog<ButtonData> {
 		colNom.setId("nom");
 		// bind sur la nom
 		colNom.setCellValueFactory(
-				cellData -> Bindings.createStringBinding(() -> cellData.getValue().getNom() + "#" + String.valueOf(cellData.getValue().isTermine()),
+				cellData -> Bindings.createStringBinding(() -> cellData.getValue().getNom() + "#" + cellData.getValue().isTermine(),
 						cellData.getValue().nomProperty(), cellData.getValue().termineProperty()));
 		colNom.setCellFactory(new NomBudgetTableCell());
 		_tableNoRecuBud.getColumns().add(colNom);

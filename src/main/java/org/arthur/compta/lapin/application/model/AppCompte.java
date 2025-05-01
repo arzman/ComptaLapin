@@ -1,10 +1,9 @@
 package org.arthur.compta.lapin.application.model;
 
-import org.arthur.compta.lapin.model.Compte;
-
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
+import org.arthur.compta.lapin.model.Compte;
 
 /**
  * Compte applicatif encapsule un Compte. Cet objet est disponible pour la
@@ -14,19 +13,19 @@ import javafx.beans.property.SimpleStringProperty;
 public class AppCompte extends AppObject<Compte> {
 
 	/** Le nom du compte */
-	private SimpleStringProperty _nom;
+	private final SimpleStringProperty _nom;
 	/** Le solde du compte */
-	private SimpleDoubleProperty _solde;
+	private final SimpleDoubleProperty _solde;
 	/** Indique si le compte est un livret */
-	private SimpleBooleanProperty _isLivretProp;
+	private final SimpleBooleanProperty _isLivretProp;
 	/** Indique si le compte est concerné par les budgets */
-	private SimpleBooleanProperty _isBudgetProp;
+	private final SimpleBooleanProperty _isBudgetProp;
 	/** Le solde du compte */
-	private SimpleDoubleProperty _soldePrev1;
+	private final SimpleDoubleProperty _soldePrev1;
 	/** Le solde du compte */
-	private SimpleDoubleProperty _soldePrev2;
+	private final SimpleDoubleProperty _soldePrev2;
 	/** Le solde du compte */
-	private SimpleDoubleProperty _soldePrev3;
+	private final SimpleDoubleProperty _soldePrev3;
 
 	/**
 	 * Constructeur

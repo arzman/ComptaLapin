@@ -1,12 +1,11 @@
 package org.arthur.compta.lapin.application.model;
 
-import java.time.LocalDate;
-
+import javafx.beans.property.SimpleObjectProperty;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.model.Trimestre;
 
-import javafx.beans.property.SimpleObjectProperty;
+import java.time.LocalDate;
 
 /**
  * Encapsulation applicative d'un trimestre
@@ -17,15 +16,15 @@ public class AppTrimestre extends AppObject<Trimestre> {
 	/**
 	 * Premier mois du trimestre
 	 */
-	private SimpleObjectProperty<AppExerciceMensuel> _premierMois;
+	private final SimpleObjectProperty<AppExerciceMensuel> _premierMois;
 	/**
 	 * Deuxieme mois du trimestre
 	 */
-	private SimpleObjectProperty<AppExerciceMensuel> _deuxiemeMois;
+	private final SimpleObjectProperty<AppExerciceMensuel> _deuxiemeMois;
 	/**
 	 * Troisieme mois du trimestre
 	 */
-	private SimpleObjectProperty<AppExerciceMensuel> _troisiemeMois;
+	private final SimpleObjectProperty<AppExerciceMensuel> _troisiemeMois;
 
 	/**
 	 * Constructeur

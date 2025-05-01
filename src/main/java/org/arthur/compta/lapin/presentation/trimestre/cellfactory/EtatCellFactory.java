@@ -1,13 +1,12 @@
 package org.arthur.compta.lapin.presentation.trimestre.cellfactory;
 
-import org.arthur.compta.lapin.application.model.AppOperation;
-import org.arthur.compta.lapin.model.operation.EtatOperation;
-import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
-
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.image.ImageView;
 import javafx.util.Callback;
+import org.arthur.compta.lapin.application.model.AppOperation;
+import org.arthur.compta.lapin.model.operation.EtatOperation;
+import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 
 /**
  * Classe permettant l'affichage d'un V vert dans une table d'opération lorsque

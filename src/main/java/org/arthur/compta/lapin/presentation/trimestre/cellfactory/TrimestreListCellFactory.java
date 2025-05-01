@@ -1,13 +1,12 @@
 package org.arthur.compta.lapin.presentation.trimestre.cellfactory;
 
-import java.time.LocalDate;
-import java.util.HashMap;
-
-import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
-
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
+import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
+
+import java.time.LocalDate;
+import java.util.HashMap;
 
 /**
  * Callback permettant de personaliser l'affichage de l'ihm de sélection du
@@ -20,7 +19,7 @@ public class TrimestreListCellFactory implements Callback<ListView<String>, List
 	/**
 	 * Map permettant de liée l'id du trimstre à sa date de début
 	 */
-	private HashMap<String, LocalDate> _resumeTrimestre;
+	private final HashMap<String, LocalDate> _resumeTrimestre;
 
 	/**
 	 * Constructeur

@@ -1,9 +1,8 @@
 package org.arthur.compta.lapin.presentation.operation.table;
 
+import javafx.scene.control.TableColumn;
 import org.arthur.compta.lapin.application.model.AppCompte;
 import org.arthur.compta.lapin.application.model.AppTransfert;
-
-import javafx.scene.control.TableColumn;
 
 public class TransfertTableView extends OperationTableView<AppTransfert> {
 

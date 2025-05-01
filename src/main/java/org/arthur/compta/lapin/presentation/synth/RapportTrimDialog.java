@@ -1,16 +1,5 @@
 package org.arthur.compta.lapin.presentation.synth;
 
-import java.io.File;
-import java.time.LocalDate;
-import java.util.HashMap;
-
-import org.arthur.compta.lapin.application.exception.ComptaException;
-import org.arthur.compta.lapin.application.manager.TrimestreManager;
-import org.arthur.compta.lapin.application.service.SyntheseService;
-import org.arthur.compta.lapin.presentation.common.ComptaDialog;
-import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
-import org.arthur.compta.lapin.presentation.trimestre.cellfactory.TrimestreListCellFactory;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ButtonBar.ButtonData;
@@ -21,6 +10,16 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.util.Callback;
+import org.arthur.compta.lapin.application.exception.ComptaException;
+import org.arthur.compta.lapin.application.manager.TrimestreManager;
+import org.arthur.compta.lapin.application.service.SyntheseService;
+import org.arthur.compta.lapin.presentation.common.ComptaDialog;
+import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
+import org.arthur.compta.lapin.presentation.trimestre.cellfactory.TrimestreListCellFactory;
+
+import java.io.File;
+import java.time.LocalDate;
+import java.util.HashMap;
 
 public class RapportTrimDialog extends ComptaDialog<ButtonData> {
 

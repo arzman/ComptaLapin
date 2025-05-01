@@ -31,7 +31,7 @@ public class FilesManager {
 
 		try {
 			_rootFolder = Paths.get(System.getProperty("user.dir"), "context");
-			if (!Files.exists(_rootFolder, new LinkOption[] {})) {
+			if (!Files.exists(_rootFolder)) {
 
 				Files.createDirectories(_rootFolder);
 			}
@@ -72,7 +72,7 @@ public class FilesManager {
 		// création du répertoire de conf
 		_confFolderPath = Paths.get(_rootFolder.toString(), "config");
 
-		if (!Files.exists(_confFolderPath, new LinkOption[] {})) {
+		if (!Files.exists(_confFolderPath)) {
 
 			Files.createDirectories(_confFolderPath);
 			
@@ -92,7 +92,7 @@ public class FilesManager {
 		// création du répertoire de conf
 		_dbFolderPath = Paths.get(_rootFolder.toString(), "db");
 
-		if (!Files.exists(_dbFolderPath, new LinkOption[] {})) {
+		if (!Files.exists(_dbFolderPath)) {
 
 			Files.createDirectories(_dbFolderPath);
 		}

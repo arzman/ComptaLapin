@@ -1,12 +1,11 @@
 package org.arthur.compta.lapin.application.model;
 
-import java.time.LocalDate;
-
-import org.arthur.compta.lapin.model.Utilisation;
-
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import org.arthur.compta.lapin.model.Utilisation;
+
+import java.time.LocalDate;
 
 /**
  * Encapsulation applicative d'une Utilisation de Budget
@@ -15,11 +14,11 @@ import javafx.beans.property.SimpleStringProperty;
 public class AppUtilisation extends AppObject<Utilisation> {
 
 	/** Le libellé */
-	private SimpleStringProperty _nomProp;
+	private final SimpleStringProperty _nomProp;
 	/** La date */
-	private SimpleObjectProperty<LocalDate> _dateProp;
+	private final SimpleObjectProperty<LocalDate> _dateProp;
 	/** Le montant */
-	private SimpleDoubleProperty _montantProp;
+	private final SimpleDoubleProperty _montantProp;
 
 	/**
 	 * Constructeur

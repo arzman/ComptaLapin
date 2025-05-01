@@ -1,10 +1,10 @@
 package org.arthur.compta.lapin.application.model;
 
-import java.time.LocalDate;
-
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+
+import java.time.LocalDate;
 
 /**
  * Objet permettant l'affichage d'un résultat de recherche d'opération
@@ -13,11 +13,11 @@ import javafx.beans.property.SimpleStringProperty;
 public class OperationSearchResult {
 
 	/** Le libelle de l'opération */
-	private SimpleStringProperty _libelleProp;
+	private final SimpleStringProperty _libelleProp;
 	/** Le montant de l'opération */
-	private SimpleDoubleProperty _montantProp;
+	private final SimpleDoubleProperty _montantProp;
 	/** Le mois de l'opération */
-	private SimpleObjectProperty<LocalDate> _moisProp;
+	private final SimpleObjectProperty<LocalDate> _moisProp;
 
 	/**
 	 * Constructeur

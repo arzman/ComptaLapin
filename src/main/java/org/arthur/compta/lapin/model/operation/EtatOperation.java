@@ -6,6 +6,6 @@ package org.arthur.compta.lapin.model.operation;
  */
 public enum EtatOperation {
 
-	PREVISION, PRISE_EN_COMPTE;
+	PREVISION, PRISE_EN_COMPTE
 
 }

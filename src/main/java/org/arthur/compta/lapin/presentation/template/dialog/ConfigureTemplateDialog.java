@@ -1,7 +1,18 @@
 package org.arthur.compta.lapin.presentation.template.dialog;
 
-import java.util.Optional;
-
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.control.*;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.RowConstraints;
+import javafx.scene.paint.Color;
+import javafx.util.Callback;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.application.model.AppCompte;
@@ -14,26 +25,7 @@ import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import org.arthur.compta.lapin.presentation.template.cellfactory.CompteCellFactory;
 import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.DialogEvent;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.RowConstraints;
-import javafx.scene.paint.Color;
-import javafx.util.Callback;
+import java.util.Optional;
 
 /**
  * Fenêtre de configuration du modèle de trimestre. Il s'agit un tableau présent
@@ -45,7 +37,7 @@ import javafx.util.Callback;
 public class ConfigureTemplateDialog extends ComptaDialog<ButtonType> {
 
 	/** La liste des éléments de template */
-	private ObservableList<TrimestreTemplateElement> _elementList;
+	private final ObservableList<TrimestreTemplateElement> _elementList;
 	/** Le tableau des éléments */
 	private TableView<TrimestreTemplateElement> _table;
 	/** bouton d'ajout d'element */
@@ -238,8 +230,8 @@ public class ConfigureTemplateDialog extends ComptaDialog<ButtonType> {
 
 				}
 				refreshGainMoyen();
-			};
-		});
+			}
+        });
 
 	}
 

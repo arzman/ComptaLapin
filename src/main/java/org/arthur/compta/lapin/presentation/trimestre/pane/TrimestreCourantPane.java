@@ -1,8 +1,5 @@
 package org.arthur.compta.lapin.presentation.trimestre.pane;
 
-import org.arthur.compta.lapin.application.manager.TrimestreManager;
-import org.arthur.compta.lapin.application.model.AppTrimestre;
-
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
@@ -10,6 +7,8 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
+import org.arthur.compta.lapin.application.manager.TrimestreManager;
+import org.arthur.compta.lapin.application.model.AppTrimestre;
 
 /**
  * Panneau d'affichage du trimestre courant Composé des affichages des trois
@@ -21,15 +20,15 @@ public class TrimestreCourantPane extends GridPane {
 	/**
 	 * Affichage du premier mois
 	 */
-	private ExerciceMensuelPane _premMoisPane;
+	private final ExerciceMensuelPane _premMoisPane;
 	/**
 	 * Affichage du deuxieme mois
 	 */
-	private ExerciceMensuelPane _deuxMoisPane;
+	private final ExerciceMensuelPane _deuxMoisPane;
 	/**
 	 * Affichage du troisieme mois
 	 */
-	private ExerciceMensuelPane _troisMoisPane;
+	private final ExerciceMensuelPane _troisMoisPane;
 
 	/**
 	 * Constructeur par défaut

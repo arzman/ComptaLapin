@@ -1,20 +1,16 @@
 package org.arthur.compta.lapin.dataaccess.db;
 
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.time.LocalDate;
-import java.time.temporal.ChronoField;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.model.OperationSearchResult;
 import org.arthur.compta.lapin.model.operation.EtatOperation;
 import org.arthur.compta.lapin.model.operation.Operation;
 import org.arthur.compta.lapin.model.operation.OperationType;
+
+import java.sql.*;
+import java.time.LocalDate;
+import java.time.temporal.ChronoField;
+import java.util.ArrayList;
+import java.util.List;
 
 public class OperationDataAccess extends ComptaDataAccess {
 
@@ -88,7 +84,7 @@ public class OperationDataAccess extends ComptaDataAccess {
 		try (PreparedStatement stmt = DBManager.getInstance().getConnexion().prepareStatement(query)) {
 
 			// on démarre au debut du mois
-			LocalDate deb = date.with(ChronoField.DAY_OF_MONTH, 1);
+			LocalDate deb = date.withDayOfMonth(1);
 			stmt.setDate(1, Date.valueOf(deb));
 
 			// on termine a la fin
@@ -352,7 +348,7 @@ public class OperationDataAccess extends ComptaDataAccess {
 		// création de la requete
 		String query = "UPDATE OPERATION SET nom=?,montant=?,type_ope=?,etat=?,compte_source_id=?,compte_cible_id=? WHERE ID=?;";
 
-		try (PreparedStatement stmt = DBManager.getInstance().getConnexion().prepareStatement(query);) {
+		try (PreparedStatement stmt = DBManager.getInstance().getConnexion().prepareStatement(query)) {
 
 			stmt.setString(1, appOp.getNom());
 			stmt.setDouble(2, appOp.getMontant());

@@ -1,16 +1,5 @@
 package org.arthur.compta.lapin.presentation.trimestre.dialog;
 
-import java.time.LocalDate;
-import java.util.HashMap;
-
-import org.arthur.compta.lapin.application.exception.ComptaException;
-import org.arthur.compta.lapin.application.manager.TrimestreManager;
-import org.arthur.compta.lapin.application.model.AppExerciceMensuelLightId;
-import org.arthur.compta.lapin.presentation.common.ComptaDialog;
-import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
-import org.arthur.compta.lapin.presentation.trimestre.cellfactory.NumMoisCellComboFactory;
-import org.arthur.compta.lapin.presentation.trimestre.cellfactory.TrimestreListCellFactory;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -21,6 +10,16 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
+import org.arthur.compta.lapin.application.exception.ComptaException;
+import org.arthur.compta.lapin.application.manager.TrimestreManager;
+import org.arthur.compta.lapin.application.model.AppExerciceMensuelLightId;
+import org.arthur.compta.lapin.presentation.common.ComptaDialog;
+import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
+import org.arthur.compta.lapin.presentation.trimestre.cellfactory.NumMoisCellComboFactory;
+import org.arthur.compta.lapin.presentation.trimestre.cellfactory.TrimestreListCellFactory;
+
+import java.time.LocalDate;
+import java.util.HashMap;
 
 /**
  * Dialog permettant de retourner un appId d'un excercice mensuel

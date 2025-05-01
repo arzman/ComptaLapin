@@ -1,10 +1,9 @@
 package org.arthur.compta.lapin.presentation.utils;
 
-import java.util.Comparator;
-
+import javafx.scene.control.TreeItem;
 import org.arthur.compta.lapin.presentation.budget.model.PresBudget;
 
-import javafx.scene.control.TreeItem;
+import java.util.Comparator;
 
 public class PresBudgetSorter implements Comparator<TreeItem<PresBudget>> {
 

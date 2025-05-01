@@ -1,12 +1,11 @@
 package org.arthur.compta.lapin.presentation.common.cellfactory;
 
-import java.time.LocalDate;
-
-import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
-
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.util.Callback;
+import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
+
+import java.time.LocalDate;
 
 /**
  * Formatte une date sous forme mm/YYYY pour l'affichage dans un tableau

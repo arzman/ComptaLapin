@@ -1,16 +1,15 @@
 package org.arthur.compta.lapin.presentation.scene;
 
-import org.arthur.compta.lapin.application.manager.ConfigurationManager;
-import org.arthur.compta.lapin.presentation.budget.pane.BudgetPane;
-import org.arthur.compta.lapin.presentation.compte.pane.ComptePane;
-import org.arthur.compta.lapin.presentation.menu.ComptaMenuBar;
-import org.arthur.compta.lapin.presentation.trimestre.pane.TrimestreCourantPane;
-
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import org.arthur.compta.lapin.application.manager.ConfigurationManager;
+import org.arthur.compta.lapin.presentation.budget.pane.BudgetPane;
+import org.arthur.compta.lapin.presentation.compte.pane.ComptePane;
+import org.arthur.compta.lapin.presentation.menu.ComptaMenuBar;
+import org.arthur.compta.lapin.presentation.trimestre.pane.TrimestreCourantPane;
 
 /**
  * Unique Scène de l'IHM, elle contiendra les éléments graphiques
@@ -19,9 +18,9 @@ import javafx.scene.layout.StackPane;
 public class MainScene extends Scene {
 
 	/** Séparation haut/bas (à droite) */
-	private SplitPane splitHautBas;
+	private final SplitPane splitHautBas;
 	/** Séparation gauche/droite*/
-	private SplitPane splitgaucheDroite;
+	private final SplitPane splitgaucheDroite;
 
 	/**
 	 * Constructeur par défaut

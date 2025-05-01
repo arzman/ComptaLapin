@@ -1,32 +1,31 @@
 package org.arthur.compta.lapin.application.model;
 
-import java.time.LocalDate;
-import java.util.List;
-
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.model.ExerciceMensuel;
 import org.arthur.compta.lapin.model.operation.Operation;
 
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import java.time.LocalDate;
+import java.util.List;
 
 public class AppExerciceMensuel extends AppObject<ExerciceMensuel> {
 
 	/** La liste des dépenses */
-	private ObservableList<AppOperation> _appDepenseList;
+	private final ObservableList<AppOperation> _appDepenseList;
 	/** La liste des ressources */
-	private ObservableList<AppOperation> _appRessourceList;
+	private final ObservableList<AppOperation> _appRessourceList;
 	/** La liste des transferts */
-	private ObservableList<AppTransfert> _appTransfertList;
+	private final ObservableList<AppTransfert> _appTransfertList;
 	/** date de début */
-	private SimpleObjectProperty<LocalDate> _dateDebutProp;
+	private final SimpleObjectProperty<LocalDate> _dateDebutProp;
 	/** date de fin */
-	private SimpleObjectProperty<LocalDate> _dateFinProp;
+	private final SimpleObjectProperty<LocalDate> _dateFinProp;
 	/** Resultat previsionnel */
-	private SimpleDoubleProperty _resPrevProp;
+	private final SimpleDoubleProperty _resPrevProp;
 
 	public AppExerciceMensuel(ExerciceMensuel exerciceMensuel) throws ComptaException {
 

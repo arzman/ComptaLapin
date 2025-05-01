@@ -1,31 +1,10 @@
 package org.arthur.compta.lapin.application.service;
 
-import java.awt.Color;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.List;
-
-import javax.imageio.ImageIO;
-
-import org.arthur.compta.lapin.application.exception.ComptaException;
-import org.arthur.compta.lapin.application.manager.TrimestreManager;
-import org.arthur.compta.lapin.application.model.AppExerciceMensuel;
-import org.arthur.compta.lapin.application.model.AppOperation;
-import org.arthur.compta.lapin.application.model.AppTransfert;
-import org.arthur.compta.lapin.application.model.AppTrimestre;
-import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
-
-import com.lowagie.text.Chapter;
-import com.lowagie.text.Chunk;
-import com.lowagie.text.Document;
-import com.lowagie.text.Element;
+import com.lowagie.text.*;
 import com.lowagie.text.Font;
-import com.lowagie.text.FontFactory;
 import com.lowagie.text.Image;
-import com.lowagie.text.Paragraph;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
-
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
@@ -36,6 +15,19 @@ import javafx.scene.chart.XYChart.Data;
 import javafx.scene.chart.XYChart.Series;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Pane;
+import org.arthur.compta.lapin.application.exception.ComptaException;
+import org.arthur.compta.lapin.application.manager.TrimestreManager;
+import org.arthur.compta.lapin.application.model.AppExerciceMensuel;
+import org.arthur.compta.lapin.application.model.AppOperation;
+import org.arthur.compta.lapin.application.model.AppTransfert;
+import org.arthur.compta.lapin.application.model.AppTrimestre;
+import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.List;
 
 /**
  * 
@@ -59,9 +51,7 @@ public class RapportTrimWriter {
 	 * 
 	 * @param idTrim
 	 *            le trimestre
-	 * @param file
-	 *            le fichier ou l'on sauve le rapport
-	 * @throws ComptaException
+	 * @throws ComptaException Exception lors du chargement de trimestre
 	 */
 	public RapportTrimWriter(int idTrim) throws ComptaException {
 
@@ -72,12 +62,12 @@ public class RapportTrimWriter {
 	/**
 	 * Ecrit le rapport
 	 * 
-	 * @param file
-	 * @throws ComptaException
+	 * @param file Destination
+	 * @throws ComptaException Exception lors du chargement
 	 */
 	public void writeRapport(File file) throws ComptaException {
 
-		try (FileOutputStream fos = new FileOutputStream(file);) {
+		try (FileOutputStream fos = new FileOutputStream(file)) {
 
 			Document document = new Document();
 			PdfWriter.getInstance(document, fos);
@@ -112,8 +102,8 @@ public class RapportTrimWriter {
 	 * 
 	 * @param i
 	 *            le numéro du chapitre
-	 * @return
-	 * @throws ComptaException
+	 * @return le chapitre
+	 * @throws ComptaException Erreur
 	 */
 	private Element createChapGraphique(int i) throws ComptaException {
 
@@ -185,7 +175,7 @@ public class RapportTrimWriter {
 	 * 
 	 * @param i
 	 *            index du mois dans le trimestre
-	 * @return
+	 * @return le rapport mensuel
 	 */
 	private Element createChapMois(int i) {
 
@@ -241,8 +231,8 @@ public class RapportTrimWriter {
 	/**
 	 * Crée une table libelle/montant pour une liste d'opérations
 	 * 
-	 * @param appOpList
-	 * @return
+	 * @param appOpList les operations
+	 * @return la table
 	 */
 	private PdfPTable createTableOperation(List<AppOperation> appOpList) {
 
@@ -265,7 +255,7 @@ public class RapportTrimWriter {
 	/**
 	 * Crée le titre du doc
 	 * 
-	 * @return
+	 * @return le titre du doc
 	 */
 	private Paragraph createRapportTitle() {
 

@@ -1,10 +1,5 @@
 package org.arthur.compta.lapin.presentation.budget.dialog;
 
-import org.arthur.compta.lapin.application.manager.BudgetManager;
-import org.arthur.compta.lapin.application.model.AppBudget;
-import org.arthur.compta.lapin.presentation.common.ComptaDialog;
-import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
-
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DatePicker;
@@ -12,6 +7,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
+import org.arthur.compta.lapin.application.manager.BudgetManager;
+import org.arthur.compta.lapin.application.model.AppBudget;
+import org.arthur.compta.lapin.presentation.common.ComptaDialog;
+import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 
 /**
  * Fenetre permettant d'utiliser un budget
@@ -19,14 +18,14 @@ import javafx.util.Callback;
 public class UseBudgetDialog extends ComptaDialog<ButtonData> {
 
 	/** Le budget */
-	private AppBudget _budget;
+	private final AppBudget _budget;
 
 	/** champ de saisie du montant */
-	private TextField _montantTxt;
+	private final TextField _montantTxt;
 	/** champ de saisie du libelle */
-	private TextField _nomTxt;
+	private final TextField _nomTxt;
 	/** champ de saisie de la date */
-	private DatePicker _datePck;
+	private final DatePicker _datePck;
 
 	/**
 	 * Le constructeur

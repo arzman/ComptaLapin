@@ -1,13 +1,13 @@
 package org.arthur.compta.lapin.application.service;
 
+import org.arthur.compta.lapin.application.exception.ComptaException;
+import org.arthur.compta.lapin.dataaccess.db.ExerciceMensuelDataAccess;
+import org.arthur.compta.lapin.dataaccess.db.OperationDataAccess;
+
 import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.arthur.compta.lapin.application.exception.ComptaException;
-import org.arthur.compta.lapin.dataaccess.db.ExerciceMensuelDataAccess;
-import org.arthur.compta.lapin.dataaccess.db.OperationDataAccess;
 
 public class SyntheseService {
 

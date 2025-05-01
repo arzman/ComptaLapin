@@ -1,12 +1,10 @@
 package org.arthur.compta.lapin;
 
-import java.io.InputStream;
-import java.nio.file.CopyOption;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
+import com.sun.javafx.application.LauncherImpl;
+import javafx.application.Application;
+import javafx.event.EventHandler;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.manager.ConfigurationManager;
@@ -17,12 +15,8 @@ import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import org.arthur.compta.lapin.presentation.scene.MainScene;
 
-import com.sun.javafx.application.LauncherImpl;
-
-import javafx.application.Application;
-import javafx.event.EventHandler;
-import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
+import java.io.InputStream;
+import java.nio.file.*;
 
 /**
  * Classe principale de l'application.
@@ -62,11 +56,11 @@ public class ComptaLapin extends Application {
 			// initialisationb du logger
 			Path confLog4j2Path = Paths.get(FilesManager.getInstance().getConfFolder().toString(), "log4j2.xml");
 
-			if (!Files.exists(confLog4j2Path, new LinkOption[] {})) {
+			if (!Files.exists(confLog4j2Path)) {
 
 				InputStream in = ComptaLapin.class
 						.getResourceAsStream("/org/arthur/compta/lapin/dataaccess/files/ressources/conf/log4j2.xml");
-				Files.copy(in, confLog4j2Path, new CopyOption[] {});
+				Files.copy(in, confLog4j2Path);
 
 			}
 			Configurator.initialize(null, confLog4j2Path.toString());

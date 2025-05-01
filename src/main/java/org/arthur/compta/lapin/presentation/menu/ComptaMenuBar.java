@@ -1,8 +1,11 @@
 package org.arthur.compta.lapin.presentation.menu;
 
-import java.time.LocalDate;
-import java.util.Optional;
-
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.image.ImageView;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.application.service.ComptaService;
@@ -21,12 +24,8 @@ import org.arthur.compta.lapin.presentation.template.dialog.ConfigureTemplateDia
 import org.arthur.compta.lapin.presentation.trimestre.dialog.CreateTrimestreDialog;
 import org.arthur.compta.lapin.presentation.trimestre.dialog.ManageTrimestreCourantDialog;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.image.ImageView;
+import java.time.LocalDate;
+import java.util.Optional;
 
 /**
  * Barre de menu de l'application
@@ -34,7 +33,7 @@ import javafx.scene.image.ImageView;
  */
 public class ComptaMenuBar extends MenuBar {
 
-	private MainScene _scene;
+	private final MainScene _scene;
 
 	public ComptaMenuBar(MainScene mainScene) {
 		super();

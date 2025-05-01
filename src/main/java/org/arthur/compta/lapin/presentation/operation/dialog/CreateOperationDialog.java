@@ -1,5 +1,13 @@
 package org.arthur.compta.lapin.presentation.operation.dialog;
 
+import javafx.scene.Node;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+import javafx.util.Callback;
 import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.application.model.AppCompte;
@@ -10,15 +18,6 @@ import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.template.cellfactory.CompteCellComboFactory;
 
-import javafx.scene.Node;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
-import javafx.util.Callback;
-
 /**
  * Fenêtre permettant la création et l'édition d'opération
  *
@@ -28,7 +27,7 @@ public class CreateOperationDialog extends ComptaDialog<String> {
 	/** L'opération a créer ou éditer */
 	private AppOperation _operation;
 	/** l'index du mois dans lequel l'opération sera créée */
-	private int _numMois;
+	private final int _numMois;
 
 	/** champ de saisie du nom */
 	private TextField _libTxt;

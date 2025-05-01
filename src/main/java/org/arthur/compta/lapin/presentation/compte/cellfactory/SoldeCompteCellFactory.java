@@ -1,12 +1,11 @@
 package org.arthur.compta.lapin.presentation.compte.cellfactory;
 
-import org.arthur.compta.lapin.application.model.AppCompte;
-import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
-
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
+import org.arthur.compta.lapin.application.model.AppCompte;
+import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
 /**
  * Usine à cellule permettant de gérer l'affichage d'un somme monétaire dans un

@@ -1,7 +1,5 @@
 package org.arthur.compta.lapin;
 
-import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
-
 import javafx.application.Preloader;
 import javafx.application.Preloader.StateChangeNotification.Type;
 import javafx.geometry.HPos;
@@ -13,6 +11,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
+import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 
 public class ComptaLapinPreloader extends Preloader {
 

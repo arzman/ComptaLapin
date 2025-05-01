@@ -1,20 +1,16 @@
 package org.arthur.compta.lapin.dataaccess.db;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Types;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplate;
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElement;
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElementFrequence;
 import org.arthur.compta.lapin.model.Trimestre;
+
+import java.sql.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TrimestreDataAccess extends ComptaDataAccess {
 
@@ -140,7 +136,7 @@ public class TrimestreDataAccess extends ComptaDataAccess {
 		ArrayList<String> res = new ArrayList<>();
 
 		String query = "SELECT ID FROM TRIMESTRE;";
-		try (PreparedStatement stmt = DBManager.getInstance().getConnexion().prepareStatement(query);) {
+		try (PreparedStatement stmt = DBManager.getInstance().getConnexion().prepareStatement(query)) {
 			ResultSet queryRes = executeQuery(stmt);
 			while (queryRes.next()) {
 				// parsing du résultat
@@ -169,7 +165,7 @@ public class TrimestreDataAccess extends ComptaDataAccess {
 		// récupération de la date de début du premier exercice mensuel
 		String query = "SELECT date_debut FROM EXERCICE_MENSUEL E INNER JOIN TRIMESTRE T ON E.ID=T.premier_mois_id WHERE T.ID=? ;";
 
-		try (PreparedStatement stmt = DBManager.getInstance().getConnexion().prepareStatement(query);) {
+		try (PreparedStatement stmt = DBManager.getInstance().getConnexion().prepareStatement(query)) {
 
 			stmt.setInt(1, Integer.parseInt(id));
 			ResultSet queryRes = executeQuery(stmt);

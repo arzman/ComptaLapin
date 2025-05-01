@@ -1,21 +1,17 @@
 package org.arthur.compta.lapin.dataaccess.db;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.dataaccess.files.FilesManager;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.*;
 
 /**
  * Gère l'accès à la base de donnée
@@ -85,7 +81,7 @@ public class DBManager {
 
 		try (InputStream input = getClass().getResourceAsStream("/org/arthur/compta/lapin/dataaccess/db/ressource/" + script);
 				InputStreamReader reader = new InputStreamReader(input);
-				BufferedReader bReader = new BufferedReader(reader);) {
+				BufferedReader bReader = new BufferedReader(reader)) {
 
 			StringBuffer sb = new StringBuffer();
 			String str = "";

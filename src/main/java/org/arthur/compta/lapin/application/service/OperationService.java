@@ -1,7 +1,7 @@
 package org.arthur.compta.lapin.application.service;
 
-import java.util.List;
-
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.model.AppCompte;
@@ -12,8 +12,7 @@ import org.arthur.compta.lapin.dataaccess.db.OperationDataAccess;
 import org.arthur.compta.lapin.model.operation.EtatOperation;
 import org.arthur.compta.lapin.model.operation.OperationType;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import java.util.List;
 
 public class OperationService {
 

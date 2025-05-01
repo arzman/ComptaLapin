@@ -12,15 +12,15 @@ import java.util.List;
 public class ExerciceMensuel implements Comparable<ExerciceMensuel> {
 
 	/** id */
-	private int _id;
+	private final int _id;
 	/** Liste des opération durant l'exercice. */
-	private List<Integer> _operationList;
+	private final List<Integer> _operationList;
 	/** Date de début de l'exercice */
-	private LocalDate _dateDebut;
+	private final LocalDate _dateDebut;
 	/** Date de fin de l'exercice */
-	private LocalDate _dateFin;
+	private final LocalDate _dateFin;
 	/** Le résultat prévisionnel à la création */
-	private double _resPrev;
+	private final double _resPrev;
 
 	/**
 	 * 

@@ -10,17 +10,17 @@ public class AppExerciceMensuelLightId {
 	/**
 	 * L'id de l'exercice mensuel
 	 */
-	private int _exerciceMensuelId;
+	private final int _exerciceMensuelId;
 
 	/**
 	 * L'id du trimestre
 	 */
-	private int _trimestreId;
+	private final int _trimestreId;
 
 	/**
 	 * La position dans le mois
 	 */
-	private int _numMois;
+	private final int _numMois;
 
 	/**
 	 * 

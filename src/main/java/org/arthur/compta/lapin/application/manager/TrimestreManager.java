@@ -1,17 +1,10 @@
 package org.arthur.compta.lapin.application.manager;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
 import org.arthur.compta.lapin.application.exception.ComptaException;
-import org.arthur.compta.lapin.application.model.AppCompte;
-import org.arthur.compta.lapin.application.model.AppExerciceMensuel;
-import org.arthur.compta.lapin.application.model.AppExerciceMensuelLightId;
-import org.arthur.compta.lapin.application.model.AppOperation;
-import org.arthur.compta.lapin.application.model.AppTransfert;
-import org.arthur.compta.lapin.application.model.AppTrimestre;
+import org.arthur.compta.lapin.application.model.*;
 import org.arthur.compta.lapin.application.service.OperationService;
 import org.arthur.compta.lapin.application.service.TemplateService;
 import org.arthur.compta.lapin.dataaccess.db.AppliDataAccess;
@@ -23,9 +16,10 @@ import org.arthur.compta.lapin.model.operation.EtatOperation;
 import org.arthur.compta.lapin.model.operation.Operation;
 import org.arthur.compta.lapin.model.operation.OperationType;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ObservableList;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Gestionnaire des trimestres.
@@ -36,7 +30,7 @@ public class TrimestreManager {
 	/** L'unique instance du singleton */
 	private static TrimestreManager _instance;
 	/** le trimestre en cours de traitement */
-	private SimpleObjectProperty<AppTrimestre> _trimestreCourant;
+	private final SimpleObjectProperty<AppTrimestre> _trimestreCourant;
 
 	/**
 	 * Le constructeur

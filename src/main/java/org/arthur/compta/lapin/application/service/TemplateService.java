@@ -1,8 +1,7 @@
 package org.arthur.compta.lapin.application.service;
 
-import java.time.LocalDate;
-import java.util.List;
-
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.model.AppExerciceMensuel;
 import org.arthur.compta.lapin.application.model.AppOperation;
@@ -15,8 +14,8 @@ import org.arthur.compta.lapin.dataaccess.db.TrimestreDataAccess;
 import org.arthur.compta.lapin.model.operation.EtatOperation;
 import org.arthur.compta.lapin.model.operation.OperationType;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import java.time.LocalDate;
+import java.util.List;
 
 /**
  * Accès aux services des templates de trimestre dans l'applicatoin

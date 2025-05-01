@@ -1,12 +1,11 @@
 package org.arthur.compta.lapin.presentation.budget.model;
 
-import java.time.LocalDate;
-
-import org.arthur.compta.lapin.application.model.AppBudget;
-
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import org.arthur.compta.lapin.application.model.AppBudget;
+
+import java.time.LocalDate;
 
 /**
  * Encapsulation d'un AppBudget. Le But étant d'afficher les budget dans un
@@ -17,13 +16,13 @@ import javafx.beans.property.SimpleStringProperty;
 public class PresBudget {
 
 	/** Le budget */
-	private AppBudget _appBudget;
+	private final AppBudget _appBudget;
 	/** Un label */
-	private SimpleStringProperty _nameProp;
+	private final SimpleStringProperty _nameProp;
 	/** le montant */
-	private SimpleDoubleProperty _montantProp;
+	private final SimpleDoubleProperty _montantProp;
 	/** La date de récurrence */
-	private SimpleObjectProperty<LocalDate> _dateProp;
+	private final SimpleObjectProperty<LocalDate> _dateProp;
 
 	/**
 	 * 

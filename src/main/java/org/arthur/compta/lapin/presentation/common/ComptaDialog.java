@@ -1,20 +1,15 @@
 package org.arthur.compta.lapin.presentation.common;
 
-import org.arthur.compta.lapin.application.manager.ConfigurationManager;
-import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
-
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.arthur.compta.lapin.application.manager.ConfigurationManager;
+import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 
 /**
  * Fenetre qui enregistre sa taille

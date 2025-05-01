@@ -1,13 +1,13 @@
 package org.arthur.compta.lapin.dataaccess.db;
 
+import org.arthur.compta.lapin.application.exception.ComptaException;
+import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
+
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.time.LocalDate;
-
-import org.arthur.compta.lapin.application.exception.ComptaException;
-import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
 public class AppliDataAccess extends ComptaDataAccess {
 

@@ -1,9 +1,8 @@
 package org.arthur.compta.lapin.application.model;
 
+import javafx.beans.property.SimpleObjectProperty;
 import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.model.operation.Operation;
-
-import javafx.beans.property.SimpleObjectProperty;
 
 /**
  * Encapsulation application d'une opération de transfert
@@ -12,7 +11,7 @@ import javafx.beans.property.SimpleObjectProperty;
 public class AppTransfert extends AppOperation {
 
 	/** Le compte cible */
-	private SimpleObjectProperty<AppCompte> _compteCibleProp;
+	private final SimpleObjectProperty<AppCompte> _compteCibleProp;
 
 	/**
 	 * Constructeur

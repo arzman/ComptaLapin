@@ -11,7 +11,6 @@ import org.arthur.compta.lapin.model.Compte;
 import org.arthur.compta.lapin.model.operation.EtatOperation;
 import org.arthur.compta.lapin.model.operation.OperationType;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 

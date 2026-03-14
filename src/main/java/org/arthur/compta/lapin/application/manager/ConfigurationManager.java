@@ -86,7 +86,6 @@ String key = prefix + ".col" + i;
 int width = Integer.parseInt(getProp(key, "80"));
 col.setPreferredWidth(width);
 
-final String fKey = key;
 table.getColumnModel().addColumnModelListener(new TableColumnModelListener() {
 @Override
 public void columnMarginChanged(javax.swing.event.ChangeEvent e) {

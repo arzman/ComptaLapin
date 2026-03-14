@@ -1,8 +1,5 @@
 package org.arthur.compta.lapin.application.model;
 
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import org.arthur.compta.lapin.model.Utilisation;
 
 import java.time.LocalDate;
@@ -13,115 +10,59 @@ import java.time.LocalDate;
  */
 public class AppUtilisation extends AppObject<Utilisation> {
 
-	/** Le libellé */
-	private final SimpleStringProperty _nomProp;
-	/** La date */
-	private final SimpleObjectProperty<LocalDate> _dateProp;
-	/** Le montant */
-	private final SimpleDoubleProperty _montantProp;
+/** Le libellé */
+private String _nom;
+/** La date */
+private LocalDate _date;
+/** Le montant */
+private double _montant;
 
-	/**
-	 * Constructeur
-	 * 
-	 * @param utilisation
-	 *            utilisation métier
-	 */
-	public AppUtilisation(Utilisation utilisation) {
+/**
+ * Constructeur
+ * 
+ * @param utilisation
+ *            utilisation métier
+ */
+public AppUtilisation(Utilisation utilisation) {
+setAppID(utilisation.getId());
+_nom = utilisation.getLibelle();
+_date = utilisation.getDate();
+_montant = utilisation.getMontant();
+}
 
-		setAppID(utilisation.getId());
-		_nomProp = new SimpleStringProperty(utilisation.getLibelle());
-		_dateProp = new SimpleObjectProperty<>(utilisation.getDate());
-		_montantProp = new SimpleDoubleProperty(utilisation.getMontant());
-	}
+/** Positionne le nom */
+public void setNom(String nom) {
+_nom = nom;
+}
 
-	/**
-	 * Retourne le nom sous forme de propriété
-	 * 
-	 * @return
-	 */
-	public SimpleStringProperty nomProperty() {
-		return _nomProp;
-	}
+/** Positionne le montant */
+public void setMontant(double montant) {
+_montant = montant;
+}
 
-	/**
-	 * Retourne la date sous forme de propriété
-	 * 
-	 * @return
-	 */
-	public SimpleObjectProperty<LocalDate> dateProperty() {
-		return _dateProp;
-	}
+/** Positionne la date */
+public void setDate(LocalDate date) {
+_date = date;
+}
 
-	/**
-	 * Retourne le montant sous forme propriété
-	 * 
-	 * @return
-	 */
-	public SimpleDoubleProperty montantProperyt() {
-		return _montantProp;
-	}
+/** Retourne le nom */
+public String getNom() {
+return _nom;
+}
 
-	/**
-	 * Positionne le nom
-	 * 
-	 * @param nom
-	 */
-	public void setNom(String nom) {
+/** Retourne le montant */
+public double getMontant() {
+return _montant;
+}
 
-		_nomProp.set(nom);
-	}
+/** Retourne la date */
+public LocalDate getDate() {
+return _date;
+}
 
-	/**
-	 * Positionne le montant
-	 * 
-	 * @param montant
-	 */
-	public void setMontant(double montant) {
-		_montantProp.set(montant);
-
-	}
-
-	/**
-	 * Positionne la date
-	 * 
-	 * @param date
-	 */
-	public void setDate(LocalDate date) {
-		_dateProp.set(date);
-
-	}
-
-	/**
-	 * Retourne le nom
-	 * 
-	 * @return
-	 */
-	public String getNom() {
-		return _nomProp.get();
-	}
-
-	/**
-	 * Retourne le montant
-	 * 
-	 * @return
-	 */
-	public double getMontant() {
-		return _montantProp.get();
-	}
-
-	/**
-	 * Retourne la date
-	 * 
-	 * @return
-	 */
-	public LocalDate getDate() {
-		return _dateProp.get();
-	}
-
-	@Override
-	public Utilisation getDBObject() {
-
-		return new Utilisation(getAppId(), getMontant(), getNom(), getDate());
-	}
+@Override
+public Utilisation getDBObject() {
+return new Utilisation(getAppId(), getMontant(), getNom(), getDate());
+}
 
 }

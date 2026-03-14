@@ -1,7 +1,5 @@
 package org.arthur.compta.lapin.application.service;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.model.AppCompte;
@@ -12,107 +10,68 @@ import org.arthur.compta.lapin.dataaccess.db.OperationDataAccess;
 import org.arthur.compta.lapin.model.operation.EtatOperation;
 import org.arthur.compta.lapin.model.operation.OperationType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class OperationService {
 
-	/**
-	 * Permutte l'état d'une opération et répercute les conséquences (
-	 * sauvegarde DB + re-calcul du solde compte)
-	 * 
-	 * @param appOp
-	 *            l'operation
-	 * @throws ComptaException
-	 *             Echec de la mise à jour
-	 */
-	public static void switchEtatOperation(AppOperation appOp) throws ComptaException {
+/**
+ * Permutte l'état d'une opération et répercute les conséquences
+ */
+public static void switchEtatOperation(AppOperation appOp) throws ComptaException {
+appOp.switchEtat();
+CompteManager.getInstance().operationSwitched(appOp);
+OperationDataAccess.getInstance().updateOperation(appOp.getDBObject());
+}
 
-		// Maj de l'état dans l'application
-		appOp.switchEtat();
-		// re-calcul du solde du compte
-		CompteManager.getInstance().operationSwitched(appOp);
-		// sauvegarde en base
-		OperationDataAccess.getInstance().updateOperation(appOp.getDBObject());
+/**
+ * Retourne les types possibles pour une opération
+ */
+public static List<String> getOperationType() {
+List<String> res = new ArrayList<>();
+for (OperationType opeType : OperationType.values()) {
+res.add(opeType.toString());
+}
+return res;
+}
 
-	}
+/**
+ * Edite l'opération passée en paramètre
+ */
+public static AppOperation editOperation(AppOperation _operation, String newLib, double newMontant,
+AppCompte newCompteSrc, AppCompte newCompteCibles) throws ComptaException {
 
-	/**
-	 * Retourne les types possibles pour une opération
-	 * 
-	 * @return
-	 */
-	public static ObservableList<String> getOperationType() {
-		// creation de la liste
-		ObservableList<String> res = FXCollections.observableArrayList();
-		// on récupère les valeurs de l'enum
-		for (OperationType opeType : OperationType.values()) {
-			res.add(opeType.toString());
-		}
+boolean toSwitch = false;
+if (_operation.getEtat().equals(EtatOperation.PRISE_EN_COMPTE)) {
+toSwitch = true;
+switchEtatOperation(_operation);
+}
 
-		return res;
-	}
+_operation.setLibelle(newLib);
+_operation.setMontant(newMontant);
+_operation.setCompteSrc(newCompteSrc);
 
-	/**
-	 * Edite l'opération passé en paramètre
-	 * 
-	 * @param _operation
-	 * @param newLib
-	 * @param newMontant
-	 * @param newCompteSrc
-	 * @param newCompteCibles
-	 * @return
-	 * @throws ComptaException
-	 */
-	public static AppOperation editOperation(AppOperation _operation, String newLib, double newMontant, AppCompte newCompteSrc, AppCompte newCompteCibles)
-			throws ComptaException {
+if (_operation instanceof AppTransfert) {
+((AppTransfert) _operation).setCompteCible(newCompteCibles);
+}
 
-		// si l'opération est prise en compte, on la déselectionne
-		boolean toSwitch = false;
-		if (_operation.getEtat().equals(EtatOperation.PRISE_EN_COMPTE)) {
-			toSwitch = true;
-			switchEtatOperation(_operation);
-		}
+OperationDataAccess.getInstance().updateOperation(_operation.getDBObject());
 
-		// modification de l'opération
-		_operation.setLibelle(newLib);
-		_operation.setMontant(newMontant);
-		_operation.setCompteSrc(newCompteSrc);
+if (toSwitch) {
+switchEtatOperation(_operation);
+}
 
-		if (_operation instanceof AppTransfert) {
-			((AppTransfert) _operation).setCompteCible(newCompteCibles);
-		}
+CompteManager.getInstance().calculateSoldePrev(newCompteSrc);
+CompteManager.getInstance().calculateSoldePrev(newCompteCibles);
 
-		// enregistrement en base
-		OperationDataAccess.getInstance().updateOperation(_operation.getDBObject());
+return _operation;
+}
 
-		if (toSwitch) {
-			switchEtatOperation(_operation);
-		}
-
-		// refresh du previsionnel
-		CompteManager.getInstance().calculateSoldePrev(newCompteSrc);
-		CompteManager.getInstance().calculateSoldePrev(newCompteCibles);
-
-		return _operation;
-	}
-
-	/**
-	 * Effectue une recherche sur les opérations.
-	 * 
-	 * Retourne les operation dont le libellé contient lib et dont le montant
-	 * est égale à montant +- tolerance
-	 * 
-	 * Si un des champs est vide, alors il est ignoré
-	 * 
-	 * @param lib
-	 * @param montant
-	 * @param tolerance
-	 * @return
-	 * @throws ComptaException
-	 */
-	public static List<OperationSearchResult> doSearch(String lib, String montant, String tolerance) throws ComptaException {
-
-		return OperationDataAccess.getInstance().searchOperation(lib, montant, tolerance);
-	}
+/**
+ * Effectue une recherche sur les opérations.
+ */
+public static List<OperationSearchResult> doSearch(String lib, String montant, String tolerance) throws ComptaException {
+return OperationDataAccess.getInstance().searchOperation(lib, montant, tolerance);
+}
 
 }

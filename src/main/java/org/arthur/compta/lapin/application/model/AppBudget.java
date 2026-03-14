@@ -1,316 +1,167 @@
 package org.arthur.compta.lapin.application.model;
 
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.*;
 import org.arthur.compta.lapin.model.Budget;
 
 import java.time.LocalDate;
 
 public class AppBudget extends AppObject<Budget> {
 
-	/** Le nom */
-	private final SimpleStringProperty _nompProp;
-	/** L'objectif */
-	private final SimpleDoubleProperty _objectifProp;
-	/** L'avancement */
-	private final SimpleDoubleProperty _avancementProp;
-	/** Le montant sur compte courant */
-	private final SimpleDoubleProperty _montantCourantProp;
-	/** Le montant sur compte livret */
-	private final SimpleDoubleProperty _montantLivretProp;
-	/** est actif ou pas */
-	private final SimpleBooleanProperty _isActifProp;
-	/** Le montant utilise */
-	private final SimpleDoubleProperty _montantUtiliseProp;
-	/** La priorité 0 =priorite la plus haute */
-	private final SimpleIntegerProperty _priorityProp;
-	/** si le budget est terminé */
-	private final SimpleBooleanProperty _isTermine;
-	/** Libellé du budget récurrent (peut être vide) */
-	private final SimpleStringProperty _labelRecurrentProp;
-	/** Date du budget récurrent (peut être nulle) */
-	private final SimpleObjectProperty<LocalDate> _dateRecurrentProp;
+/** Le nom */
+private String _nom;
+/** L'objectif */
+private double _objectif;
+/** L'avancement */
+private double _avancement;
+/** Le montant sur compte courant */
+private double _montantCourant;
+/** Le montant sur compte livret */
+private double _montantLivret;
+/** est actif ou pas */
+private boolean _isActif;
+/** Le montant utilise */
+private double _montantUtilise;
+/** La priorité 0 = priorité la plus haute */
+private int _priority;
+/** Libellé du budget récurrent (peut être vide) */
+private String _labelRecurrent;
+/** Date du budget récurrent (peut être nulle) */
+private LocalDate _dateRecurrent;
 
-	/**
-	 * Consructeur par défaut
-	 */
-	public AppBudget(Budget budget) {
+/**
+ * Constructeur par défaut
+ */
+public AppBudget(Budget budget) {
 
-		setAppID(budget.getId());
+setAppID(budget.getId());
 
-		// caractéristique propre des budgets
-		_nompProp = new SimpleStringProperty(budget.getNom());
-		_objectifProp = new SimpleDoubleProperty(budget.getObjectif());
-		_montantUtiliseProp = new SimpleDoubleProperty(budget.getMontantUtilise());
-		_isActifProp = new SimpleBooleanProperty(budget.isActif());
-		_priorityProp = new SimpleIntegerProperty(budget.getPriority());
-		_labelRecurrentProp = new SimpleStringProperty(budget.getLabelRecurrent());
-		_dateRecurrentProp = new SimpleObjectProperty<LocalDate>(budget.getDateRecurrent());
+_nom = budget.getNom();
+_objectif = budget.getObjectif();
+_montantUtilise = budget.getMontantUtilise();
+_isActif = budget.isActif();
+_priority = budget.getPriority();
+_labelRecurrent = budget.getLabelRecurrent();
+_dateRecurrent = budget.getDateRecurrent();
+_avancement = 0;
+_montantCourant = 0;
+_montantLivret = 0;
+}
 
-		// a calculer par l'application
-		_avancementProp = new SimpleDoubleProperty();
-		_montantCourantProp = new SimpleDoubleProperty();
-		_montantLivretProp = new SimpleDoubleProperty();
-		_isTermine = new SimpleBooleanProperty();
-		_isTermine.bind(Bindings.createBooleanBinding(() -> budget.getMontantUtilise() == budget.getObjectif(), _objectifProp, _montantUtiliseProp));
+/** Retourne le nom */
+public String getNom() {
+return _nom;
+}
 
-	}
+/** Positionne le nom */
+public void setNom(String nom) {
+_nom = nom;
+}
 
-	/**
-	 * Retourne le nom sous forme de propriété
-	 * 
-	 * @return
-	 */
-	public SimpleStringProperty nomProperty() {
-		return _nompProp;
-	}
+/** Retourne l'objectif du budget */
+public double getObjectif() {
+return _objectif;
+}
 
-	/**
-	 * Retourne le nom
-	 * 
-	 * @return
-	 */
-	public String getNom() {
-		return _nompProp.get();
-	}
+/** Positionne l'objectif du budget */
+public void setObjectif(double objectif) {
+_objectif = objectif;
+}
 
-	/**
-	 * Positionne le nom
-	 * 
-	 * @param nom
-	 */
-	public void setNom(String nom) {
+/** Retourne l'avancement du budget en % */
+public double getAvancement() {
+return _avancement;
+}
 
-		_nompProp.set(nom);
+/** Positionne l'avancement */
+public void setAvancement(double av) {
+_avancement = av;
+}
 
-	}
+/** Retourne le montant sur compte courant */
+public double getMontantCourant() {
+return _montantCourant;
+}
 
-	/**
-	 * Retourne l'objectif sous forme de propriété
-	 * 
-	 * @return
-	 */
-	public SimpleDoubleProperty objectifProperty() {
+/** Positionne le montant sur solde courant */
+public void setMontantCourant(double cour) {
+_montantCourant = cour;
+}
 
-		return _objectifProp;
-	}
+/** Retourne le montant sur compte livret */
+public double getMontantLivret() {
+return _montantLivret;
+}
 
-	/**
-	 * Retourne l'objectif du budget
-	 * 
-	 * @param objectif
-	 */
-	public void setObjectif(double objectif) {
-		_objectifProp.set(objectif);
+/** Positionne le montant sur compte livret */
+public void setMontantLivret(double liv) {
+_montantLivret = liv;
+}
 
-	}
+/** Retourne le montant utilisé du budget */
+public double getMontantUtilise() {
+return _montantUtilise;
+}
 
-	/**
-	 * Retourne l'objectif
-	 * 
-	 * @return
-	 */
-	public double getObjectif() {
-		return _objectifProp.doubleValue();
-	}
+/** Positionne le montant utilisé */
+public void setMontantUtilise(double utilise) {
+_montantUtilise = utilise;
+}
 
-	/**
-	 * Retourne l'avancement du budget en %
-	 * 
-	 * @return
-	 */
-	public SimpleDoubleProperty avancementProperty() {
-		return _avancementProp;
-	}
+/** Retourne si le budget est terminé */
+public boolean isTermine() {
+return _montantUtilise == _objectif;
+}
 
-	/**
-	 * Positionne l'avancement
-	 * 
-	 * @param av
-	 */
-	public void setAvancement(double av) {
-		_avancementProp.set(av);
+/** Retourne true si le budget est actif */
+public boolean isActif() {
+return _isActif;
+}
 
-	}
+/** Positionne l'état d'activation du budget */
+public void setIsActif(boolean isActif) {
+_isActif = isActif;
+}
 
-	/**
-	 * Retourne le montant sur compte courant du budget
-	 * 
-	 * @return
-	 */
-	public SimpleDoubleProperty montantCourantProperty() {
-		return _montantCourantProp;
-	}
+/** Retourne la priorité */
+public int getPriority() {
+return _priority;
+}
 
-	/**
-	 * Positionne le montant sur solde courant
-	 * 
-	 * @param cour
-	 */
-	public void setMontantCourant(double cour) {
-		_montantCourantProp.set(cour);
+/** Positionne la priorité */
+public void setPriority(int prio) {
+_priority = prio;
+}
 
-	}
+/** Retourne vrai si le budget est récurrent */
+public boolean isRecurrent() {
+return _labelRecurrent != null && !_labelRecurrent.isEmpty();
+}
 
-	/**
-	 * Retourne le montant sur compte livret du budget
-	 * 
-	 * @return
-	 */
-	public SimpleDoubleProperty montantLivretProperty() {
-		return _montantLivretProp;
-	}
+/** Retourne le libellé récurrent */
+public String getLabelRecurrent() {
+return _labelRecurrent != null ? _labelRecurrent : "";
+}
 
-	/**
-	 * Retourne le montant utilisé du budget
-	 * 
-	 * @return
-	 */
-	public double getMontantUtilise() {
+/** Retourne la date récurrente */
+public LocalDate getDateRecurrent() {
+return _dateRecurrent;
+}
 
-		return _montantUtiliseProp.get();
-	}
+public void setLabelerecurrent(String labelRecurrent) {
+_labelRecurrent = labelRecurrent;
+}
 
-	/**
-	 * Positionne le montant utilise
-	 * 
-	 * @param utilise
-	 */
-	public void setMontantUtilise(double utilise) {
-		_montantUtiliseProp.set(utilise);
+public void setDateReccurent(LocalDate dateRecurrent) {
+_dateRecurrent = dateRecurrent;
+}
 
-	}
+@Override
+public String toString() {
+return getNom() + " " + getObjectif() + "€";
+}
 
-	/**
-	 * Retourne si le budget est terminé
-	 * 
-	 * @return
-	 */
-	public SimpleBooleanProperty termineProperty() {
-		return _isTermine;
-	}
-
-	/**
-	 * Positionne le montant sur compte livret
-	 * 
-	 * @param liv
-	 */
-	public void setMontantLivret(double liv) {
-		montantLivretProperty().set(liv);
-
-	}
-
-	/**
-	 * Retourne true si le budget est actif
-	 * 
-	 * @return
-	 */
-	public boolean isActif() {
-
-		return _isActifProp.get();
-	}
-
-	/**
-	 * Positionne l'état d'activation du buget
-	 * 
-	 * @param isActif
-	 */
-	public void setIsActif(boolean isActif) {
-		_isActifProp.set(isActif);
-
-	}
-
-	/**
-	 * Retourne la priorité
-	 * 
-	 * @return
-	 */
-	public int getPriority() {
-
-		return _priorityProp.get();
-	}
-
-	/**
-	 * Positionne la priorité
-	 * 
-	 * @param prio
-	 */
-	public void setPriority(int prio) {
-
-		_priorityProp.set(prio);
-
-	}
-
-	/**
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-
-		return getNom() + " " + getObjectif() + "€";
-	}
-
-	/**
-	 * Retourne vrai si le budget est termine
-	 * 
-	 * @return
-	 */
-	public boolean isTermine() {
-
-		return _isTermine.get();
-	}
-
-	/**
-	 * Retourne vrai si le budget est récurrent
-	 * 
-	 * @return
-	 */
-	public boolean isRecurrent() {
-		return !getLabelRecurrent().isEmpty();
-	}
-
-	/**
-	 * Retourne le labelle récurrent
-	 * 
-	 * @return
-	 */
-	public String getLabelRecurrent() {
-		return _labelRecurrentProp.get();
-	}
-
-	/**
-	 * Retourne la date récurrente
-	 * 
-	 * @return
-	 */
-	public LocalDate getDateRecurrent() {
-
-		return _dateRecurrentProp.get();
-	}
-
-	/**
-	 * Retourne la date récurrente
-	 * 
-	 * @return
-	 */
-	public SimpleObjectProperty<LocalDate> dateRecurrentProp() {
-
-		return _dateRecurrentProp;
-	}
-
-	public void setLabelerecurrent(String labelRecurrent) {
-		_labelRecurrentProp.set(labelRecurrent);
-
-	}
-
-	public void setDateReccurent(LocalDate dateRecurrent) {
-		_dateRecurrentProp.setValue(dateRecurrent);
-
-	}
-
-	@Override
-	public Budget getDBObject() {
-		return new Budget(getAppId(), getObjectif(), getMontantUtilise(), getNom(), isActif(), getPriority(), getLabelRecurrent(), getDateRecurrent());
-	}
+@Override
+public Budget getDBObject() {
+return new Budget(getAppId(), getObjectif(), getMontantUtilise(), getNom(), isActif(), getPriority(), getLabelRecurrent(), getDateRecurrent());
+}
 
 }

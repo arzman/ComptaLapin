@@ -1,185 +1,120 @@
 package org.arthur.compta.lapin.presentation.trimestre.dialog;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.scene.Node;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListView;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.layout.GridPane;
-import javafx.util.Callback;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.application.model.AppExerciceMensuelLightId;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
-import org.arthur.compta.lapin.presentation.trimestre.cellfactory.NumMoisCellComboFactory;
-import org.arthur.compta.lapin.presentation.trimestre.cellfactory.TrimestreListCellFactory;
+import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
+import javax.swing.*;
+import java.awt.*;
 import java.time.LocalDate;
 import java.util.HashMap;
 
 /**
- * Dialog permettant de retourner un appId d'un excercice mensuel
- *
+ * Dialog permettant de retourner un appId d'un exercice mensuel
  */
-public class SelectExerciceMensuelDialog extends ComptaDialog<AppExerciceMensuelLightId> {
+public class SelectExerciceMensuelDialog extends ComptaDialog {
 
-	/**
-	 * Liste des trimestres
-	 */
-	private ListView<String> _listV;
+private final DefaultListModel<String> _listModel;
+private final JList<String> _listV;
+private final JComboBox<Integer> _moisCombo;
+private AppExerciceMensuelLightId _result = null;
+private final HashMap<String, LocalDate> _resumeTrimestre;
 
-	/**
-	 * Combo de sélection du mois
-	 */
-	private ComboBox<Integer> _moisCombo;
+public SelectExerciceMensuelDialog() {
+super(SelectExerciceMensuelDialog.class.getSimpleName(), "Sélectionner un exercice mensuel");
 
-	public SelectExerciceMensuelDialog() {
-		super(SelectExerciceMensuelDialog.class.getSimpleName());
-		setTitle("Sélectionner un exercice mensuel");
+_resumeTrimestre = new HashMap<>();
+_listModel = new DefaultListModel<>();
+_listV = new JList<>(_listModel);
+_listV.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+_listV.setCellRenderer(new TrimestreListCellRenderer());
 
-		// Création des champ de saisi
-		createContent();
+try {
+HashMap<String, LocalDate> map = TrimestreManager.getInstance().getAllTrimestreShortList();
+_resumeTrimestre.putAll(map);
+for (String id : map.keySet()) {
+_listModel.addElement(id);
+}
+} catch (ComptaException e) {
+ExceptionDisplayService.showException(e);
+}
 
-		hookListeners();
+// combo de sélection du mois
+_moisCombo = new JComboBox<>(new Integer[]{0, 1, 2});
+_moisCombo.setRenderer(new NumMoisComboRenderer());
 
-		checkInput();
-	}
+// boutons
+JButton okBtn = new JButton("Ok");
+okBtn.addActionListener(e -> {
+String id = _listV.getSelectedValue();
+Integer num = (Integer) _moisCombo.getSelectedItem();
+if (id != null && !id.isEmpty() && num != null) {
+try {
+_result = new AppExerciceMensuelLightId(
+TrimestreManager.getInstance().getExerciceMensuelId(Integer.parseInt(id), num),
+Integer.parseInt(id), num);
+_confirmed = true;
+} catch (ComptaException ex) {
+ExceptionDisplayService.showException(ex);
+}
+}
+dispose();
+});
+JButton cancelBtn = new JButton("Annuler");
+cancelBtn.addActionListener(e -> dispose());
 
-	/**
-	 * Création des champs de saisie
-	 */
-	private void createContent() {
-		GridPane grid = new GridPane();
-		getDialogPane().setContent(grid);
+JPanel content = new JPanel(new BorderLayout(5, 5));
+content.add(new JScrollPane(_listV), BorderLayout.CENTER);
+content.add(_moisCombo, BorderLayout.SOUTH);
 
-		// récupération des trimestres de l'application ainsi que leur date
-		// de début
+JPanel btnPanel = new JPanel(new FlowLayout());
+btnPanel.add(okBtn);
+btnPanel.add(cancelBtn);
 
-		// Création de la liste des trimestres à afficher
-		ObservableList<String> _trimDdList = FXCollections.observableArrayList();
+setLayout(new BorderLayout());
+add(content, BorderLayout.CENTER);
+add(btnPanel, BorderLayout.SOUTH);
+pack();
+}
 
-		// affichage de la liste
-		_listV = new ListView<>();
-		_listV.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+/** Retourne l'exercice mensuel sélectionné */
+public AppExerciceMensuelLightId getResult() {
+return _result;
+}
 
-		try {
-			HashMap<String, LocalDate> _resumeTrimestre = TrimestreManager.getInstance().getAllTrimestreShortList();
-			_trimDdList.addAll(_resumeTrimestre.keySet());
-			// callback permettant de customiser l'affichage
-			_listV.setCellFactory(new TrimestreListCellFactory(_resumeTrimestre));
+private class TrimestreListCellRenderer extends DefaultListCellRenderer {
+@Override
+public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+boolean isSelected, boolean cellHasFocus) {
+JLabel lbl = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+String id = (String) value;
+if (id != null && !id.isEmpty() && _resumeTrimestre.containsKey(id)) {
+LocalDate deb = _resumeTrimestre.get(id);
+lbl.setText("De " + ApplicationFormatter.moiAnneedateFormat.format(deb)
++ " à " + ApplicationFormatter.moiAnneedateFormat.format(deb.plusMonths(2)));
+}
+return lbl;
+}
+}
 
-			_listV.setItems(_trimDdList);
-		} catch (ComptaException e) {
-
-			ExceptionDisplayService.showException(e);
-		}
-
-		grid.add(_listV, 0, 0);
-
-		// affichage de la combo
-		_moisCombo = new ComboBox<>();
-		_moisCombo.setCellFactory(new NumMoisCellComboFactory());
-		ObservableList<Integer> moisList = FXCollections.observableArrayList();
-		moisList.add(0);
-		moisList.add(1);
-		moisList.add(2);
-		_moisCombo.setItems(moisList);
-		_moisCombo.getSelectionModel().select(0);
-
-		grid.add(_moisCombo, 0, 1);
-
-	}
-
-	/**
-	 * Crée les boutons OK et Cancel
-	 */
-	@Override
-	protected void createButtonBar() {
-
-		super.createButtonBar();
-
-		// Création du bouton Cancel
-		ButtonType buttonTypeCancel = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
-		getDialogPane().getButtonTypes().add(buttonTypeCancel);
-
-		// Retourne le Compte créé sur le OK
-		setResultConverter(new Callback<ButtonType, AppExerciceMensuelLightId>() {
-
-			@Override
-			public AppExerciceMensuelLightId call(ButtonType param) {
-
-				AppExerciceMensuelLightId zeReturn = null;
-
-				// appuie sur Ok : on crée le trimestre
-				if (param.getButtonData().equals(ButtonData.OK_DONE)) {
-
-					String id = _listV.getSelectionModel().getSelectedItem();
-					int num = _moisCombo.getSelectionModel().getSelectedItem();
-					if (id != null && !id.isEmpty()) {
-
-						try {
-							zeReturn = new AppExerciceMensuelLightId(TrimestreManager.getInstance().getExerciceMensuelId(Integer.parseInt(id), num),
-									Integer.parseInt(id), num);
-						} catch (ComptaException e) {
-							ExceptionDisplayService.showException(e);
-						}
-
-					}
-
-				}
-
-				return zeReturn;
-			}
-		});
-
-	}
-
-	/**
-	 * Vérifie la saisie
-	 * 
-	 * @return
-	 */
-	private void checkInput() {
-
-		boolean listKO = _listV.getSelectionModel().getSelectedItem() == null;
-		if (listKO) {
-			_listV.setBorder(BORDER_ERROR);
-		} else {
-			_listV.setBorder(null);
-		}
-		boolean comboKO = _moisCombo.getSelectionModel().getSelectedItem() == null;
-		if (comboKO) {
-			_moisCombo.setBorder(BORDER_ERROR);
-		} else {
-			_moisCombo.setBorder(null);
-		}
-
-		if (_buttonTypeOk != null) {
-			Node OkButton = getDialogPane().lookupButton(_buttonTypeOk);
-			OkButton.setDisable(listKO || comboKO);
-		}
-
-	}
-
-	/**
-	 * Affecte des écouteurs de modification sur les champs de saisie. Ces
-	 * écouteurs déclenchent la vérification de la saisie
-	 */
-	private void hookListeners() {
-
-		// num Mois
-		_moisCombo.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
-		});
-		// selection du trimestre
-		_listV.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
-		});
-
-	}
+private static class NumMoisComboRenderer extends DefaultListCellRenderer {
+@Override
+public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+boolean isSelected, boolean cellHasFocus) {
+JLabel lbl = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+if (value instanceof Integer) {
+switch ((Integer) value) {
+case 0: lbl.setText("1er Mois"); break;
+case 1: lbl.setText("2ème Mois"); break;
+case 2: lbl.setText("3ème Mois"); break;
+default: lbl.setText("#ERROR#");
+}
+}
+return lbl;
+}
+}
 
 }

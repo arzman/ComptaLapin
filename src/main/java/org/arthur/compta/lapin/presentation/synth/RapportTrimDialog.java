@@ -1,128 +1,91 @@
 package org.arthur.compta.lapin.presentation.synth;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ListView;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.layout.GridPane;
-import javafx.stage.FileChooser;
-import javafx.stage.FileChooser.ExtensionFilter;
-import javafx.util.Callback;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.application.service.SyntheseService;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
-import org.arthur.compta.lapin.presentation.trimestre.cellfactory.TrimestreListCellFactory;
+import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
 import java.io.File;
 import java.time.LocalDate;
 import java.util.HashMap;
 
-public class RapportTrimDialog extends ComptaDialog<ButtonData> {
+/**
+ * Dialogue de rapport trimestriel
+ */
+public class RapportTrimDialog extends ComptaDialog {
 
-	/**
-	 * Les id des trimestre à afficher ainsi que leur date de début.
-	 */
-	private ObservableList<String> _trimDdList;
-	/**
-	 * Affichage de la liste des trimestres
-	 */
-	private ListView<String> _listV;
+private final DefaultListModel<String> _listModel;
+private final JList<String> _listV;
+private final HashMap<String, LocalDate> _resumeTrimestre;
 
-	public RapportTrimDialog() {
-		super(RapportTrimDialog.class.getSimpleName());
+public RapportTrimDialog() {
+super(RapportTrimDialog.class.getSimpleName(), "Rapport Trimestriel");
 
-		setTitle("Rapport Trimestriel");
+_resumeTrimestre = new HashMap<>();
+_listModel = new DefaultListModel<>();
+_listV = new JList<>(_listModel);
+_listV.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+_listV.setCellRenderer(new TrimestreListCellRenderer());
 
-		createContent();
+try {
+HashMap<String, LocalDate> map = TrimestreManager.getInstance().getAllTrimestreShortList();
+_resumeTrimestre.putAll(map);
+for (String id : map.keySet()) _listModel.addElement(id);
+} catch (ComptaException e) {
+ExceptionDisplayService.showException(e);
+}
 
-		// création des boutons
-		createBoutonBar();
+JButton exportBtn = new JButton("Exporter");
+exportBtn.addActionListener(e -> {
+String id = _listV.getSelectedValue();
+if (id != null) {
+JFileChooser fc = new JFileChooser();
+fc.setFileFilter(new FileNameExtensionFilter("PDF files (*.pdf)", "pdf"));
+if (fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+File file = fc.getSelectedFile();
+if (!file.getName().endsWith(".pdf")) {
+file = new File(file.getAbsolutePath() + ".pdf");
+}
+try {
+SyntheseService.writeRapportForTrim(Integer.parseInt(id), file);
+} catch (ComptaException ex) {
+ExceptionDisplayService.showException(ex);
+}
+}
+}
+});
 
-	}
+JButton closeBtn = new JButton("Fermer");
+closeBtn.addActionListener(e -> dispose());
 
-	/**
-	 * Création du contenu de la fenêtre
-	 */
-	private void createContent() {
+JPanel btnPanel = new JPanel(new FlowLayout());
+btnPanel.add(exportBtn);
+btnPanel.add(closeBtn);
 
-		// noeud racine
-		GridPane root = new GridPane();
-		getDialogPane().setContent(root);
+setLayout(new BorderLayout());
+add(new JScrollPane(_listV), BorderLayout.CENTER);
+add(btnPanel, BorderLayout.SOUTH);
+setSize(400, 300);
+}
 
-		try {
-			// récupération des trimestres de l'application ainsi que leur date
-			// de début
-			HashMap<String, LocalDate> _resumeTrimestre = TrimestreManager.getInstance().getAllTrimestreShortList();
-
-			// Création de la liste des trimestres à afficher
-			_trimDdList = FXCollections.observableArrayList();
-			_trimDdList.addAll(_resumeTrimestre.keySet());
-
-			// affichage de la liste
-			_listV = new ListView<>();
-			_listV.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-			// callback permettant de customiser l'affichage
-			_listV.setCellFactory(new TrimestreListCellFactory(_resumeTrimestre));
-
-			_listV.setItems(_trimDdList);
-			root.add(_listV, 0, 0);
-
-		} catch (ComptaException e) {
-			ExceptionDisplayService.showException(e);
-		}
-
-	}
-
-	/**
-	 * Crée les boutons OK et Cancel
-	 */
-	private void createBoutonBar() {
-
-		// Création du bouton Fermer
-		getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
-
-		// Création du bouton Exporter
-		ButtonType buttonTypeCancel = new ButtonType("Exporter", ButtonData.APPLY);
-		getDialogPane().getButtonTypes().add(buttonTypeCancel);
-
-		// Retourne le Compte créé sur le OK
-		setResultConverter(new Callback<ButtonType, ButtonData>() {
-
-			@Override
-			public ButtonData call(ButtonType param) {
-
-				ButtonData zeReturn = param.getButtonData();
-
-				// appuie sur Ok : on crée le trimestre
-				if (param.getButtonData().equals(ButtonData.APPLY)) {
-
-					// recup du trimestre
-					String idTrim = _listV.getSelectionModel().getSelectedItem();
-
-					FileChooser fc = new FileChooser();
-					ExtensionFilter extFilter = new ExtensionFilter("PDF files (*.pdf)", "*.pdf");
-					fc.getExtensionFilters().add(extFilter);
-					File file = fc.showSaveDialog(getOwner());
-
-					if (file != null) {
-						// création du rapport
-						try {
-							SyntheseService.writeRapportForTrim(Integer.parseInt(idTrim), file);
-						} catch (ComptaException e) {
-							ExceptionDisplayService.showException(e);
-						}
-
-					}
-
-				}
-
-				return zeReturn;
-			}
-		});
-	}
+private class TrimestreListCellRenderer extends DefaultListCellRenderer {
+@Override
+public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+boolean isSelected, boolean cellHasFocus) {
+JLabel lbl = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+String id = (String) value;
+if (id != null && !id.isEmpty() && _resumeTrimestre.containsKey(id)) {
+LocalDate deb = _resumeTrimestre.get(id);
+lbl.setText("De " + ApplicationFormatter.moiAnneedateFormat.format(deb)
++ " à " + ApplicationFormatter.moiAnneedateFormat.format(deb.plusMonths(2)));
+}
+return lbl;
+}
+}
 
 }

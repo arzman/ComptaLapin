@@ -1,107 +1,73 @@
 package org.arthur.compta.lapin;
 
-import com.sun.javafx.application.LauncherImpl;
-import javafx.application.Application;
-import javafx.event.EventHandler;
-import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
-import org.apache.logging.log4j.core.config.Configurator;
+import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.dataaccess.db.DBManager;
 import org.arthur.compta.lapin.dataaccess.files.FilesManager;
-import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
+import org.arthur.compta.lapin.presentation.menu.ComptaMenuBar;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
-import org.arthur.compta.lapin.presentation.scene.MainScene;
+import org.arthur.compta.lapin.presentation.scene.MainPane;
 
-import java.io.InputStream;
-import java.nio.file.*;
+import javax.swing.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
- * Classe principale de l'application.
- *
+ * Point d'entrée de l'application ComptaLapin
  */
-public class ComptaLapin extends Application {
-	
-	
-	public static void main(String[] args) {
+public class ComptaLapin {
 
-		// lancement de l'ihm
-		LauncherImpl.launchApplication(ComptaLapin.class, ComptaLapinPreloader.class, args);
+/** La fenêtre principale */
+private static JFrame _mainFrame;
 
-	}
+public static JFrame getMainFrame() {
+return _mainFrame;
+}
 
-	@Override
-	public void init() throws Exception {
+public static void main(String[] args) {
 
-		super.init();
+// initialisation de l'accès aux fichiers
+FilesManager.getInstance();
+// initialisation de la base de données
+DBManager.getInstance();
+// initialisation des comptes
+CompteManager.getInstance();
+// récupération du trimestre courant
+try {
+TrimestreManager.getInstance().recoverTrimestre();
+} catch (ComptaException e) {
+e.printStackTrace();
+}
 
-		notifyPreloader(new ComptaPreloaderNotification("Chargement de la configuration"));
-		FilesManager.getInstance();
-		notifyPreloader(new ComptaPreloaderNotification("Ouverture de la base"));
-		DBManager.getInstance();
-		notifyPreloader(new ComptaPreloaderNotification("Chargement des comptes"));
-		CompteManager.getInstance();
-		notifyPreloader(new ComptaPreloaderNotification("Chargement du trimestre courant"));
-		TrimestreManager.getInstance().recoverTrimestre();
+SwingUtilities.invokeLater(() -> {
+_mainFrame = new JFrame("Compta Du Lapin 2.2");
+_mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+_mainFrame.addWindowListener(new WindowAdapter() {
+@Override
+public void windowClosing(WindowEvent e) {
+ConfigurationManager.getInstance().save();
+DBManager.getInstance().stop();
+_mainFrame.dispose();
+System.exit(0);
+}
+});
 
-	}
+// icône de la fenêtre
+ImageIcon icon = ImageLoader.getImageIcon(ImageLoader.LAPIN_IMG);
+if (icon != null) {
+_mainFrame.setIconImage(icon.getImage());
+}
 
-	@Override
-	public void start(Stage primaryStage) throws Exception {
+MainPane mainPane = new MainPane();
+_mainFrame.setContentPane(mainPane);
+_mainFrame.setJMenuBar(new ComptaMenuBar(mainPane));
 
-		try {
-
-			// initialisationb du logger
-			Path confLog4j2Path = Paths.get(FilesManager.getInstance().getConfFolder().toString(), "log4j2.xml");
-
-			if (!Files.exists(confLog4j2Path)) {
-
-				InputStream in = ComptaLapin.class
-						.getResourceAsStream("/org/arthur/compta/lapin/dataaccess/files/ressources/conf/log4j2.xml");
-				Files.copy(in, confLog4j2Path);
-
-			}
-			Configurator.initialize(null, confLog4j2Path.toString());
-
-			// mise en place du titre de la fenêtre
-			primaryStage.setTitle("Compta Du Lapin 2.2");
-			primaryStage.getIcons().add(ImageLoader.getImage(ImageLoader.LAPIN_IMG));
-			primaryStage.getIcons().add(ImageLoader.getImage(ImageLoader.LAPIN32_IMG));
-
-			// remplissage de la fenetre
-			MainScene sc = new MainScene();
-			primaryStage.setScene(sc);
-			// on prend toute la place
-			primaryStage.setMaximized(true);
-
-			// sauvegarde des etats des IHM
-			primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-
-				@Override
-				public void handle(WindowEvent event) {
-					ConfigurationManager.getInstance().save();
-
-				}
-			});
-
-			setUserAgentStylesheet(STYLESHEET_MODENA);
-
-			// ouverture de la fenetre
-			primaryStage.show();
-		} catch (Exception e) {
-			ExceptionDisplayService.showException(e);
-		}
-
-	}
-
-	@Override
-	public void stop() throws Exception {
-
-		super.stop();
-
-		DBManager.getInstance().stop();
-	}
+_mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+_mainFrame.setSize(1200, 800);
+_mainFrame.setVisible(true);
+});
+}
 
 }

@@ -1,20 +1,9 @@
 package org.arthur.compta.lapin.application.service;
 
-import org.openpdf.text.*;
-import org.openpdf.text.Font;
-import org.openpdf.text.Image;
-import org.openpdf.text.pdf.PdfPTable;
-import org.openpdf.text.pdf.PdfWriter;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.Scene;
-import javafx.scene.SnapshotParameters;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart.Data;
-import javafx.scene.chart.XYChart.Series;
-import javafx.scene.image.WritableImage;
-import javafx.scene.layout.Pane;
+import com.lowagie.text.*;
+import com.lowagie.text.Font;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.application.model.AppExerciceMensuel;
@@ -23,249 +12,130 @@ import org.arthur.compta.lapin.application.model.AppTransfert;
 import org.arthur.compta.lapin.application.model.AppTrimestre;
 import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.Color;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.List;
 
 /**
- * 
- * Ecrit un PDF listant les dépenses, les ressources et les transfert qui ont eu
+ * Ecrit un PDF listant les dépenses, les ressources et les transferts qui ont eu
  * lieu lors d'un trimestre
- *
  */
 public class RapportTrimWriter {
 
-	/** Font pour le titre */
-	private static final Font FONT_TITLE = FontFactory.getFont(FontFactory.COURIER, 20, Font.UNDERLINE, Color.BLUE);
-	/** Font pour les sous-partie de mois */
-	private final Font FONT_DRT = FontFactory.getFont(FontFactory.COURIER, 12, Font.BOLD, Color.DARK_GRAY);
-	/** Font pour le titre de la partie de mois */
-	private final Font FONT_MOIS_TITLE = FontFactory.getFont(FontFactory.COURIER, 20, Font.UNDERLINE, Color.GREEN);
-	/** Le trimestre */
-	private final AppTrimestre _appTrim;
+/** Font pour le titre */
+private static final Font FONT_TITLE = FontFactory.getFont(FontFactory.COURIER, 20, Font.UNDERLINE, Color.BLUE);
+/** Font pour les sous-parties de mois */
+private final Font FONT_DRT = FontFactory.getFont(FontFactory.COURIER, 12, Font.BOLD, Color.DARK_GRAY);
+/** Font pour le titre de la partie de mois */
+private final Font FONT_MOIS_TITLE = FontFactory.getFont(FontFactory.COURIER, 20, Font.UNDERLINE, Color.GREEN);
+/** Le trimestre */
+private final AppTrimestre _appTrim;
 
-	/**
-	 * Constructeur
-	 * 
-	 * @param idTrim
-	 *            le trimestre
-	 * @throws ComptaException Exception lors du chargement de trimestre
-	 */
-	public RapportTrimWriter(int idTrim) throws ComptaException {
+/**
+ * Constructeur
+ *
+ * @param idTrim l'id du trimestre
+ */
+public RapportTrimWriter(int idTrim) throws ComptaException {
+_appTrim = TrimestreManager.getInstance().loadTrimestre(idTrim);
+}
 
-		_appTrim = TrimestreManager.getInstance().loadTrimestre(idTrim);
+/**
+ * Ecrit le rapport PDF
+ *
+ * @param file le fichier cible
+ * @throws ComptaException
+ */
+public void writeRapport(File file) throws ComptaException {
+try {
+Document document = new Document();
+PdfWriter.getInstance(document, new FileOutputStream(file));
+document.open();
 
-	}
+// titre
+Paragraph titre = new Paragraph("Rapport du trimestre", FONT_TITLE);
+titre.setAlignment(Element.ALIGN_CENTER);
+document.add(titre);
+document.add(new Paragraph(" "));
 
-	/**
-	 * Ecrit le rapport
-	 * 
-	 * @param file Destination
-	 * @throws ComptaException Exception lors du chargement
-	 */
-	public void writeRapport(File file) throws ComptaException {
+// 3 mois
+for (int i = 0; i < 3; i++) {
+AppExerciceMensuel em = _appTrim.getAppExerciceMensuel(i);
+if (em != null) {
+addMois(document, em);
+}
+}
 
-		try (FileOutputStream fos = new FileOutputStream(file)) {
+document.close();
+} catch (Exception e) {
+throw new ComptaException("Erreur lors de la création du rapport PDF", e);
+}
+}
 
-			Document document = new Document();
-			PdfWriter.getInstance(document, fos);
+private void addMois(Document document, AppExerciceMensuel em) throws Exception {
+String moisTitle = ApplicationFormatter.moiAnneedateFormat.format(em.getDateDebut());
+Paragraph titreMois = new Paragraph(moisTitle, FONT_MOIS_TITLE);
+titreMois.setAlignment(Element.ALIGN_CENTER);
+document.add(titreMois);
+document.add(new Paragraph(" "));
 
-			// ajout des méta-donnée du doc
-			document.addTitle("Rapport Trimestriel");
+addOperationSection(document, "Dépenses", em.getDepenses());
+addOperationSection(document, "Ressources", em.getRessources());
+addTransfertSection(document, em.getTransferts());
 
-			document.open();
+document.add(new Paragraph("Résultat : " + ApplicationFormatter.montantFormat.format(em.getResultat())));
+document.add(new Paragraph(" "));
+}
 
-			// Ajout du titre
-			document.add(createRapportTitle());
+private void addOperationSection(Document document, String titre, List<AppOperation> operations) throws Exception {
+document.add(new Paragraph(titre, FONT_DRT));
 
-			// ajout du détails par mois
-			for (int i = 0; i < 3; i++) {
+if (operations.isEmpty()) {
+document.add(new Paragraph("  (aucune)"));
+return;
+}
 
-				// on change de mois pour la prochaine boucle
-				document.add(createChapMois(i));
-			}
+PdfPTable table = new PdfPTable(3);
+table.setWidthPercentage(100);
+table.addCell("Libellé");
+table.addCell("Montant");
+table.addCell("État");
 
-			document.add(createChapGraphique(4));
+for (AppOperation op : operations) {
+table.addCell(op.getLibelle());
+table.addCell(ApplicationFormatter.montantFormat.format(op.getMontant()));
+table.addCell(op.getEtat().toString());
+}
+document.add(table);
+document.add(new Paragraph(" "));
+}
 
-			document.close();
-			// fileTmp.delete();
-		} catch (Exception e) {
-			throw new ComptaException("Impossible de créer le rapport", e);
-		}
+private void addTransfertSection(Document document, List<AppTransfert> transferts) throws Exception {
+document.add(new Paragraph("Transferts", FONT_DRT));
 
-	}
+if (transferts.isEmpty()) {
+document.add(new Paragraph("  (aucun)"));
+return;
+}
 
-	/**
-	 * Création du chapitre du graphique récapitulatif
-	 * 
-	 * @param i
-	 *            le numéro du chapitre
-	 * @return le chapitre
-	 * @throws ComptaException Erreur
-	 */
-	private Element createChapGraphique(int i) throws ComptaException {
+PdfPTable table = new PdfPTable(5);
+table.setWidthPercentage(100);
+table.addCell("Libellé");
+table.addCell("Montant");
+table.addCell("Source");
+table.addCell("Cible");
+table.addCell("État");
 
-		Chapter test = new Chapter("Graphique", i);
-		// création du graphique
-		final CategoryAxis xAxis = new CategoryAxis();
-		xAxis.setLabel("Mois");
-		xAxis.setAnimated(false);
-		final NumberAxis yAxis = new NumberAxis();
-		yAxis.setAnimated(false);
-		// creating the chart
-		LineChart<String, Number> _lineChart = new LineChart<>(xAxis, yAxis);
-		Pane chartContainer = new Pane();
-		chartContainer.getChildren().add(_lineChart);
-
-		// bidouillage pcq sinon l'image a une taille trop petite
-		@SuppressWarnings("unused")
-		Scene snapshotScene = new Scene(chartContainer);
-
-		_lineChart.setAnimated(false);
-		Series<String, Number> depenseSerie = new Series<>();
-		depenseSerie.setName("Dépenses");
-		Series<String, Number> ressourceSerie = new Series<>();
-		ressourceSerie.setName("Ressource");
-		Series<String, Number> budgetUseSerie = new Series<>();
-		budgetUseSerie.setName("Budget utilisé");
-		for (int month = 0; month < 3; month++) {
-
-			double dep = SyntheseService.getDepenseForMonth(_appTrim.getAppExerciceMensuel(month).get().getDateDebut());
-			double res = SyntheseService.getRessourceForMonth(_appTrim.getAppExerciceMensuel(month).get().getDateDebut());
-			double bud = SyntheseService.getBudgetUsageForMonth(_appTrim.getAppExerciceMensuel(month).get().getDateDebut());
-
-			depenseSerie.getData()
-					.add(new Data<>(ApplicationFormatter.moisFormat.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut()), dep));
-			ressourceSerie.getData()
-					.add(new Data<>(ApplicationFormatter.moisFormat.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut()), res));
-			budgetUseSerie.getData()
-					.add(new Data<>(ApplicationFormatter.moisFormat.format(_appTrim.getAppExerciceMensuel(month).get().getDateDebut()), bud));
-
-		}
-		_lineChart.getData().add(depenseSerie);
-		_lineChart.getData().add(ressourceSerie);
-		_lineChart.getData().add(budgetUseSerie);
-
-		final SnapshotParameters spa = new SnapshotParameters();
-		spa.setTransform(javafx.scene.transform.Transform.scale(2, 2));
-
-		WritableImage img = _lineChart.snapshot(spa, null);
-		File fileTmp = null;
-		try {
-
-			fileTmp = File.createTempFile("img_graphique", ".ems");
-			ImageIO.write(SwingFXUtils.fromFXImage(img, null), "png", fileTmp);
-			Image im = Image.getInstance(fileTmp.getAbsolutePath());
-			im.setInterpolation(true);
-			im.scalePercent(50);
-			test.add(im);
-		} catch (Exception e) {
-			// rien
-		} finally {
-			fileTmp.delete();
-		}
-
-		return test;
-	}
-
-	/**
-	 * Crée un rapport pour le mois
-	 * 
-	 * @param i
-	 *            index du mois dans le trimestre
-	 * @return le rapport mensuel
-	 */
-	private Element createChapMois(int i) {
-
-		// l'exercice mensuel concerné
-		AppExerciceMensuel em = _appTrim.getAppExerciceMensuel(i).getValue();
-
-		// paragraphe du mois
-		Paragraph moisTitle = new Paragraph(ApplicationFormatter.moiAnneedateFormat.format(em.getDateDebut()), FONT_MOIS_TITLE);
-		Chapter chapMois = new Chapter(moisTitle, i + 1);
-
-		// ajout des dépenses
-		Paragraph parDep = new Paragraph();
-		Chunk titleDep = new Chunk("Dépenses", FONT_DRT);
-		parDep.add(titleDep);
-
-		// Tableau des dépenses
-		parDep.add(createTableOperation(em.getDepenses()));
-		chapMois.add(parDep);
-
-		// ajout des ressources
-		Paragraph parRes = new Paragraph("Ressources", FONT_DRT);
-
-		// Tableau des ressources
-		parRes.add(createTableOperation(em.getRessources()));
-		chapMois.add(parRes);
-
-		// ajout des transferts
-		Paragraph parTrans = new Paragraph("Transfert", FONT_DRT);
-
-		// Tableau des transferts
-		PdfPTable tabTrans = new PdfPTable(4);
-		tabTrans.getDefaultCell().setVerticalAlignment(Element.ALIGN_TOP);
-		tabTrans.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
-		tabTrans.addCell("Libellé");
-		tabTrans.addCell("Montant");
-		tabTrans.addCell("Source");
-		tabTrans.addCell("Cible");
-
-		for (AppTransfert trans : _appTrim.getAppExerciceMensuel(i).getValue().getTransferts()) {
-
-			tabTrans.addCell(trans.getLibelle());
-			tabTrans.addCell(ApplicationFormatter.montantFormat.format(trans.getMontant()));
-			tabTrans.addCell(trans.getCompteSource().getNom());
-			tabTrans.addCell(trans.getCompteCible().getNom());
-
-		}
-		parTrans.add(tabTrans);
-		chapMois.add(parTrans);
-
-		return chapMois;
-	}
-
-	/**
-	 * Crée une table libelle/montant pour une liste d'opérations
-	 * 
-	 * @param appOpList les operations
-	 * @return la table
-	 */
-	private PdfPTable createTableOperation(List<AppOperation> appOpList) {
-
-		PdfPTable tabDep = new PdfPTable(2);
-		tabDep.getDefaultCell().setVerticalAlignment(Element.ALIGN_TOP);
-		tabDep.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
-		tabDep.addCell("Libellé");
-		tabDep.addCell("Montant");
-
-		for (AppOperation dep : appOpList) {
-
-			tabDep.addCell(dep.getLibelle());
-			tabDep.addCell(ApplicationFormatter.montantFormat.format(dep.getMontant()));
-
-		}
-
-		return tabDep;
-	}
-
-	/**
-	 * Crée le titre du doc
-	 * 
-	 * @return le titre du doc
-	 */
-	private Paragraph createRapportTitle() {
-
-		Chunk titlechunk = new Chunk("Rapport Trimestriel de " + ApplicationFormatter.moiAnneedateFormat.format(_appTrim.getDateDebut()) + " à "
-				+ ApplicationFormatter.moiAnneedateFormat.format(_appTrim.getDateFin()), FONT_TITLE);
-
-		Paragraph parTitle = new Paragraph(titlechunk);
-		parTitle.setAlignment(Element.ALIGN_CENTER);
-
-		return parTitle;
-	}
+for (AppTransfert tr : transferts) {
+table.addCell(tr.getLibelle());
+table.addCell(ApplicationFormatter.montantFormat.format(tr.getMontant()));
+table.addCell(tr.getCompteSource() != null ? tr.getCompteSource().getNom() : "");
+table.addCell(tr.getCompteCible() != null ? tr.getCompteCible().getNom() : "");
+table.addCell(tr.getEtat().toString());
+}
+document.add(table);
+document.add(new Paragraph(" "));
+}
 
 }

@@ -1,141 +1,74 @@
 package org.arthur.compta.lapin.presentation.trimestre.dialog;
 
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.layout.GridPane;
-import javafx.util.Callback;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.application.model.AppTrimestre;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 
+import javax.swing.*;
+import java.awt.*;
 import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.Date;
 
-public class CreateTrimestreDialog extends ComptaDialog<AppTrimestre> {
+/**
+ * Dialogue de création d'un trimestre
+ */
+public class CreateTrimestreDialog extends ComptaDialog {
 
-	/**
-	 * Bouton ok et charger le trimestre
-	 */
-	private ButtonType _buttonTypeOkAndLoad;
-	/**
-	 * Saisie de la date de début
-	 */
-	private DatePicker _dpick;
+private final JSpinner _dateSpinner;
+private final JButton _okBtn = new JButton("Ok");
+private final JButton _okLoadBtn = new JButton("Ok et charger");
 
-	public CreateTrimestreDialog() {
-		super(CreateTrimestreDialog.class.getSimpleName());
-		setTitle("Création d'un trimestre");
+public CreateTrimestreDialog() {
+super(CreateTrimestreDialog.class.getSimpleName(), "Création d'un trimestre");
 
-		// Création des champ de saisi
-		createContent();
+JPanel content = new JPanel(new GridBagLayout());
+GridBagConstraints gbc = new GridBagConstraints();
+gbc.insets = new Insets(5, 5, 5, 5);
 
-		// Retourne le Compte créé sur le OK
-		setResultConverter(new Callback<ButtonType, AppTrimestre>() {
+// date de début
+Calendar cal = Calendar.getInstance();
+javax.swing.SpinnerDateModel model = new javax.swing.SpinnerDateModel(cal.getTime(), null, null, Calendar.DAY_OF_MONTH);
+_dateSpinner = new JSpinner(model);
+_dateSpinner.setEditor(new JSpinner.DateEditor(_dateSpinner, "dd/MM/yyyy"));
 
-			@Override
-			public AppTrimestre call(ButtonType param) {
+gbc.gridx = 0; gbc.gridy = 0; content.add(new JLabel("Date de début : "), gbc);
+gbc.gridx = 1; content.add(_dateSpinner, gbc);
 
-				AppTrimestre zeReturn = null;
+// boutons
+JButton cancelBtn = new JButton("Annuler");
+_okBtn.addActionListener(e -> createTrimestre(false));
+_okLoadBtn.addActionListener(e -> createTrimestre(true));
+cancelBtn.addActionListener(e -> dispose());
 
-				// appuie sur Ok : on crée le trimestre
-				if (param.getButtonData().equals(ButtonData.OK_DONE)) {
+JPanel btnPanel = new JPanel(new FlowLayout());
+btnPanel.add(_okBtn);
+btnPanel.add(_okLoadBtn);
+btnPanel.add(cancelBtn);
 
-					try {
-						// création
-						zeReturn = TrimestreManager.getInstance().createTrimestre(_dpick.getValue());
+setLayout(new BorderLayout());
+add(content, BorderLayout.CENTER);
+add(btnPanel, BorderLayout.SOUTH);
+pack();
+}
 
-					} catch (ComptaException e) {
-						ExceptionDisplayService.showException(e);
-
-					}
-
-				}
-
-				// appuie sur Apply : on crée le trimestre et on charge
-				if (param.getButtonData().equals(ButtonData.APPLY)) {
-
-					try {
-
-						// création
-						zeReturn = TrimestreManager.getInstance().createTrimestre(_dpick.getValue());
-
-						// changement de trimestre courant
-						TrimestreManager.getInstance().loadTrimestreCourant(zeReturn.getAppId());
-
-					} catch (ComptaException e) {
-						ExceptionDisplayService.showException(e);
-
-					}
-
-				}
-
-				return zeReturn;
-			}
-		});
-
-	}
-
-	/**
-	 * Création des champs de saisie
-	 */
-	private void createContent() {
-		GridPane grid = new GridPane();
-		getDialogPane().setContent(grid);
-
-		// saisie de la date
-		Label dateDebutLbl = new Label("Date de début : ");
-		grid.add(dateDebutLbl, 0, 0);
-
-		_dpick = new DatePicker();
-		_dpick.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
-		});
-		grid.add(_dpick, 1, 0);
-
-		_dpick.setValue(LocalDate.now());
-
-	}
-
-	/**
-	 * Crée les boutons OK et Cancel
-	 */
-	protected void createButtonBar() {
-
-		super.createButtonBar();
-
-		// Création du bouton OK
-		_buttonTypeOkAndLoad = new ButtonType("Ok et charger", ButtonData.APPLY);
-		getDialogPane().getButtonTypes().add(_buttonTypeOkAndLoad);
-
-		// Création du bouton Cancel
-		ButtonType buttonTypeCancel = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
-		getDialogPane().getButtonTypes().add(buttonTypeCancel);
-
-	}
-
-	/**
-	 * Vérifie la saisie
-	 */
-	private void checkInput() {
-
-		// Vérif de la date
-		boolean dateError = true;
-		if (_dpick.getValue() != null) {
-
-			_dpick.setBorder(null);
-			dateError = false;
-		} else {
-			_dpick.setBorder(BORDER_ERROR);
-			dateError = true;
-		}
-
-		// désactivation des boutons OK
-		getDialogPane().lookupButton(_buttonTypeOk).setDisable(dateError);
-		getDialogPane().lookupButton(_buttonTypeOkAndLoad).setDisable(dateError);
-
-	}
+private void createTrimestre(boolean loadAfter) {
+Date d = (Date) _dateSpinner.getValue();
+Calendar c = Calendar.getInstance();
+c.setTime(d);
+LocalDate dateDeb = LocalDate.of(c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH));
+try {
+AppTrimestre newTrim = TrimestreManager.getInstance().createTrimestre(dateDeb);
+if (loadAfter) {
+TrimestreManager.getInstance().loadTrimestreCourant(newTrim.getAppId());
+}
+_confirmed = true;
+dispose();
+} catch (ComptaException ex) {
+ExceptionDisplayService.showException(ex);
+}
+}
 
 }

@@ -1,66 +1,49 @@
 package org.arthur.compta.lapin.presentation.exception;
 
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
+import org.arthur.compta.lapin.ComptaLapin;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
 /**
  * Fenêtre affichant une exception
- *
  */
-public class ExceptionDialog extends Alert {
+public class ExceptionDialog extends JDialog {
 
-	
-	/**
-	 * exception a afficher
-	 */
-	private final Exception exception;
-	
-	/**
-	 * Le constructeur
-	 * @param exc l'exception a afficher
-	 */
-	public ExceptionDialog(Exception exc) {
-		
-		super(AlertType.ERROR);
-		
-		exception = exc;
-		
-		//création de la fenetre
-		setTitle("Problème !!!");
-		setHeaderText(exception.getMessage());
-		
-		
-		// Creation de la zone de détails
-		//récupération de la stacktrace
-		StringWriter sw = new StringWriter();
-		PrintWriter pw = new PrintWriter(sw);
-		exception.printStackTrace(pw);
-		String exceptionText = sw.toString();
+/**
+ * Constructeur
+ *
+ * @param exc l'exception à afficher
+ */
+public ExceptionDialog(Exception exc) {
+super(ComptaLapin.getMainFrame(), "Problème !!!", true);
 
-		//affichage
-		Label label = new Label("Voila la stacktrace :");
-		TextArea textArea = new TextArea(exceptionText);
-		textArea.setEditable(false);
-		textArea.setWrapText(true);
+setLayout(new BorderLayout(5, 5));
 
-		textArea.setMaxWidth(Double.MAX_VALUE);
-		textArea.setMaxHeight(Double.MAX_VALUE);
-		GridPane.setVgrow(textArea, Priority.ALWAYS);
-		GridPane.setHgrow(textArea, Priority.ALWAYS);
+// message
+JLabel header = new JLabel(exc.getMessage() != null ? exc.getMessage() : exc.getClass().getSimpleName());
+header.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+add(header, BorderLayout.NORTH);
 
-		GridPane expContent = new GridPane();
-		expContent.setMaxWidth(Double.MAX_VALUE);
-		expContent.add(label, 0, 0);
-		expContent.add(textArea, 0, 1);
+// stacktrace
+StringWriter sw = new StringWriter();
+exc.printStackTrace(new PrintWriter(sw));
+JTextArea textArea = new JTextArea(sw.toString());
+textArea.setEditable(false);
+textArea.setWrapStyleWord(true);
+add(new JScrollPane(textArea), BorderLayout.CENTER);
 
-		// Set expandable Exception into the dialog pane.
-		getDialogPane().setExpandableContent(expContent);
-	}
-	
+// bouton fermer
+JButton closeBtn = new JButton("Fermer");
+closeBtn.addActionListener(e -> dispose());
+JPanel btnPanel = new JPanel();
+btnPanel.add(closeBtn);
+add(btnPanel, BorderLayout.SOUTH);
+
+setSize(600, 400);
+setLocationRelativeTo(ComptaLapin.getMainFrame());
+}
+
 }

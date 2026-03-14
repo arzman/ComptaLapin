@@ -1,199 +1,129 @@
 package org.arthur.compta.lapin.presentation.budget.dialog;
 
-import javafx.beans.binding.Bindings;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.BudgetManager;
 import org.arthur.compta.lapin.application.model.AppBudget;
 import org.arthur.compta.lapin.application.model.AppUtilisation;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
-import org.arthur.compta.lapin.presentation.common.cellfactory.DateCellFactory;
-import org.arthur.compta.lapin.presentation.common.cellfactory.MontantCellFactory;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
-import java.time.LocalDate;
+import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Fênetre de visualisation de l'historique d'un budget
- *
+ * Fenêtre de visualisation de l'historique d'un budget
  */
-public class HistoryBudgetDialog extends ComptaDialog<ButtonData> {
+public class HistoryBudgetDialog extends ComptaDialog {
 
-	/** Le budget */
-	private final AppBudget _appBudget;
-	/** La liste des utilisations du budget */
-	private final ObservableList<AppUtilisation> _useList;
-	/** presentation de la liste */
-	private TableView<AppUtilisation> _table;
+private final AppBudget _appBudget;
+private final UtilisationTableModel _model;
+private final JTable _table;
 
-	/**
-	 * Constructeur
-	 * 
-	 * @param app
-	 */
-	public HistoryBudgetDialog(AppBudget app) {
-		super(HistoryBudgetDialog.class.getSimpleName());
+public HistoryBudgetDialog(AppBudget app) {
+super(HistoryBudgetDialog.class.getSimpleName(), "Historique du budget");
+_appBudget = app;
 
-		_appBudget = app;
-		_useList = FXCollections.observableArrayList();
+_model = new UtilisationTableModel();
+_table = new JTable(_model);
+_table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-		try {
-			_useList.addAll(BudgetManager.getInstance().getUtilisation(_appBudget.getAppId()));
-		} catch (ComptaException e) {
-			ExceptionDisplayService.showException(e);
-		}
+try {
+_model.setData(BudgetManager.getInstance().getUtilisation(_appBudget.getAppId()));
+} catch (ComptaException e) {
+ExceptionDisplayService.showException(e);
+}
 
-		setTitle("Historique du budget");
+JPanel header = new JPanel(new GridLayout(3, 2, 5, 2));
+header.add(new JLabel("Nom : ")); header.add(new JLabel(_appBudget.getNom()));
+header.add(new JLabel("Objectif : ")); header.add(new JLabel(ApplicationFormatter.montantFormat.format(_appBudget.getObjectif())));
+header.add(new JLabel("Utilisé : ")); header.add(new JLabel(ApplicationFormatter.montantFormat.format(_appBudget.getMontantUtilise())));
 
-		// création du contenu
-		createContent();
+// menu contextuel
+JPopupMenu menu = new JPopupMenu();
+JMenuItem editItem = new JMenuItem("Editer", new ImageIcon(ImageLoader.getImageIcon(ImageLoader.EDIT_IMG).getImage()));
+editItem.addActionListener(e -> {
+int row = _table.getSelectedRow();
+if (row >= 0) {
+AppUtilisation util = _model.getRow(row);
+EditUtilisationDialog dia = new EditUtilisationDialog(util);
+dia.setVisible(true);
+_model.fireTableRowsUpdated(row, row);
+}
+});
+menu.add(editItem);
 
-		// création du menu contextuel
-		createCtxMenu();
+JMenuItem delItem = new JMenuItem("Supprimer", new ImageIcon(ImageLoader.getImageIcon(ImageLoader.DEL_IMG).getImage()));
+delItem.addActionListener(e -> {
+int row = _table.getSelectedRow();
+if (row >= 0) {
+AppUtilisation util = _model.getRow(row);
+try {
+BudgetManager.getInstance().removeUtilisation(util);
+List<AppUtilisation> data = new ArrayList<>(_model._data);
+data.remove(util);
+_model.setData(data);
+} catch (ComptaException ex) {
+ExceptionDisplayService.showException(ex);
+}
+}
+});
+menu.add(delItem);
 
+_table.addMouseListener(new MouseAdapter() {
+@Override
+public void mousePressed(MouseEvent e) {
+if (SwingUtilities.isRightMouseButton(e)) {
+int row = _table.rowAtPoint(e.getPoint());
+if (row >= 0) _table.setRowSelectionInterval(row, row);
+boolean sel = _table.getSelectedRow() >= 0;
+editItem.setEnabled(sel);
+delItem.setEnabled(sel);
+menu.show(_table, e.getX(), e.getY());
+}
+}
+});
 
-	}
+JButton closeBtn = new JButton("Fermer");
+closeBtn.addActionListener(e -> dispose());
+JPanel btnPanel = new JPanel(new FlowLayout());
+btnPanel.add(closeBtn);
 
-	/**
-	 * Création des zones d'affichage
-	 */
-	private void createContent() {
+setLayout(new BorderLayout(5, 5));
+add(header, BorderLayout.NORTH);
+add(new JScrollPane(_table), BorderLayout.CENTER);
+add(btnPanel, BorderLayout.SOUTH);
 
-		// configuration du layout
-		GridPane root = new GridPane();
-		getDialogPane().setContent(root);
-		root.setVgap(2.0);
+setSize(500, 400);
+}
 
-		// constraint col1
-		ColumnConstraints col1 = new ColumnConstraints();
+private static class UtilisationTableModel extends AbstractTableModel {
+private static final String[] COLS = {"Libellé", "Date", "Montant"};
+List<AppUtilisation> _data = new ArrayList<>();
 
-		// constraint col2
-		ColumnConstraints col2 = new ColumnConstraints();
-		col2.setFillWidth(true);
-		col2.setHgrow(Priority.ALWAYS);
+public void setData(List<AppUtilisation> data) { _data = data; fireTableDataChanged(); }
+public AppUtilisation getRow(int row) { return (row >= 0 && row < _data.size()) ? _data.get(row) : null; }
 
-		root.getColumnConstraints().add(col1);
-		root.getColumnConstraints().add(col2);
+@Override public int getRowCount() { return _data.size(); }
+@Override public int getColumnCount() { return COLS.length; }
+@Override public String getColumnName(int col) { return COLS[col]; }
 
-		// affichage du nom
-		Label nomLbl = new Label("Nom : ");
-		root.add(nomLbl, 0, 0);
-		Label nomTxt = new Label(_appBudget.getNom());
-		root.add(nomTxt, 1, 0);
-
-		// affichage de l'objectif
-		Label objLbl = new Label("Objectif : ");
-		root.add(objLbl, 0, 1);
-		Label objTxt = new Label(ApplicationFormatter.montantFormat.format(_appBudget.getObjectif()));
-		root.add(objTxt, 1, 1);
-
-		// affichage du montant utilisé
-		Label utilLbl = new Label("Utilisé : ");
-		root.add(utilLbl, 0, 2);
-		nomLbl.setTooltip(new Tooltip("Le montant déjà utilisé. Nombre réel"));
-		Label utilsTxt = new Label(ApplicationFormatter.montantFormat.format(_appBudget.getMontantUtilise()));
-		root.add(utilsTxt, 1, 2);
-
-		_table = new TableView<>();
-		root.add(_table, 0, 3, 2, 1);
-		_table.setItems(_useList);
-		_table.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-
-		// la colonne du nom
-		TableColumn<AppUtilisation, String> colnom = new TableColumn<>("Libellé");
-		colnom.setResizable(true);
-		colnom.setSortable(true);
-		_table.getColumns().add(colnom);
-		colnom.setCellValueFactory(value -> value.getValue().nomProperty());
-
-		// la colonne de la date
-		TableColumn<AppUtilisation, LocalDate> colDate = new TableColumn<>("Date");
-		colDate.setResizable(true);
-		colDate.setSortable(true);
-		_table.getColumns().add(colDate);
-		colDate.setCellValueFactory(value -> value.getValue().dateProperty());
-		colDate.setCellFactory(new DateCellFactory<>());
-
-		// la colonne du montant
-		TableColumn<AppUtilisation, Number> colMontant = new TableColumn<>("Montant");
-		colMontant.setResizable(true);
-		colMontant.setSortable(true);
-		_table.getColumns().add(colMontant);
-		colMontant.setCellValueFactory(value -> value.getValue().montantProperyt());
-		colMontant.setCellFactory(new MontantCellFactory<>());
-	}
-
-	/**
-	 * Création des actions contextuelles sur le tableau
-	 */
-	private void createCtxMenu() {
-
-		ContextMenu menu = new ContextMenu();
-		_table.setContextMenu(menu);
-
-		// Edition
-		MenuItem editItem = new MenuItem("Editer");
-		editItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.EDIT_IMG)));
-		editItem.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent event) {
-
-				AppUtilisation util = _table.getSelectionModel().getSelectedItem();
-
-				EditUtilisationDialog dia = new EditUtilisationDialog(util);
-				dia.showAndWait();
-
-			}
-		});
-		editItem.disableProperty().bind(Bindings.isEmpty(_table.getSelectionModel().getSelectedItems()));
-
-		_table.getContextMenu().getItems().add(editItem);
-
-		// Suppression
-		MenuItem delItem = new MenuItem("Supprimer");
-		delItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.DEL_IMG)));
-		delItem.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent event) {
-
-				AppUtilisation util = _table.getSelectionModel().getSelectedItem();
-
-				try {
-					BudgetManager.getInstance().removeUtilisation(util);
-					_useList.remove(util);
-				} catch (ComptaException e) {
-					ExceptionDisplayService.showException(e);
-				}
-
-			}
-		});
-		delItem.disableProperty().bind(Bindings.isEmpty(_table.getSelectionModel().getSelectedItems()));
-
-		_table.getContextMenu().getItems().add(delItem);
-
-	}
-
-	/**
-	 * Création des boutons
-	 */
-	protected void createButtonBar() {
-		// bouton fermer
-		ButtonType close = new ButtonType("Fermer", ButtonData.CANCEL_CLOSE);
-		getDialogPane().getButtonTypes().add(close);
-
-	}
+@Override
+public Object getValueAt(int row, int col) {
+AppUtilisation u = _data.get(row);
+switch (col) {
+case 0: return u.getNom();
+case 1: return u.getDate() != null ? ApplicationFormatter.databaseDateFormat.format(u.getDate()) : "";
+case 2: return ApplicationFormatter.montantFormat.format(u.getMontant());
+default: return null;
+}
+}
+}
 
 }

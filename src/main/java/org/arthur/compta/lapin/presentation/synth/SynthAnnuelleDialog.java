@@ -1,162 +1,100 @@
 package org.arthur.compta.lapin.presentation.synth;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart.Data;
-import javafx.scene.chart.XYChart.Series;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.RowConstraints;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.service.SyntheseService;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
+import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
+import java.awt.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Fenetre traçant la synthèse sur l'année.
- *
+ * Fenêtre traçant la synthèse sur l'année sous forme de tableau
  */
-public class SynthAnnuelleDialog extends ComptaDialog<ButtonData> {
+public class SynthAnnuelleDialog extends ComptaDialog {
 
-	/** La combo pour choisir l'année */
-	private final ComboBox<Integer> _yearCombo;
-	/** La liste des années disponibles */
-	private final ObservableList<Integer> _yearList;
-	/** Le graphique présentant les totaux des dépense/ressource */
-	private final LineChart<String, Number> _lineChart;
+private final JComboBox<Integer> _yearCombo;
+private final SynthTableModel _model;
 
-	/**
-	 * Constructeur
-	 */
-	public SynthAnnuelleDialog() {
-		super(SynthAnnuelleDialog.class.getSimpleName());
+public SynthAnnuelleDialog() {
+super(SynthAnnuelleDialog.class.getSimpleName(), "Synthèse Annuelle");
 
-		setTitle("Synthèse Annuelle");
+_model = new SynthTableModel();
+JTable table = new JTable(_model);
+table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-		GridPane root = new GridPane();
-		root.setVgap(2.0);
-		root.setHgap(2.0);
-		getDialogPane().setContent(root);
+_yearCombo = new JComboBox<>();
+_yearCombo.addActionListener(e -> {
+Integer year = (Integer) _yearCombo.getSelectedItem();
+if (year != null) {
+try {
+fillTable(year);
+} catch (ComptaException ex) {
+ExceptionDisplayService.showException(ex);
+}
+}
+});
 
-		ColumnConstraints c1 = new ColumnConstraints();
-		ColumnConstraints c2 = new ColumnConstraints();
-		c2.setFillWidth(true);
-		c2.setHgrow(Priority.ALWAYS);
-		root.getColumnConstraints().addAll(c1, c2);
+try {
+List<Integer> annees = SyntheseService.getAnnees();
+for (Integer a : annees) _yearCombo.addItem(a);
+} catch (ComptaException e) {
+ExceptionDisplayService.showException(e);
+}
 
-		RowConstraints r1 = new RowConstraints();
-		RowConstraints r2 = new RowConstraints();
-		r2.setFillHeight(true);
-		r2.setVgrow(Priority.ALWAYS);
-		root.getRowConstraints().addAll(r1, r2);
+JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+topPanel.add(new JLabel("Sélection de l'année :"));
+topPanel.add(_yearCombo);
 
-		Label comboLdl = new Label("Sélection de l'année");
-		_yearCombo = new ComboBox<Integer>();
-		_yearList = FXCollections.observableArrayList();
-		_yearCombo.setItems(_yearList);
+JButton closeBtn = new JButton("Fermer");
+closeBtn.addActionListener(e -> dispose());
+JPanel btnPanel = new JPanel(new FlowLayout());
+btnPanel.add(closeBtn);
 
-		_yearCombo.valueProperty().addListener(new ChangeListener<Integer>() {
+setLayout(new BorderLayout(5, 5));
+add(topPanel, BorderLayout.NORTH);
+add(new JScrollPane(table), BorderLayout.CENTER);
+add(btnPanel, BorderLayout.SOUTH);
+setSize(700, 400);
+}
 
-			@Override
-			public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
+private void fillTable(int year) throws ComptaException {
+List<String[]> rows = new ArrayList<>();
+for (int month = 1; month < 13; month++) {
+LocalDate date = LocalDate.of(year, month, 1);
+double dep = SyntheseService.getDepenseForMonth(date);
+double res = SyntheseService.getRessourceForMonth(date);
+double bud = SyntheseService.getBudgetUsageForMonth(date);
+rows.add(new String[]{
+ApplicationFormatter.moisFormat.format(date),
+ApplicationFormatter.montantFormat.format(dep),
+ApplicationFormatter.montantFormat.format(res),
+ApplicationFormatter.montantFormat.format(bud)
+});
+}
+_model.setData(rows);
+}
 
-				try {
-					drawChart(newValue);
-				} catch (ComptaException e) {
-					ExceptionDisplayService.showException(e);
-				}
+private static class SynthTableModel extends AbstractTableModel {
+private static final String[] COLS = {"Mois", "Dépenses", "Ressources", "Budget utilisé"};
+private List<String[]> _data = new ArrayList<>();
 
-			}
+public void setData(List<String[]> data) { _data = data; fireTableDataChanged(); }
 
-		});
+@Override public int getRowCount() { return _data.size(); }
+@Override public int getColumnCount() { return COLS.length; }
+@Override public String getColumnName(int col) { return COLS[col]; }
 
-		root.add(comboLdl, 0, 0);
-		root.add(_yearCombo, 1, 0);
-
-		final CategoryAxis xAxis = new CategoryAxis();
-		xAxis.setLabel("Mois");
-		xAxis.setAnimated(false);
-
-		final NumberAxis yAxis = new NumberAxis();
-
-		// creating the chart
-		_lineChart = new LineChart<String, Number>(xAxis, yAxis);
-		root.add(_lineChart, 0, 2, 2, 1);
-
-		getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
-
-		try {
-			fillYearCombo();
-		} catch (ComptaException e) {
-			ExceptionDisplayService.showException(e);
-		}
-
-	}
-
-	/**
-	 * Remplit la combobox avec les années disponible.
-	 * 
-	 * @throws ComptaException
-	 */
-	private void fillYearCombo() throws ComptaException {
-
-		_yearList.clear();
-		_yearList.addAll(SyntheseService.getAnnees());
-
-	}
-
-	/**
-	 * Remplit le graphique avec les valeurs de l'année
-	 * 
-	 * @param year
-	 * @throws ComptaException Echec lors de la récupératoin des données
-	 */
-	private void drawChart(Integer year) throws ComptaException {
-
-		_lineChart.setTitle("Synthèse " + year);
-
-		_lineChart.getData().clear();
-
-		Series<String, Number> depenseSerie = new Series<String, Number>();
-		depenseSerie.setName("Dépenses");
-
-		Series<String, Number> ressourceSerie = new Series<String, Number>();
-		ressourceSerie.setName("Ressource");
-
-		Series<String, Number> budgetUseSerie = new Series<String, Number>();
-		budgetUseSerie.setName("Budget utilisé");
-
-		for (int month = 1; month < 13; month++) {
-
-			LocalDate date = LocalDate.of(year, month, 1);
-
-			double dep = SyntheseService.getDepenseForMonth(date);
-			double res = SyntheseService.getRessourceForMonth(date);
-			double bud = SyntheseService.getBudgetUsageForMonth(date);
-
-			depenseSerie.getData().add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(date), dep));
-			ressourceSerie.getData().add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(date), res));
-			budgetUseSerie.getData().add(new Data<String, Number>(ApplicationFormatter.moisFormat.format(date), bud));
-
-		}
-
-		_lineChart.getData().add(depenseSerie);
-		_lineChart.getData().add(ressourceSerie);
-		_lineChart.getData().add(budgetUseSerie);
-
-	}
+@Override
+public Object getValueAt(int row, int col) {
+if (row < _data.size() && col < _data.get(row).length) return _data.get(row)[col];
+return null;
+}
+}
 
 }

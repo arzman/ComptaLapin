@@ -9,97 +9,98 @@ package org.arthur.compta.lapin.model.operation;
  */
 public class Operation {
 
-	/** l'id */
-	private final int _id;
-	/** Etat de l'opération */
-	private final EtatOperation _etat;
-	/** Le montant de l'opération */
-	private final double _montant;
-	/** Le nom */
-	protected String _nom;
-	/** Le type d'operation */
-	protected OperationType _type;
-	/** Le compte sur lequel l'opération est faite */
-	protected int _srcCompteId;
-	/** Le compte sur lequel l'opération est faite */
-	protected int _cibleCompteId;
+    /** l'id */
+    private final int _id;
+    /** Etat de l'opération */
+    private final EtatOperation _etat;
+    /** Le montant de l'opération */
+    private final double _montant;
+    /** Le nom */
+    protected String _nom;
+    /** Le type d'operation */
+    protected OperationType _type;
+    /** Le compte sur lequel l'opération est faite */
+    protected int _srcCompteId;
+    /** Le compte sur lequel l'opération est faite */
+    protected int _cibleCompteId;
 
-	/**
-	 * Construction par défaut
-	 */
-	public Operation(int id, OperationType type, int srcCompteId, String nom, double montant, EtatOperation etat, int cibleCompteId) {
-		_id = id;
-		_type = type;
-		_etat = etat;
-		_srcCompteId = srcCompteId;
-		_nom = nom;
-		_montant = montant;
-		_cibleCompteId = cibleCompteId;
+    /**
+     * Construction par défaut
+     */
+    public Operation(int id, OperationType type, int srcCompteId, String nom, double montant, EtatOperation etat,
+            int cibleCompteId) {
+        _id = id;
+        _type = type;
+        _etat = etat;
+        _srcCompteId = srcCompteId;
+        _nom = nom;
+        _montant = montant;
+        _cibleCompteId = cibleCompteId;
 
-	}
+    }
 
-	/**
-	 * Retourne le compte
-	 * 
-	 * @return le compte
-	 */
-	public int getCompteId() {
-		return _srcCompteId;
-	}
+    /**
+     * Retourne le compte
+     * 
+     * @return le compte
+     */
+    public int getCompteId() {
+        return _srcCompteId;
+    }
 
-	/**
-	 * Retourne l'état de l'opération
-	 * 
-	 * @return
-	 */
-	public EtatOperation getEtat() {
-		return _etat;
-	}
+    /**
+     * Retourne l'état de l'opération
+     * 
+     * @return
+     */
+    public EtatOperation getEtat() {
+        return _etat;
+    }
 
-	/**
-	 * Retourne le montant de l'opération
-	 * 
-	 * @return le montant de l'opération
-	 */
-	public double getMontant() {
-		return _montant;
-	}
+    /**
+     * Retourne le montant de l'opération
+     * 
+     * @return le montant de l'opération
+     */
+    public double getMontant() {
+        return _montant;
+    }
 
-	/**
-	 * Retourne le nom de l'opération
-	 * 
-	 * @return le nom de l'opération
-	 */
-	public String getNom() {
-		return _nom;
-	}
+    /**
+     * Retourne le nom de l'opération
+     * 
+     * @return le nom de l'opération
+     */
+    public String getNom() {
+        return _nom;
+    }
 
-	/**
-	 * Retourne le type de l'opération
-	 * 
-	 * @return le type de l'opération
-	 */
-	public OperationType getType() {
-		return _type;
-	}
+    /**
+     * Retourne le type de l'opération
+     * 
+     * @return le type de l'opération
+     */
+    public OperationType getType() {
+        return _type;
+    }
 
-	public int getCibleCompteId() {
-		return _cibleCompteId;
-	}
+    public int getCibleCompteId() {
+        return _cibleCompteId;
+    }
 
-	public int getId() {
-		return _id;
-	}
+    public int getId() {
+        return _id;
+    }
 
-	/**
-	 * Duplique l'opération
-	 * 
-	 * @return
-	 */
-	public Operation duplicate() {
+    /**
+     * Duplique l'opération
+     * 
+     * @return
+     */
+    public Operation duplicate() {
 
-		return new Operation(_id, _type, _srcCompteId, _nom, _montant, _etat, _cibleCompteId);
+        return new Operation(_id, _type, _srcCompteId, _nom, _montant, _etat, _cibleCompteId);
 
-	}
+    }
 
 }

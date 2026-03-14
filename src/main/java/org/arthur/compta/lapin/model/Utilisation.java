@@ -10,60 +10,63 @@ import java.time.LocalDate;
  */
 public class Utilisation {
 
-	/** id */
-	private final int _id;
-	/** le montant */
-	private final double _montant;
+    /** id */
+    private final int _id;
+    /** le montant */
+    private final double _montant;
 
-	/** le libelle */
-	private final String _libelle;
-	/** la date */
-	private final LocalDate _date;
+    /** le libelle */
+    private final String _libelle;
+    /** la date */
+    private final LocalDate _date;
 
-	/**
-	 * Constructeur de l'utilisation
-	 * 
-	 * @param montant le montant utilisé
-	 * @param libelle le nom de l'utilisation
-	 * @param date    la date de l'utilisation
-	 */
-	public Utilisation(int id, double montant, String libelle, LocalDate date) {
+    /**
+     * Constructeur de l'utilisation
+     * 
+     * @param montant
+     *            le montant utilisé
+     * @param libelle
+     *            le nom de l'utilisation
+     * @param date
+     *            la date de l'utilisation
+     */
+    public Utilisation(int id, double montant, String libelle, LocalDate date) {
 
-		_id = id;
-		_montant = montant;
-		_libelle = libelle;
-		_date = date;
-	}
+        _id = id;
+        _montant = montant;
+        _libelle = libelle;
+        _date = date;
+    }
 
-	public double getMontant() {
-		return _montant;
-	}
+    public double getMontant() {
+        return _montant;
+    }
 
-	/**
-	 * Retourne le libellé de l'utilisation
-	 * 
-	 * @return
-	 */
-	public String getLibelle() {
-		return _libelle;
-	}
+    /**
+     * Retourne le libellé de l'utilisation
+     * 
+     * @return
+     */
+    public String getLibelle() {
+        return _libelle;
+    }
 
-	/**
-	 * Retourne la date de l'utilisation
-	 * 
-	 * @return
-	 */
-	public LocalDate getDate() {
-		return _date;
-	}
+    /**
+     * Retourne la date de l'utilisation
+     * 
+     * @return
+     */
+    public LocalDate getDate() {
+        return _date;
+    }
 
-	/**
-	 * Retourne l'id
-	 * 
-	 * @return
-	 */
-	public int getId() {
-		return _id;
-	}
+    /**
+     * Retourne l'id
+     * 
+     * @return
+     */
+    public int getId() {
+        return _id;
+    }
 
 }

@@ -9,42 +9,42 @@ import java.sql.SQLException;
 
 public class ComptaDataAccess {
 
-	/**
-	 * Le Logger
-	 */
-	private final Logger _logger;
+    /**
+     * Le Logger
+     */
+    private final Logger _logger;
 
-	public ComptaDataAccess() {
+    public ComptaDataAccess() {
 
-		_logger = LogManager.getLogger(ComptaDataAccess.class);
+        _logger = LogManager.getLogger(ComptaDataAccess.class);
 
-	}
+    }
 
-	/**
-	 * Centralisation des updates BD
-	 * 
-	 * @param stmt
-	 * @throws SQLException
-	 */
-	protected void executeUpdate(PreparedStatement stmt) throws SQLException {
+    /**
+     * Centralisation des updates BD
+     * 
+     * @param stmt
+     * @throws SQLException
+     */
+    protected void executeUpdate(PreparedStatement stmt) throws SQLException {
 
-		_logger.debug(stmt.toString());
-		stmt.executeUpdate();
+        _logger.debug(stmt.toString());
+        stmt.executeUpdate();
 
-	}
+    }
 
-	/**
-	 * Centralisation des updates BD
-	 * 
-	 * @param stmt
-	 * @return
-	 * @throws SQLException
-	 */
-	public ResultSet executeQuery(PreparedStatement stmt) throws SQLException {
+    /**
+     * Centralisation des updates BD
+     * 
+     * @param stmt
+     * @return
+     * @throws SQLException
+     */
+    public ResultSet executeQuery(PreparedStatement stmt) throws SQLException {
 
-		_logger.debug(stmt.toString());
-		return stmt.executeQuery();
+        _logger.debug(stmt.toString());
+        return stmt.executeQuery();
 
-	}
+    }
 
 }

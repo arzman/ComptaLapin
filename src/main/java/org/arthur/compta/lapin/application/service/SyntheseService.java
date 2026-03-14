@@ -11,95 +11,95 @@ import java.util.List;
 
 public class SyntheseService {
 
-	/**
-	 * Retourne la liste des années des exercice mensuels sous forme d'entier
-	 * 
-	 * @return
-	 * @throws ComptaException
-	 *             Echec
-	 */
-	public static List<Integer> getAnnees() throws ComptaException {
+    /**
+     * Retourne la liste des années des exercice mensuels sous forme d'entier
+     * 
+     * @return
+     * @throws ComptaException
+     *             Echec
+     */
+    public static List<Integer> getAnnees() throws ComptaException {
 
-		ArrayList<Integer> res = new ArrayList<>();
+        ArrayList<Integer> res = new ArrayList<>();
 
-		for (String st : ExerciceMensuelDataAccess.getInstance().getAllAnnees()) {
+        for (String st : ExerciceMensuelDataAccess.getInstance().getAllAnnees()) {
 
-			res.add(Integer.parseInt(st));
+            res.add(Integer.parseInt(st));
 
-		}
+        }
 
-		return res;
-	}
+        return res;
+    }
 
-	/**
-	 * Retourne la somme des ressources pour le mois donné
-	 * 
-	 * @param date
-	 * @return
-	 * @throws ComptaException
-	 */
-	public static double getRessourceForMonth(LocalDate date) throws ComptaException {
+    /**
+     * Retourne la somme des ressources pour le mois donné
+     * 
+     * @param date
+     * @return
+     * @throws ComptaException
+     */
+    public static double getRessourceForMonth(LocalDate date) throws ComptaException {
 
-		double res = 0;
-		// on récupère les ressources...et on somme
-		for (double dou : OperationDataAccess.getInstance().getOperationForMonth("RESSOURCE", date)) {
-			res = res + dou;
-		}
+        double res = 0;
+        // on récupère les ressources...et on somme
+        for (double dou : OperationDataAccess.getInstance().getOperationForMonth("RESSOURCE", date)) {
+            res = res + dou;
+        }
 
-		return res;
-	}
+        return res;
+    }
 
-	/**
-	 * Retourne la somme des utilisations de budget pour le mois donné
-	 * 
-	 * @param date
-	 * @return
-	 * @throws ComptaException
-	 */
-	public static double getBudgetUsageForMonth(LocalDate date) throws ComptaException {
+    /**
+     * Retourne la somme des utilisations de budget pour le mois donné
+     * 
+     * @param date
+     * @return
+     * @throws ComptaException
+     */
+    public static double getBudgetUsageForMonth(LocalDate date) throws ComptaException {
 
-		double res = 0;
-		// on récupère les ressources...et on somme
-		for (double dou : OperationDataAccess.getInstance().getBudgetUsageForMonth(date)) {
-			res = res + dou;
-		}
+        double res = 0;
+        // on récupère les ressources...et on somme
+        for (double dou : OperationDataAccess.getInstance().getBudgetUsageForMonth(date)) {
+            res = res + dou;
+        }
 
-		return res;
-	}
+        return res;
+    }
 
-	/**
-	 * Retourne la somme des dépenses pour le mois donné
-	 * 
-	 * @param date
-	 * @return
-	 * @throws ComptaException
-	 */
-	public static double getDepenseForMonth(LocalDate date) throws ComptaException {
+    /**
+     * Retourne la somme des dépenses pour le mois donné
+     * 
+     * @param date
+     * @return
+     * @throws ComptaException
+     */
+    public static double getDepenseForMonth(LocalDate date) throws ComptaException {
 
-		double res = 0;
-		// on récupère les dépenses...et on somme
-		for (double dou : OperationDataAccess.getInstance().getOperationForMonth("DEPENSE", date)) {
-			res = res + dou;
-		}
+        double res = 0;
+        // on récupère les dépenses...et on somme
+        for (double dou : OperationDataAccess.getInstance().getOperationForMonth("DEPENSE", date)) {
+            res = res + dou;
+        }
 
-		return res;
-	}
+        return res;
+    }
 
-	/**
-	 * Crée un PDF avec les dépenses/ressources/transfert du trimestre
-	 * 
-	 * @param idTrim
-	 *            l'id du trimestre
-	 * @param file
-	 *            le chemin du fichier a exporter
-	 * @throws ComptaException
-	 *             Echec de l'export
-	 */
-	public static void writeRapportForTrim(int idTrim, File file) throws ComptaException {
+    /**
+     * Crée un PDF avec les dépenses/ressources/transfert du trimestre
+     * 
+     * @param idTrim
+     *            l'id du trimestre
+     * @param file
+     *            le chemin du fichier a exporter
+     * @throws ComptaException
+     *             Echec de l'export
+     */
+    public static void writeRapportForTrim(int idTrim, File file) throws ComptaException {
 
-		RapportTrimWriter writer = new RapportTrimWriter(idTrim);
-		writer.writeRapport(file);
+        RapportTrimWriter writer = new RapportTrimWriter(idTrim);
+        writer.writeRapport(file);
 
-	}
+    }
 
 }

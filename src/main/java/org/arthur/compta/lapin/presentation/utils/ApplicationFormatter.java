@@ -10,15 +10,15 @@ import java.util.Locale;
  */
 public class ApplicationFormatter {
 
-	/** Formateur de monnaie */
-	public static NumberFormat montantFormat = NumberFormat.getCurrencyInstance(Locale.FRANCE);
-	/** Formateur "pourcent" */
-	public static NumberFormat pourcentFormat = NumberFormat.getPercentInstance(Locale.FRANCE);
-	/** Formateur moi/année */
-	public static DateTimeFormatter moiAnneedateFormat = DateTimeFormatter.ofPattern("MMMM yyyy");
-	/** Formattage de la date venant de la base */
-	public static final DateTimeFormatter databaseDateFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-	/** Formatteur mois */
-	public static final DateTimeFormatter moisFormat = DateTimeFormatter.ofPattern("MMMM", Locale.FRANCE);
+    /** Formateur de monnaie */
+    public static NumberFormat montantFormat = NumberFormat.getCurrencyInstance(Locale.FRANCE);
+    /** Formateur "pourcent" */
+    public static NumberFormat pourcentFormat = NumberFormat.getPercentInstance(Locale.FRANCE);
+    /** Formateur moi/année */
+    public static DateTimeFormatter moiAnneedateFormat = DateTimeFormatter.ofPattern("MMMM yyyy");
+    /** Formattage de la date venant de la base */
+    public static final DateTimeFormatter databaseDateFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    /** Formatteur mois */
+    public static final DateTimeFormatter moisFormat = DateTimeFormatter.ofPattern("MMMM", Locale.FRANCE);
 
 }

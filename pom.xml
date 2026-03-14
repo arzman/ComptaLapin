@@ -56,12 +56,38 @@
         </resources>
         <plugins>
             <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>2.26.0</version>
+                <configuration>
+                    <java>
+                        <eclipse>
+                            <version>4.24.0</version>
+                        </eclipse>
+                        <includes>
+                            <include>src/main/java/**/*.java</include>
+                            <include>src/test/java/**/*.java</include>
+                        </includes>
+                    </java>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.15.0</version>
                 <configuration>
                     <source>21</source>
                     <target>21</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>net.revelc.code.formatter</groupId>
+                <artifactId>formatter-maven-plugin</artifactId>
+                <version>2.17.0</version>
+                <configuration>
+                    <configFile>${basedir}/config/eclipse-formatter.xml</configFile>
+                    <lineEnding>LF</lineEnding>
+                    <removeUnusedImports>true</removeUnusedImports>
                 </configuration>
             </plugin>
             <plugin>

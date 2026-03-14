@@ -11,28 +11,28 @@ package org.arthur.compta.lapin.model;
  */
 public class Trimestre {
 
-	/** id */
-	private final int _id;
-	/** Les exercices mensuels ordonnés */
-	private final Integer[] _exerciceMensuelIds;
+    /** id */
+    private final int _id;
+    /** Les exercices mensuels ordonnés */
+    private final Integer[] _exerciceMensuelIds;
 
-	/**
-	 * Constructeur par défaut
-	 */
-	public Trimestre(int id, int premierMoisid, int deuxMoisId, int troisMoisId) {
-		_id = id;
-		_exerciceMensuelIds = new Integer[] { premierMoisid, deuxMoisId, troisMoisId };
+    /**
+     * Constructeur par défaut
+     */
+    public Trimestre(int id, int premierMoisid, int deuxMoisId, int troisMoisId) {
+        _id = id;
+        _exerciceMensuelIds = new Integer[]{premierMoisid, deuxMoisId, troisMoisId};
 
-	}
+    }
 
-	// GETTER'N'SETTER -------------------------------------------------
+    // GETTER'N'SETTER -------------------------------------------------
 
-	public int getId() {
-		return _id;
-	}
+    public int getId() {
+        return _id;
+    }
 
-	public Integer[] getExerciceMensuelIds() {
-		return _exerciceMensuelIds;
-	}
+    public Integer[] getExerciceMensuelIds() {
+        return _exerciceMensuelIds;
+    }
 
 }

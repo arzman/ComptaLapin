@@ -16,71 +16,71 @@ import java.util.ArrayList;
  */
 public class DBUpdateService {
 
-	public static void checkUpdate(Connection _connexionDB) throws ComptaException {
+    public static void checkUpdate(Connection _connexionDB) throws ComptaException {
 
-		// ajout des champs label_recurrent et date_recurrent dans BUDGET
-		String query = "SELECT COLUMN_NAME as c FROM INFORMATION_SCHEMA.SYSTEM_COLUMNS WHERE TABLE_NAME='BUDGET';";
-		try (PreparedStatement stmt = _connexionDB.prepareStatement(query)) {
+        // ajout des champs label_recurrent et date_recurrent dans BUDGET
+        String query = "SELECT COLUMN_NAME as c FROM INFORMATION_SCHEMA.SYSTEM_COLUMNS WHERE TABLE_NAME='BUDGET';";
+        try (PreparedStatement stmt = _connexionDB.prepareStatement(query)) {
 
-			ArrayList<String> tmp = new ArrayList<>();
-			ResultSet toto = stmt.executeQuery();
-			while (toto.next()) {
+            ArrayList<String> tmp = new ArrayList<>();
+            ResultSet toto = stmt.executeQuery();
+            while (toto.next()) {
 
-				tmp.add(toto.getString(1));
+                tmp.add(toto.getString(1));
 
-			}
+            }
 
-			if (!tmp.contains("LABEL_RECURRENT")) {
+            if (!tmp.contains("LABEL_RECURRENT")) {
 
-				query = "ALTER TABLE BUDGET ADD COLUMN label_recurrent VARCHAR (25) DEFAULT '' NOT NULL  ;";
-				try (PreparedStatement stmt2 = _connexionDB.prepareStatement(query)) {
+                query = "ALTER TABLE BUDGET ADD COLUMN label_recurrent VARCHAR (25) DEFAULT '' NOT NULL  ;";
+                try (PreparedStatement stmt2 = _connexionDB.prepareStatement(query)) {
 
-					stmt2.executeUpdate();
+                    stmt2.executeUpdate();
 
-				} catch (Exception e) {
-					throw new ComptaException("Impossible d'ajouter la colonne label_recurrent", e);
-				}
+                } catch (Exception e) {
+                    throw new ComptaException("Impossible d'ajouter la colonne label_recurrent", e);
+                }
 
-			}
+            }
 
-			if (!tmp.contains("DATE_RECURRENT")) {
+            if (!tmp.contains("DATE_RECURRENT")) {
 
-				query = "ALTER TABLE BUDGET ADD COLUMN  date_recurrent DATE DEFAULT '1986-06-27' NOT NULL  ;";
-				try (PreparedStatement stmt2 = _connexionDB.prepareStatement(query)) {
+                query = "ALTER TABLE BUDGET ADD COLUMN  date_recurrent DATE DEFAULT '1986-06-27' NOT NULL  ;";
+                try (PreparedStatement stmt2 = _connexionDB.prepareStatement(query)) {
 
-					stmt2.executeUpdate();
+                    stmt2.executeUpdate();
 
-				} catch (Exception e) {
-					throw new ComptaException("Impossible d'ajouter la colonne DATE_RECURRENT", e);
-				}
+                } catch (Exception e) {
+                    throw new ComptaException("Impossible d'ajouter la colonne DATE_RECURRENT", e);
+                }
 
-			}
+            }
 
-		} catch (Exception e) {
-			throw new ComptaException("Impossible de récupérer la table BUDGET", e);
-		}
+        } catch (Exception e) {
+            throw new ComptaException("Impossible de récupérer la table BUDGET", e);
+        }
 
-		// ajout de la table LABEL_BUDGET_RECURRENT
-		query = "SELECT count(*) as c FROM INFORMATION_SCHEMA.SYSTEM_COLUMNS WHERE TABLE_NAME='LABEL_BUDGET_RECURRENT';";
-		try (PreparedStatement stmt = _connexionDB.prepareStatement(query)) {
+        // ajout de la table LABEL_BUDGET_RECURRENT
+        query = "SELECT count(*) as c FROM INFORMATION_SCHEMA.SYSTEM_COLUMNS WHERE TABLE_NAME='LABEL_BUDGET_RECURRENT';";
+        try (PreparedStatement stmt = _connexionDB.prepareStatement(query)) {
 
-			ResultSet toto = stmt.executeQuery();
+            ResultSet toto = stmt.executeQuery();
 
-			if (toto.next() && toto.getInt("c") != 1) {
+            if (toto.next() && toto.getInt("c") != 1) {
 
-				query = "CREATE TABLE LABEL_BUDGET_RECURRENT( label VARCHAR (25) NOT NULL);";
-				try (PreparedStatement stmt2 = _connexionDB.prepareStatement(query)) {
+                query = "CREATE TABLE LABEL_BUDGET_RECURRENT( label VARCHAR (25) NOT NULL);";
+                try (PreparedStatement stmt2 = _connexionDB.prepareStatement(query)) {
 
-					stmt2.executeUpdate();
+                    stmt2.executeUpdate();
 
-				} catch (Exception e) {
-					throw new ComptaException("Impossible d'ajouter la table LABEL_BUDGET_RECURRENT", e);
-				}
-			}
-		} catch (SQLException e1) {
-			throw new ComptaException("Impossible de récupérer la table LABEL_BUDGET_RECURRENT", e1);
-		}
+                } catch (Exception e) {
+                    throw new ComptaException("Impossible d'ajouter la table LABEL_BUDGET_RECURRENT", e);
+                }
+            }
+        } catch (SQLException e1) {
+            throw new ComptaException("Impossible de récupérer la table LABEL_BUDGET_RECURRENT", e1);
+        }
 
-	}
+    }
 
 }

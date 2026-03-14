@@ -2,12 +2,10 @@
 <Configuration status="WARN">
 	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
-			<PatternLayout
-				pattern="%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n%throwable{full}" />
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n%throwable{full}" />
 		</Console>
 		<File name="MyFile" fileName="logs/app.log">
-			<PatternLayout
-				pattern="%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n%throwable{full}" />
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n%throwable{full}" />
 		</File>
 	</Appenders>
 	<Loggers>

@@ -11,28 +11,28 @@ import java.time.LocalDate;
  */
 public class ComptaService {
 
-	/**
-	 * Retourne la date de dernière vérification de la compta
-	 * 
-	 * @return
-	 * @throws ComptaException
-	 *             Echec de la récupération
-	 */
-	public static String getDateDerVerif() throws ComptaException {
+    /**
+     * Retourne la date de dernière vérification de la compta
+     * 
+     * @return
+     * @throws ComptaException
+     *             Echec de la récupération
+     */
+    public static String getDateDerVerif() throws ComptaException {
 
-		return AppliDataAccess.getInstance().getDateDerVerif();
+        return AppliDataAccess.getInstance().getDateDerVerif();
 
-	}
+    }
 
-	/**
-	 * Positionne la date de dernière vérif
-	 * 
-	 * @param date
-	 * @throws ComptaException
-	 *             Echec de l'opération
-	 */
-	public static void setDateDerVerif(LocalDate date) throws ComptaException {
-		AppliDataAccess.getInstance().setDateDerVerif(date);
+    /**
+     * Positionne la date de dernière vérif
+     * 
+     * @param date
+     * @throws ComptaException
+     *             Echec de l'opération
+     */
+    public static void setDateDerVerif(LocalDate date) throws ComptaException {
+        AppliDataAccess.getInstance().setDateDerVerif(date);
 
-	}
+    }
 }

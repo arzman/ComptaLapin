@@ -19,111 +19,112 @@ import java.time.LocalDate;
  */
 public class Budget {
 
-	/** id */
-	private final int _id;
-	/** Montant totale du bugdet */
-	private final double _objectif;
+    /** id */
+    private final int _id;
+    /** Montant totale du bugdet */
+    private final double _objectif;
 
-	/** Montant déjà utilisé */
-	private final double _montantUtilise;
+    /** Montant déjà utilisé */
+    private final double _montantUtilise;
 
-	/** Le nom du budget */
-	private final String _nom;
+    /** Le nom du budget */
+    private final String _nom;
 
-	/** Vrai si le budget est actif */
-	private final boolean _isActif;
+    /** Vrai si le budget est actif */
+    private final boolean _isActif;
 
-	/** La priorité du budget */
-	private final int _priority;
+    /** La priorité du budget */
+    private final int _priority;
 
-	/** Label recurrent */
-	private final String _labelRec;
+    /** Label recurrent */
+    private final String _labelRec;
 
-	/** Date récurrente */
-	private final LocalDate _dateRecurrent;
+    /** Date récurrente */
+    private final LocalDate _dateRecurrent;
 
-	public Budget(int id, double objectif_, double montantUtilise, String nom, boolean isActif, int priority, String labelRec, LocalDate dateRecurrent) {
+    public Budget(int id, double objectif_, double montantUtilise, String nom, boolean isActif, int priority,
+            String labelRec, LocalDate dateRecurrent) {
 
-		_id = id;
-		_objectif = objectif_;
-		_montantUtilise = montantUtilise;
-		_nom = nom;
-		_isActif = isActif;
-		_priority = priority;
-		if (labelRec == null) {
-			_labelRec = "";
-		} else {
-			_labelRec = labelRec;
-		}
+        _id = id;
+        _objectif = objectif_;
+        _montantUtilise = montantUtilise;
+        _nom = nom;
+        _isActif = isActif;
+        _priority = priority;
+        if (labelRec == null) {
+            _labelRec = "";
+        } else {
+            _labelRec = labelRec;
+        }
 
-		if (dateRecurrent == null) {
-			_dateRecurrent = LocalDate.of(1986, 6, 27);
-		} else {
-			_dateRecurrent = dateRecurrent;
-		}
+        if (dateRecurrent == null) {
+            _dateRecurrent = LocalDate.of(1986, 6, 27);
+        } else {
+            _dateRecurrent = dateRecurrent;
+        }
 
-	}
+    }
 
-	/**
-	 * Retourne l'id
-	 * 
-	 * @return
-	 */
-	public int getId() {
-		return _id;
-	}
+    /**
+     * Retourne l'id
+     * 
+     * @return
+     */
+    public int getId() {
+        return _id;
+    }
 
-	/**
-	 * @return the montantUtilise
-	 */
-	public double getMontantUtilise() {
-		return _montantUtilise;
-	}
+    /**
+     * @return the montantUtilise
+     */
+    public double getMontantUtilise() {
+        return _montantUtilise;
+    }
 
-	public String getNom() {
-		return _nom;
-	}
+    public String getNom() {
+        return _nom;
+    }
 
-	public double getObjectif() {
-		return _objectif;
-	}
+    public double getObjectif() {
+        return _objectif;
+    }
 
-	/**
-	 * Retourne True si le budget est actif
-	 * 
-	 * @return
-	 */
-	public boolean isActif() {
-		return _isActif;
-	}
+    /**
+     * Retourne True si le budget est actif
+     * 
+     * @return
+     */
+    public boolean isActif() {
+        return _isActif;
+    }
 
-	/**
-	 * Retourne la priorité
-	 * 
-	 * @return
-	 */
-	public int getPriority() {
+    /**
+     * Retourne la priorité
+     * 
+     * @return
+     */
+    public int getPriority() {
 
-		return _priority;
-	}
+        return _priority;
+    }
 
-	/**
-	 * Retourne le label recurrent
-	 * 
-	 * @return
-	 */
-	public String getLabelRecurrent() {
+    /**
+     * Retourne le label recurrent
+     * 
+     * @return
+     */
+    public String getLabelRecurrent() {
 
-		return _labelRec;
-	}
+        return _labelRec;
+    }
 
-	/***
-	 * Retourne la date récurrente
-	 * 
-	 * @return
-	 */
-	public LocalDate getDateRecurrent() {
-		return _dateRecurrent;
-	}
+    /***
+     * Retourne la date récurrente
+     * 
+     * @return
+     */
+    public LocalDate getDateRecurrent() {
+        return _dateRecurrent;
+    }
 
 }

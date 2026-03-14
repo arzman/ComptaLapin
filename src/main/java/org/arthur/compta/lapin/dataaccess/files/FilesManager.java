@@ -11,111 +11,108 @@ import java.nio.file.Paths;
  */
 public class FilesManager {
 
-	/** l'instance du singleton */
-	private static FilesManager _instance;
+    /** l'instance du singleton */
+    private static FilesManager _instance;
 
-	/** répertoire racine de l'application ( ie là ou est situé le jar) */
-	private Path _rootFolder;
-	/**
-	 * Répertoire de la base
-	 */
-	private Path _dbFolderPath;
-	/**
-	 * Répertoire de la configuration
-	 */
-	private Path _confFolderPath;
+    /** répertoire racine de l'application ( ie là ou est situé le jar) */
+    private Path _rootFolder;
+    /**
+     * Répertoire de la base
+     */
+    private Path _dbFolderPath;
+    /**
+     * Répertoire de la configuration
+     */
+    private Path _confFolderPath;
 
-	/** Le constructeur par défaut */
-	private FilesManager() {
+    /** Le constructeur par défaut */
+    private FilesManager() {
 
-		try {
-			_rootFolder = Paths.get(System.getProperty("user.dir"), "context");
-			if (!Files.exists(_rootFolder)) {
+        try {
+            _rootFolder = Paths.get(System.getProperty("user.dir"), "context");
+            if (!Files.exists(_rootFolder)) {
 
-				Files.createDirectories(_rootFolder);
-			}
+                Files.createDirectories(_rootFolder);
+            }
 
-			// création du répertoire de configuration
-			createConfFolder();
-			// création du répertoire de la base de donnée
-			createDBFolder();
+            // création du répertoire de configuration
+            createConfFolder();
+            // création du répertoire de la base de donnée
+            createDBFolder();
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-	/**
-	 * Retourne l'instance unique du singletons
-	 * 
-	 * @return
-	 */
-	public static FilesManager getInstance() {
+    /**
+     * Retourne l'instance unique du singletons
+     * 
+     * @return
+     */
+    public static FilesManager getInstance() {
 
-		if (_instance == null) {
-			_instance = new FilesManager();
-		}
+        if (_instance == null) {
+            _instance = new FilesManager();
+        }
 
-		return _instance;
+        return _instance;
 
-	}
+    }
 
-	/**
-	 * Vérifie et crée les répertoires/fichiers de configuration de
-	 * l'application
-	 * 
-	 * @throws IOException
-	 */
-	private void createConfFolder() throws IOException {
+    /**
+     * Vérifie et crée les répertoires/fichiers de configuration de l'application
+     * 
+     * @throws IOException
+     */
+    private void createConfFolder() throws IOException {
 
-		// création du répertoire de conf
-		_confFolderPath = Paths.get(_rootFolder.toString(), "config");
+        // création du répertoire de conf
+        _confFolderPath = Paths.get(_rootFolder.toString(), "config");
 
-		if (!Files.exists(_confFolderPath)) {
+        if (!Files.exists(_confFolderPath)) {
 
-			Files.createDirectories(_confFolderPath);
-			
-			
-		}
+            Files.createDirectories(_confFolderPath);
 
-	}
+        }
 
-	/**
-	 * Vérifie et crée les répertoires/fichiers de configuration de
-	 * l'application
-	 * 
-	 * @throws IOException
-	 */
-	private void createDBFolder() throws IOException {
+    }
 
-		// création du répertoire de conf
-		_dbFolderPath = Paths.get(_rootFolder.toString(), "db");
+    /**
+     * Vérifie et crée les répertoires/fichiers de configuration de l'application
+     * 
+     * @throws IOException
+     */
+    private void createDBFolder() throws IOException {
 
-		if (!Files.exists(_dbFolderPath)) {
+        // création du répertoire de conf
+        _dbFolderPath = Paths.get(_rootFolder.toString(), "db");
 
-			Files.createDirectories(_dbFolderPath);
-		}
+        if (!Files.exists(_dbFolderPath)) {
 
-	}
+            Files.createDirectories(_dbFolderPath);
+        }
 
-	/**
-	 * Retourne le chemin vers le dossier dédié à la base de donnée
-	 * 
-	 * @return
-	 */
-	public Path getDBFolder() {
+    }
 
-		return _dbFolderPath;
-	}
+    /**
+     * Retourne le chemin vers le dossier dédié à la base de donnée
+     * 
+     * @return
+     */
+    public Path getDBFolder() {
 
-	/**
-	 * Retourne le chemin vers le dossier de configuration
-	 * 
-	 * @return
-	 */
-	public Path getConfFolder() {
-		return _confFolderPath;
+        return _dbFolderPath;
+    }
 
-	}
+    /**
+     * Retourne le chemin vers le dossier de configuration
+     * 
+     * @return
+     */
+    public Path getConfFolder() {
+        return _confFolderPath;
+
+    }
 
 }

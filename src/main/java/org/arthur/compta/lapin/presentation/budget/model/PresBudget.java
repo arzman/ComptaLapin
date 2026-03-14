@@ -9,30 +9,30 @@ import java.time.LocalDate;
  */
 public class PresBudget {
 
-/** Le budget */
-private final AppBudget _appBudget;
-/** Un label */
-private final String _name;
+    /** Le budget */
+    private final AppBudget _appBudget;
+    /** Un label */
+    private final String _name;
 
-public PresBudget(AppBudget appBudget, String name) {
-_appBudget = appBudget;
-_name = name;
-}
+    public PresBudget(AppBudget appBudget, String name) {
+        _appBudget = appBudget;
+        _name = name;
+    }
 
-public AppBudget getAppBudget() {
-return _appBudget;
-}
+    public AppBudget getAppBudget() {
+        return _appBudget;
+    }
 
-public String getName() {
-return _appBudget != null ? _appBudget.getNom() : _name;
-}
+    public String getName() {
+        return _appBudget != null ? _appBudget.getNom() : _name;
+    }
 
-public double getMontant() {
-return _appBudget != null ? _appBudget.getObjectif() : -1;
-}
+    public double getMontant() {
+        return _appBudget != null ? _appBudget.getObjectif() : -1;
+    }
 
-public LocalDate getDateRecurrent() {
-return _appBudget != null ? _appBudget.getDateRecurrent() : null;
-}
+    public LocalDate getDateRecurrent() {
+        return _appBudget != null ? _appBudget.getDateRecurrent() : null;
+    }
 
 }

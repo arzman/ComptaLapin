@@ -11,69 +11,69 @@ import java.util.List;
  */
 public class ExerciceMensuel implements Comparable<ExerciceMensuel> {
 
-	/** id */
-	private final int _id;
-	/** Liste des opération durant l'exercice. */
-	private final List<Integer> _operationList;
-	/** Date de début de l'exercice */
-	private final LocalDate _dateDebut;
-	/** Date de fin de l'exercice */
-	private final LocalDate _dateFin;
-	/** Le résultat prévisionnel à la création */
-	private final double _resPrev;
+    /** id */
+    private final int _id;
+    /** Liste des opération durant l'exercice. */
+    private final List<Integer> _operationList;
+    /** Date de début de l'exercice */
+    private final LocalDate _dateDebut;
+    /** Date de fin de l'exercice */
+    private final LocalDate _dateFin;
+    /** Le résultat prévisionnel à la création */
+    private final double _resPrev;
 
-	/**
-	 * 
-	 * Constructeur par d�faut
-	 */
-	public ExerciceMensuel(int id, LocalDate dateDebut, LocalDate dateFin, double resPrev) {
+    /**
+     * 
+     * Constructeur par d�faut
+     */
+    public ExerciceMensuel(int id, LocalDate dateDebut, LocalDate dateFin, double resPrev) {
 
-		_operationList = new ArrayList<Integer>();
+        _operationList = new ArrayList<Integer>();
 
-		_id = id;
-		_dateDebut = dateDebut;
-		_dateFin = dateFin;
-		_resPrev = resPrev;
+        _id = id;
+        _dateDebut = dateDebut;
+        _dateFin = dateFin;
+        _resPrev = resPrev;
 
-	}
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int compareTo(ExerciceMensuel o_) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compareTo(ExerciceMensuel o_) {
 
-		return _dateDebut.compareTo(o_._dateDebut);
-	}
+        return _dateDebut.compareTo(o_._dateDebut);
+    }
 
-	// GETTER'N'SETTER -----------------------
+    // GETTER'N'SETTER -----------------------
 
-	public int getId() {
-		return _id;
-	}
+    public int getId() {
+        return _id;
+    }
 
-	public LocalDate getDateDebut() {
-		return _dateDebut;
-	}
+    public LocalDate getDateDebut() {
+        return _dateDebut;
+    }
 
-	public LocalDate getDateFin() {
-		return _dateFin;
-	}
+    public LocalDate getDateFin() {
+        return _dateFin;
+    }
 
-	/**
-	 * @return the depensesList
-	 */
-	public List<Integer> getOperationList() {
-		return _operationList;
-	}
+    /**
+     * @return the depensesList
+     */
+    public List<Integer> getOperationList() {
+        return _operationList;
+    }
 
-	/**
-	 * Retourne le résultat pévisionnel
-	 * 
-	 * @return
-	 */
-	public double getResultatPrev() {
-		return _resPrev;
-	}
+    /**
+     * Retourne le résultat pévisionnel
+     * 
+     * @return
+     */
+    public double getResultatPrev() {
+        return _resPrev;
+    }
 
 }

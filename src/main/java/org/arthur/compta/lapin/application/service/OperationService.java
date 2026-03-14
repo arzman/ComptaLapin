@@ -15,63 +15,64 @@ import java.util.List;
 
 public class OperationService {
 
-/**
- * Permutte l'état d'une opération et répercute les conséquences
- */
-public static void switchEtatOperation(AppOperation appOp) throws ComptaException {
-appOp.switchEtat();
-CompteManager.getInstance().operationSwitched(appOp);
-OperationDataAccess.getInstance().updateOperation(appOp.getDBObject());
-}
+    /**
+     * Permutte l'état d'une opération et répercute les conséquences
+     */
+    public static void switchEtatOperation(AppOperation appOp) throws ComptaException {
+        appOp.switchEtat();
+        CompteManager.getInstance().operationSwitched(appOp);
+        OperationDataAccess.getInstance().updateOperation(appOp.getDBObject());
+    }
 
-/**
- * Retourne les types possibles pour une opération
- */
-public static List<String> getOperationType() {
-List<String> res = new ArrayList<>();
-for (OperationType opeType : OperationType.values()) {
-res.add(opeType.toString());
-}
-return res;
-}
+    /**
+     * Retourne les types possibles pour une opération
+     */
+    public static List<String> getOperationType() {
+        List<String> res = new ArrayList<>();
+        for (OperationType opeType : OperationType.values()) {
+            res.add(opeType.toString());
+        }
+        return res;
+    }
 
-/**
- * Edite l'opération passée en paramètre
- */
-public static AppOperation editOperation(AppOperation _operation, String newLib, double newMontant,
-AppCompte newCompteSrc, AppCompte newCompteCibles) throws ComptaException {
+    /**
+     * Edite l'opération passée en paramètre
+     */
+    public static AppOperation editOperation(AppOperation _operation, String newLib, double newMontant,
+            AppCompte newCompteSrc, AppCompte newCompteCibles) throws ComptaException {
 
-boolean toSwitch = false;
-if (_operation.getEtat().equals(EtatOperation.PRISE_EN_COMPTE)) {
-toSwitch = true;
-switchEtatOperation(_operation);
-}
+        boolean toSwitch = false;
+        if (_operation.getEtat().equals(EtatOperation.PRISE_EN_COMPTE)) {
+            toSwitch = true;
+            switchEtatOperation(_operation);
+        }
 
-_operation.setLibelle(newLib);
-_operation.setMontant(newMontant);
-_operation.setCompteSrc(newCompteSrc);
+        _operation.setLibelle(newLib);
+        _operation.setMontant(newMontant);
+        _operation.setCompteSrc(newCompteSrc);
 
-if (_operation instanceof AppTransfert) {
-((AppTransfert) _operation).setCompteCible(newCompteCibles);
-}
+        if (_operation instanceof AppTransfert) {
+            ((AppTransfert) _operation).setCompteCible(newCompteCibles);
+        }
 
-OperationDataAccess.getInstance().updateOperation(_operation.getDBObject());
+        OperationDataAccess.getInstance().updateOperation(_operation.getDBObject());
 
-if (toSwitch) {
-switchEtatOperation(_operation);
-}
+        if (toSwitch) {
+            switchEtatOperation(_operation);
+        }
 
-CompteManager.getInstance().calculateSoldePrev(newCompteSrc);
-CompteManager.getInstance().calculateSoldePrev(newCompteCibles);
+        CompteManager.getInstance().calculateSoldePrev(newCompteSrc);
+        CompteManager.getInstance().calculateSoldePrev(newCompteCibles);
 
-return _operation;
-}
+        return _operation;
+    }
 
-/**
- * Effectue une recherche sur les opérations.
- */
-public static List<OperationSearchResult> doSearch(String lib, String montant, String tolerance) throws ComptaException {
-return OperationDataAccess.getInstance().searchOperation(lib, montant, tolerance);
-}
+    /**
+     * Effectue une recherche sur les opérations.
+     */
+    public static List<OperationSearchResult> doSearch(String lib, String montant, String tolerance)
+            throws ComptaException {
+        return OperationDataAccess.getInstance().searchOperation(lib, montant, tolerance);
+    }
 
 }

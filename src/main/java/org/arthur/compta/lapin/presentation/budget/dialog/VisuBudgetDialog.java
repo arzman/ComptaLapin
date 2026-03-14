@@ -22,113 +22,135 @@ import java.util.List;
  */
 public class VisuBudgetDialog extends ComptaDialog {
 
-private final SimpleBudgetTableModel _nonRecModel;
-private final SimpleBudgetTableModel _recModel;
-private final JTable _tableNonRec;
-private final JTable _tableRec;
+    private final SimpleBudgetTableModel _nonRecModel;
+    private final SimpleBudgetTableModel _recModel;
+    private final JTable _tableNonRec;
+    private final JTable _tableRec;
 
-public VisuBudgetDialog() {
-super(VisuBudgetDialog.class.getSimpleName(), "Visualiser les budgets");
+    public VisuBudgetDialog() {
+        super(VisuBudgetDialog.class.getSimpleName(), "Visualiser les budgets");
 
-_nonRecModel = new SimpleBudgetTableModel();
-_recModel = new SimpleBudgetTableModel();
-_tableNonRec = new JTable(_nonRecModel);
-_tableRec = new JTable(_recModel);
+        _nonRecModel = new SimpleBudgetTableModel();
+        _recModel = new SimpleBudgetTableModel();
+        _tableNonRec = new JTable(_nonRecModel);
+        _tableRec = new JTable(_recModel);
 
-initValues();
-createContextMenu(_tableNonRec, _nonRecModel, false);
-createContextMenu(_tableRec, _recModel, true);
+        initValues();
+        createContextMenu(_tableNonRec, _nonRecModel, false);
+        createContextMenu(_tableRec, _recModel, true);
 
-JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-new JScrollPane(_tableNonRec), new JScrollPane(_tableRec));
-split.setResizeWeight(0.5);
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(_tableNonRec),
+                new JScrollPane(_tableRec));
+        split.setResizeWeight(0.5);
 
-JButton closeBtn = new JButton("Fermer");
-closeBtn.addActionListener(e -> dispose());
-JPanel btnPanel = new JPanel(new FlowLayout());
-btnPanel.add(closeBtn);
+        JButton closeBtn = new JButton("Fermer");
+        closeBtn.addActionListener(e -> dispose());
+        JPanel btnPanel = new JPanel(new FlowLayout());
+        btnPanel.add(closeBtn);
 
-setLayout(new BorderLayout());
-add(split, BorderLayout.CENTER);
-add(btnPanel, BorderLayout.SOUTH);
-setSize(700, 400);
-}
+        setLayout(new BorderLayout());
+        add(split, BorderLayout.CENTER);
+        add(btnPanel, BorderLayout.SOUTH);
+        setSize(700, 400);
+    }
 
-private void initValues() {
-try {
-List<AppBudget> nonRec = new ArrayList<>();
-List<AppBudget> rec = new ArrayList<>();
-for (AppBudget b : BudgetManager.getInstance().getAllBudgets()) {
-if (b.getLabelRecurrent().isEmpty()) nonRec.add(b);
-else rec.add(b);
-}
-_nonRecModel.setData(nonRec);
-_recModel.setData(rec);
-} catch (ComptaException e) {
-ExceptionDisplayService.showException(e);
-}
-}
+    private void initValues() {
+        try {
+            List<AppBudget> nonRec = new ArrayList<>();
+            List<AppBudget> rec = new ArrayList<>();
+            for (AppBudget b : BudgetManager.getInstance().getAllBudgets()) {
+                if (b.getLabelRecurrent().isEmpty())
+                    nonRec.add(b);
+                else
+                    rec.add(b);
+            }
+            _nonRecModel.setData(nonRec);
+            _recModel.setData(rec);
+        } catch (ComptaException e) {
+            ExceptionDisplayService.showException(e);
+        }
+    }
 
-private void createContextMenu(JTable table, SimpleBudgetTableModel model, boolean isRec) {
-JPopupMenu menu = new JPopupMenu();
-JMenuItem delItem = new JMenuItem("Supprimer", new ImageIcon(ImageLoader.getImageIcon(ImageLoader.DEL_IMG).getImage()));
-delItem.addActionListener(e -> {
-int row = table.getSelectedRow();
-if (row >= 0) {
-AppBudget item = model.getRow(row);
-if (item != null) {
-try {
-BudgetManager.getInstance().removeBudget(item);
-List<AppBudget> data = new ArrayList<>(model._data);
-Iterator<AppBudget> iter = data.iterator();
-while (iter.hasNext()) {
-if (iter.next().getAppId() == item.getAppId()) {
-iter.remove();
-break;
-}
-}
-model.setData(data);
-} catch (ComptaException ex) {
-ExceptionDisplayService.showException(ex);
-}
-}
-}
-});
-menu.add(delItem);
-table.addMouseListener(new MouseAdapter() {
-@Override
-public void mousePressed(MouseEvent e) {
-if (SwingUtilities.isRightMouseButton(e)) {
-int row = table.rowAtPoint(e.getPoint());
-if (row >= 0) table.setRowSelectionInterval(row, row);
-delItem.setEnabled(table.getSelectedRow() >= 0);
-menu.show(table, e.getX(), e.getY());
-}
-}
-});
-}
+    private void createContextMenu(JTable table, SimpleBudgetTableModel model, boolean isRec) {
+        JPopupMenu menu = new JPopupMenu();
+        JMenuItem delItem = new JMenuItem("Supprimer",
+                new ImageIcon(ImageLoader.getImageIcon(ImageLoader.DEL_IMG).getImage()));
+        delItem.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row >= 0) {
+                AppBudget item = model.getRow(row);
+                if (item != null) {
+                    try {
+                        BudgetManager.getInstance().removeBudget(item);
+                        List<AppBudget> data = new ArrayList<>(model._data);
+                        Iterator<AppBudget> iter = data.iterator();
+                        while (iter.hasNext()) {
+                            if (iter.next().getAppId() == item.getAppId()) {
+                                iter.remove();
+                                break;
+                            }
+                        }
+                        model.setData(data);
+                    } catch (ComptaException ex) {
+                        ExceptionDisplayService.showException(ex);
+                    }
+                }
+            }
+        });
+        menu.add(delItem);
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    int row = table.rowAtPoint(e.getPoint());
+                    if (row >= 0)
+                        table.setRowSelectionInterval(row, row);
+                    delItem.setEnabled(table.getSelectedRow() >= 0);
+                    menu.show(table, e.getX(), e.getY());
+                }
+            }
+        });
+    }
 
-private static class SimpleBudgetTableModel extends AbstractTableModel {
-private static final String[] COLS = {"Nom", "Objectif", "Label"};
-List<AppBudget> _data = new ArrayList<>();
+    private static class SimpleBudgetTableModel extends AbstractTableModel {
+        private static final String[] COLS = {"Nom", "Objectif", "Label"};
+        List<AppBudget> _data = new ArrayList<>();
 
-public void setData(List<AppBudget> data) { _data = data; fireTableDataChanged(); }
-public AppBudget getRow(int row) { return (row >= 0 && row < _data.size()) ? _data.get(row) : null; }
+        public void setData(List<AppBudget> data) {
+            _data = data;
+            fireTableDataChanged();
+        }
+        public AppBudget getRow(int row) {
+            return (row >= 0 && row < _data.size()) ? _data.get(row) : null;
+        }
 
-@Override public int getRowCount() { return _data.size(); }
-@Override public int getColumnCount() { return COLS.length; }
-@Override public String getColumnName(int col) { return COLS[col]; }
+        @Override
+        public int getRowCount() {
+            return _data.size();
+        }
+        @Override
+        public int getColumnCount() {
+            return COLS.length;
+        }
+        @Override
+        public String getColumnName(int col) {
+            return COLS[col];
+        }
 
-@Override
-public Object getValueAt(int row, int col) {
-AppBudget b = _data.get(row);
-switch (col) {
-case 0: return b.getNom();
-case 1: return ApplicationFormatter.montantFormat.format(b.getObjectif());
-case 2: return b.getLabelRecurrent();
-default: return null;
-}
-}
-}
+        @Override
+        public Object getValueAt(int row, int col) {
+            AppBudget b = _data.get(row);
+            switch (col) {
+                case 0 :
+                    return b.getNom();
+                case 1 :
+                    return ApplicationFormatter.montantFormat.format(b.getObjectif());
+                case 2 :
+                    return b.getLabelRecurrent();
+                default :
+                    return null;
+            }
+        }
+    }
 
 }

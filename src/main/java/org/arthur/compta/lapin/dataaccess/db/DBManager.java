@@ -18,144 +18,147 @@ import java.sql.*;
  */
 public class DBManager {
 
-	/** l'instance du singleton */
-	private static DBManager _instance;
+    /** l'instance du singleton */
+    private static DBManager _instance;
 
-	private final Logger _logger;
+    private final Logger _logger;
 
-	/**
-	 * Connexion à la base
-	 */
-	private Connection _connexionDB;
+    /**
+     * Connexion à la base
+     */
+    private Connection _connexionDB;
 
-	/**
-	 * Retourne l'instance unique du singleton
-	 * 
-	 * @return
-	 */
-	public static DBManager getInstance() {
+    /**
+     * Retourne l'instance unique du singleton
+     * 
+     * @return
+     */
+    public static DBManager getInstance() {
 
-		if (_instance == null) {
+        if (_instance == null) {
 
-			_instance = new DBManager();
-		}
+            _instance = new DBManager();
+        }
 
-		return _instance;
-	}
+        return _instance;
+    }
 
-	/** Le constructeur par défaut */
-	private DBManager() {
+    /** Le constructeur par défaut */
+    private DBManager() {
 
-		_logger = LogManager.getLogger(DBManager.class);
+        _logger = LogManager.getLogger(DBManager.class);
 
-		Path pathToDb = Paths.get(FilesManager.getInstance().getDBFolder().toString(), "db_data");
+        Path pathToDb = Paths.get(FilesManager.getInstance().getDBFolder().toString(), "db_data");
 
-		try {
-			// tentative de connexion à la base
-			_connexionDB = DriverManager.getConnection("jdbc:hsqldb:file:" + pathToDb + ";ifexists=true", "sa", "");
+        try {
+            // tentative de connexion à la base
+            _connexionDB = DriverManager.getConnection("jdbc:hsqldb:file:" + pathToDb + ";ifexists=true", "sa", "");
 
-		} catch (Throwable e) {
-			createDB(pathToDb);
-		}
+        } catch (Throwable e) {
+            createDB(pathToDb);
+        }
 
-		// on met la base a jour ( si besoin)
-		if (Boolean.valueOf(ConfigurationManager.getInstance().getProp("DBManager.checkupdate", Boolean.toString(true)))) {
-			try {
-				DBUpdateService.checkUpdate(_connexionDB);
-			} catch (ComptaException e) {
-				_logger.fatal(e);
-			}
-		}
+        // on met la base a jour ( si besoin)
+        if (Boolean
+                .valueOf(ConfigurationManager.getInstance().getProp("DBManager.checkupdate", Boolean.toString(true)))) {
+            try {
+                DBUpdateService.checkUpdate(_connexionDB);
+            } catch (ComptaException e) {
+                _logger.fatal(e);
+            }
+        }
 
-	}
+    }
 
-	/**
-	 * Exécute un script SQL "interne"
-	 * 
-	 * @param connexion
-	 *            la connexion à la base
-	 * @param script
-	 *            le script a executer
-	 */
-	private void loadScript(Connection connexion, String script) {
+    /**
+     * Exécute un script SQL "interne"
+     * 
+     * @param connexion
+     *            la connexion à la base
+     * @param script
+     *            le script a executer
+     */
+    private void loadScript(Connection connexion, String script) {
 
-		try (InputStream input = getClass().getResourceAsStream("/org/arthur/compta/lapin/dataaccess/db/ressource/" + script);
-				InputStreamReader reader = new InputStreamReader(input);
-				BufferedReader bReader = new BufferedReader(reader)) {
+        try (InputStream input = getClass()
+                .getResourceAsStream("/org/arthur/compta/lapin/dataaccess/db/ressource/" + script);
+                InputStreamReader reader = new InputStreamReader(input);
+                BufferedReader bReader = new BufferedReader(reader)) {
 
-			StringBuffer sb = new StringBuffer();
-			String str = "";
-			while ((str = bReader.readLine()) != null) {
-				if (!str.startsWith("#") && !str.trim().isEmpty()) {
-					sb.append(str + "\n ");
-				}
-			}
+            StringBuffer sb = new StringBuffer();
+            String str = "";
+            while ((str = bReader.readLine()) != null) {
+                if (!str.startsWith("#") && !str.trim().isEmpty()) {
+                    sb.append(str + "\n ");
+                }
+            }
 
-			Statement stmt = connexion.createStatement();
+            Statement stmt = connexion.createStatement();
 
-			stmt.executeUpdate(sb.toString());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+            stmt.executeUpdate(sb.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-	}
+    }
 
-	/**
-	 * Méthode de création de la base de donnée
-	 *
-	 * @param pathToDb
-	 *            le fichier de donnée de la base
-	 */
-	private void createDB(Path pathToDb) {
+    /**
+     * Méthode de création de la base de donnée
+     *
+     * @param pathToDb
+     *            le fichier de donnée de la base
+     */
+    private void createDB(Path pathToDb) {
 
-		// création de la base
-		try {
-			_connexionDB = DriverManager.getConnection("jdbc:hsqldb:file:" + pathToDb.toString() + ";ifexists=false", "sa", "");
+        // création de la base
+        try {
+            _connexionDB = DriverManager.getConnection("jdbc:hsqldb:file:" + pathToDb.toString() + ";ifexists=false",
+                    "sa", "");
 
-			loadScript(_connexionDB, "create_db.sql");
+            loadScript(_connexionDB, "create_db.sql");
 
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-	}
+    }
 
-	/**
-	 * Retourne une connexion valide
-	 * 
-	 * @return
-	 */
-	synchronized Connection getConnexion() {
-		return _connexionDB;
-	}
+    /**
+     * Retourne une connexion valide
+     * 
+     * @return
+     */
+    synchronized Connection getConnexion() {
+        return _connexionDB;
+    }
 
-	/**
-	 * Ferme la base de donnée
-	 */
-	public void stop() {
+    /**
+     * Ferme la base de donnée
+     */
+    public void stop() {
 
-		String query = "SHUTDOWN;";
+        String query = "SHUTDOWN;";
 
-		try {
-			getConnexion().createStatement().executeQuery(query);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+        try {
+            getConnexion().createStatement().executeQuery(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-	}
+    }
 
-	/**
-	 * Ferme la base de donnée
-	 */
-	public void closeDataBase() {
+    /**
+     * Ferme la base de donnée
+     */
+    public void closeDataBase() {
 
-		try (PreparedStatement pst = _connexionDB.prepareStatement("SHUTDOWN")) {
-			pst.execute();
+        try (PreparedStatement pst = _connexionDB.prepareStatement("SHUTDOWN")) {
+            pst.execute();
 
-		} catch (SQLException e) {
-			_logger.fatal(e);
-		}
+        } catch (SQLException e) {
+            _logger.fatal(e);
+        }
 
-	}
+    }
 
 }

@@ -1,13 +1,6 @@
 package org.arthur.compta.lapin.presentation.operation.dialog;
 
-import javafx.scene.Node;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
-import javafx.util.Callback;
+import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.application.model.AppCompte;
@@ -16,241 +9,151 @@ import org.arthur.compta.lapin.application.model.AppTransfert;
 import org.arthur.compta.lapin.application.service.OperationService;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
-import org.arthur.compta.lapin.presentation.template.cellfactory.CompteCellComboFactory;
+
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import java.awt.*;
+import java.util.List;
 
 /**
  * Fenêtre permettant la création et l'édition d'opération
- *
  */
-public class CreateOperationDialog extends ComptaDialog<String> {
+public class CreateOperationDialog extends ComptaDialog {
 
-	/** L'opération a créer ou éditer */
-	private AppOperation _operation;
-	/** l'index du mois dans lequel l'opération sera créée */
-	private final int _numMois;
+private AppOperation _operation;
+private final int _numMois;
+private final JTextField _libTxt = new JTextField(20);
+private final JTextField _montantTxt = new JTextField(20);
+private final JComboBox<String> _typeCombo;
+private final JComboBox<AppCompte> _srcCombo;
+private final JComboBox<AppCompte> _cibleCombo;
+private final JButton _okBtn = new JButton("Ok");
 
-	/** champ de saisie du nom */
-	private TextField _libTxt;
-	/** champ de saisie du montant */
-	private TextField _montantTxt;
-	/** champ de saisie du type */
-	private ComboBox<String> _typeCombo;
-	/** Saisie du compte source */
-	private ComboBox<AppCompte> _srcCombo;
-	/** Saisie du compte cible */
-	private ComboBox<AppCompte> _cibleCombo;
+public CreateOperationDialog(AppOperation op, int numMois, String typeOpe) {
+super(CreateOperationDialog.class.getSimpleName(),
+op == null ? "Création d'une opération" : "Edition d'une opération");
+_operation = op;
+_numMois = numMois;
 
-	/**
-	 * Constructeur
-	 * 
-	 * @param op
-	 *            l'opération à éditer, null si création
-	 */
-	public CreateOperationDialog(AppOperation op, int numMois, String dString) {
+// type combo
+List<String> types = OperationService.getOperationType();
+_typeCombo = new JComboBox<>(types.toArray(new String[0]));
 
-		super(CreateOperationDialog.class.getSimpleName());
+// compte combos
+List<AppCompte> comptes = CompteManager.getInstance().getCompteList();
+DefaultComboBoxModel<AppCompte> cptModel = new DefaultComboBoxModel<>(comptes.toArray(new AppCompte[0]));
+_srcCombo = new JComboBox<>(cptModel);
+_cibleCombo = new JComboBox<>(new DefaultComboBoxModel<>(comptes.toArray(new AppCompte[0])));
 
-		if (op == null) {
-			setTitle("Création d'une opération");
-		} else {
-			setTitle("Edition d'une opération");
-		}
-		_operation = op;
-		_numMois = numMois;
-		// création du contenu
-		createContent();
-		// initialisation des valeurs
-		initValues(dString);
-		// ajout des listeners sur les champs
-		hookListeners();
+// renderer pour les comptes
+ListCellRenderer<Object> cptRenderer = new DefaultListCellRenderer() {
+@Override
+public Component getListCellRendererComponent(JList<?> l, Object v, int idx, boolean sel, boolean focus) {
+JLabel lbl = (JLabel) super.getListCellRendererComponent(l, v, idx, sel, focus);
+lbl.setText(v instanceof AppCompte ? ((AppCompte) v).getNom() : "");
+return lbl;
+}
+};
+_srcCombo.setRenderer(cptRenderer);
+_cibleCombo.setRenderer(cptRenderer);
 
-		// crée ou édite l'élement de template après appuis sur Ok
-		setResultConverter(new Callback<ButtonType, String>() {
+JPanel content = new JPanel(new GridBagLayout());
+GridBagConstraints gbc = new GridBagConstraints();
+gbc.insets = new Insets(4, 4, 4, 4);
+gbc.anchor = GridBagConstraints.WEST;
 
-			@Override
-			public String call(ButtonType param) {
+int row = 0;
+gbc.gridx = 0; gbc.gridy = row; content.add(new JLabel("Libellé :"), gbc);
+gbc.gridx = 1; content.add(_libTxt, gbc); row++;
+gbc.gridx = 0; gbc.gridy = row; content.add(new JLabel("Montant :"), gbc);
+gbc.gridx = 1; content.add(_montantTxt, gbc); row++;
+gbc.gridx = 0; gbc.gridy = row; content.add(new JLabel("Type :"), gbc);
+gbc.gridx = 1; content.add(_typeCombo, gbc); row++;
+gbc.gridx = 0; gbc.gridy = row; content.add(new JLabel("Source :"), gbc);
+gbc.gridx = 1; content.add(_srcCombo, gbc); row++;
+gbc.gridx = 0; gbc.gridy = row; content.add(new JLabel("Cible :"), gbc);
+gbc.gridx = 1; content.add(_cibleCombo, gbc);
 
-				String res = null;
+initValues(typeOpe);
 
-				// appuis sur ok
-				if (param.equals(_buttonTypeOk)) {
+DocumentListener dl = new DocumentListener() {
+public void insertUpdate(DocumentEvent e) { checkInput(); }
+public void removeUpdate(DocumentEvent e) { checkInput(); }
+public void changedUpdate(DocumentEvent e) { checkInput(); }
+};
+_libTxt.getDocument().addDocumentListener(dl);
+_montantTxt.getDocument().addDocumentListener(dl);
+_typeCombo.addActionListener(e -> checkInput());
 
-					// création
-					if (_operation == null) {
+JButton cancelBtn = new JButton("Annuler");
+_okBtn.addActionListener(e -> onOk());
+cancelBtn.addActionListener(e -> dispose());
 
-						try {
-							_operation = TrimestreManager.getInstance().addOperation(_libTxt.getText(), Double.parseDouble(_montantTxt.getText()),
-									_typeCombo.getSelectionModel().getSelectedItem(), _srcCombo.getSelectionModel().getSelectedItem(),
-									_cibleCombo.getSelectionModel().getSelectedItem(), _numMois);
-						} catch (Exception e) {
-							ExceptionDisplayService.showException(e);
-						}
+JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+btnPanel.add(_okBtn);
+btnPanel.add(cancelBtn);
 
-					} else {
-						// édition
-						try {
-							_operation = OperationService.editOperation(_operation, _libTxt.getText(), Double.parseDouble(_montantTxt.getText()),
-									_srcCombo.getSelectionModel().getSelectedItem(), _cibleCombo.getSelectionModel().getSelectedItem());
-						} catch (Exception e) {
-							ExceptionDisplayService.showException(e);
-						}
-					}
+setLayout(new BorderLayout());
+add(content, BorderLayout.CENTER);
+add(btnPanel, BorderLayout.SOUTH);
 
-					res = _operation.getType().toString();
+checkInput();
+pack();
+}
 
-				}
+private void initValues(String typeOpe) {
+if (_operation != null) {
+_libTxt.setText(_operation.getLibelle());
+_montantTxt.setText(String.valueOf(_operation.getMontant()));
+_typeCombo.setSelectedItem(_operation.getType().toString());
+_typeCombo.setEnabled(false);
+_srcCombo.setSelectedItem(_operation.getCompteSource());
+if (_operation instanceof AppTransfert) {
+_cibleCombo.setSelectedItem(((AppTransfert) _operation).getCompteCible());
+}
+} else {
+_libTxt.setText("");
+_montantTxt.setText("0");
+if (typeOpe != null) _typeCombo.setSelectedItem(typeOpe);
+if (_srcCombo.getItemCount() > 0) _srcCombo.setSelectedIndex(0);
+if (_cibleCombo.getItemCount() > 0) _cibleCombo.setSelectedIndex(0);
+}
+}
 
-				return res;
-			}
-		});
+private void onOk() {
+try {
+String type = (String) _typeCombo.getSelectedItem();
+AppCompte src = (AppCompte) _srcCombo.getSelectedItem();
+AppCompte cible = (AppCompte) _cibleCombo.getSelectedItem();
+double montant = Double.parseDouble(_montantTxt.getText().trim());
 
-	}
+if (_operation == null) {
+_operation = TrimestreManager.getInstance().addOperation(
+_libTxt.getText(), montant, type, src, cible, _numMois);
+} else {
+OperationService.editOperation(_operation, _libTxt.getText(), montant, src, cible);
+}
+_confirmed = true;
+dispose();
+} catch (Exception e) {
+ExceptionDisplayService.showException(e);
+}
+}
 
-	/**
-	 * Création des champ de saisi
-	 */
-	private void createContent() {
+private void checkInput() {
+boolean libOk = !_libTxt.getText().trim().isEmpty();
+_libTxt.setBorder(libOk ? UIManager.getBorder("TextField.border") : BorderFactory.createLineBorder(Color.RED));
 
-		GridPane root = new GridPane();
-		getDialogPane().setContent(root);
+boolean montOk = false;
+try { Double.parseDouble(_montantTxt.getText().trim()); montOk = true; } catch (NumberFormatException e) {}
+_montantTxt.setBorder(montOk ? UIManager.getBorder("TextField.border") : BorderFactory.createLineBorder(Color.RED));
 
-		// saisie du nom
-		Label nomLdl = new Label("Libellé :");
-		root.add(nomLdl, 0, 0);
-		_libTxt = new TextField();
-		root.add(_libTxt, 1, 0);
+String type = (String) _typeCombo.getSelectedItem();
+boolean isTrans = TrimestreManager.getInstance().isTransfertType(type);
+_cibleCombo.setEnabled(isTrans);
 
-		// saisie du montant
-		Label montantLdl = new Label("Montant :");
-		root.add(montantLdl, 0, 1);
-		_montantTxt = new TextField();
-		root.add(_montantTxt, 1, 1);
-
-		// saisie du type
-		Label typeLbl = new Label("Type :");
-		root.add(typeLbl, 0, 2);
-		_typeCombo = new ComboBox<String>();
-		_typeCombo.setItems(OperationService.getOperationType());
-		root.add(_typeCombo, 1, 2);
-
-		// saisie du compte source
-		Label srcLbl = new Label("Source :");
-		root.add(srcLbl, 0, 3);
-		_srcCombo = new ComboBox<AppCompte>();
-		_srcCombo.setItems(CompteManager.getInstance().getCompteList());
-		_srcCombo.setCellFactory(new CompteCellComboFactory());
-		root.add(_srcCombo, 1, 3);
-
-		// saisie du compte cible
-		Label cibleLbl = new Label("Cible");
-		root.add(cibleLbl, 0, 4);
-		_cibleCombo = new ComboBox<AppCompte>();
-		_cibleCombo.setItems(CompteManager.getInstance().getCompteList());
-		_cibleCombo.setCellFactory(new CompteCellComboFactory());
-		root.add(_cibleCombo, 1, 4);
-	}
-
-	/**
-	 * Positionne les valeurs de l'ihm à partir de l'élément de template
-	 */
-	private void initValues(String typeOpe) {
-
-		if (_operation != null) {
-			// édition
-			_libTxt.setText(_operation.getLibelle());
-			_montantTxt.setText(String.valueOf(_operation.getMontant()));
-			_typeCombo.getSelectionModel().select(String.valueOf(_operation.getType()));
-			_typeCombo.setDisable(true);
-			_srcCombo.getSelectionModel().select(_operation.getCompteSource());
-			if (_operation instanceof AppTransfert) {
-				_cibleCombo.getSelectionModel().select(((AppTransfert) _operation).getCompteCible());
-			}
-
-		} else {
-			// création
-			_libTxt.setText("");
-			_montantTxt.setText("0");
-			_typeCombo.getSelectionModel().select(typeOpe);
-			_srcCombo.getSelectionModel().select(0);
-			_cibleCombo.getSelectionModel().select(0);
-		}
-
-	}
-
-	/**
-	 * Création des boutons
-	 */
-	protected void createButtonBar() {
-
-		super.createButtonBar();
-
-		// bouton annuler
-		ButtonType cancelButton = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
-		getDialogPane().getButtonTypes().add(cancelButton);
-	}
-
-	/**
-	 * Affecte des écouteurs de modification sur les champs de saisie. Ces
-	 * écouteurs déclenchent la vérification de la saisie
-	 */
-	private void hookListeners() {
-		// nom
-		_libTxt.textProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
-		});
-		// montant
-		_montantTxt.textProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
-		});
-		// type
-		_typeCombo.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
-		});
-		// compte source
-		_srcCombo.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
-		});
-		// compte cible
-		_cibleCombo.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
-		});
-
-	}
-
-	/**
-	 * Vérifie la validité de la saisie
-	 */
-	private void checkInput() {
-
-		// Vérif du libellé
-		boolean nomError = true;
-
-		if (!_libTxt.getText().trim().isEmpty()) {
-			_libTxt.setBorder(null);
-			nomError = false;
-		} else {
-			_libTxt.setBorder(BORDER_ERROR);
-			nomError = true;
-		}
-
-		// Vérif du montant
-		boolean soldeError = true;
-		try {
-			Double.parseDouble(_montantTxt.getText().trim());
-			_montantTxt.setBorder(null);
-			soldeError = false;
-		} catch (NumberFormatException e) {
-			_montantTxt.setBorder(BORDER_ERROR);
-			soldeError = true;
-		}
-		// vérif du type
-
-		_cibleCombo.setDisable(!TrimestreManager.getInstance().isTransfertType(_typeCombo.getSelectionModel().getSelectedItem()));
-
-		if (_buttonTypeOk != null) {
-			Node OkButton = getDialogPane().lookupButton(_buttonTypeOk);
-			OkButton.setDisable(nomError || soldeError);
-		}
-	}
+_okBtn.setEnabled(libOk && montOk);
+}
 
 }

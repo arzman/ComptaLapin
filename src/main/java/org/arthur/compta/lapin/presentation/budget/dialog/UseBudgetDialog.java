@@ -1,163 +1,97 @@
 package org.arthur.compta.lapin.presentation.budget.dialog;
 
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
-import javafx.util.Callback;
 import org.arthur.compta.lapin.application.manager.BudgetManager;
 import org.arthur.compta.lapin.application.model.AppBudget;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import java.awt.*;
+import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.Date;
+
 /**
- * Fenetre permettant d'utiliser un budget
+ * Fenêtre permettant d'utiliser un budget
  */
-public class UseBudgetDialog extends ComptaDialog<ButtonData> {
+public class UseBudgetDialog extends ComptaDialog {
 
-	/** Le budget */
-	private final AppBudget _budget;
+private final AppBudget _budget;
+private final JTextField _nomTxt = new JTextField(20);
+private final JTextField _montantTxt = new JTextField(20);
+private final JSpinner _dateSpinner;
+private final JButton _okBtn = new JButton("Ok");
 
-	/** champ de saisie du montant */
-	private final TextField _montantTxt;
-	/** champ de saisie du libelle */
-	private final TextField _nomTxt;
-	/** champ de saisie de la date */
-	private final DatePicker _datePck;
+public UseBudgetDialog(AppBudget appB) {
+super(UseBudgetDialog.class.getSimpleName(), "Utiliser le budget");
+_budget = appB;
 
-	/**
-	 * Le constructeur
-	 * 
-	 * @param appB
-	 */
-	public UseBudgetDialog(AppBudget appB) {
+Calendar cal = Calendar.getInstance();
+javax.swing.SpinnerDateModel model = new javax.swing.SpinnerDateModel(cal.getTime(), null, null, Calendar.DAY_OF_MONTH);
+_dateSpinner = new JSpinner(model);
+_dateSpinner.setEditor(new JSpinner.DateEditor(_dateSpinner, "dd/MM/yyyy"));
 
-		super(UseBudgetDialog.class.getSimpleName());
-		_budget = appB;
+JPanel content = new JPanel(new GridBagLayout());
+GridBagConstraints gbc = new GridBagConstraints();
+gbc.insets = new Insets(4, 4, 4, 4);
+gbc.anchor = GridBagConstraints.WEST;
 
-		setTitle("Utiliser le budget");
+int row = 0;
+gbc.gridx = 0; gbc.gridy = row; content.add(new JLabel("Libellé : "), gbc);
+gbc.gridx = 1; content.add(_nomTxt, gbc); row++;
+gbc.gridx = 0; gbc.gridy = row; content.add(new JLabel("Montant : "), gbc);
+gbc.gridx = 1; content.add(_montantTxt, gbc); row++;
+gbc.gridx = 0; gbc.gridy = row; content.add(new JLabel("Date : "), gbc);
+gbc.gridx = 1; content.add(_dateSpinner, gbc);
 
-		GridPane root = new GridPane();
-		root.setHgap(5);
-		root.setVgap(5);
-		getDialogPane().setContent(root);
+DocumentListener dl = new DocumentListener() {
+public void insertUpdate(DocumentEvent e) { checkInput(); }
+public void removeUpdate(DocumentEvent e) { checkInput(); }
+public void changedUpdate(DocumentEvent e) { checkInput(); }
+};
+_nomTxt.getDocument().addDocumentListener(dl);
+_montantTxt.getDocument().addDocumentListener(dl);
 
-		// saisie du libellé
-		Label nomLbl = new Label("Libellé : ");
-		root.add(nomLbl, 0, 0);
-		_nomTxt = new TextField();
-		root.add(_nomTxt, 1, 0);
+JButton closeBtn = new JButton("Fermer");
+_okBtn.addActionListener(e -> {
+Date d = (Date) _dateSpinner.getValue();
+Calendar c = Calendar.getInstance();
+c.setTime(d);
+LocalDate date = LocalDate.of(c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH));
+try {
+BudgetManager.getInstance().addUtilisationForBudget(_budget, _nomTxt.getText().trim(),
+Double.parseDouble(_montantTxt.getText().trim()), date);
+_confirmed = true;
+dispose();
+} catch (Exception ex) {
+ExceptionDisplayService.showException(ex);
+}
+});
+closeBtn.addActionListener(e -> dispose());
 
-		// saisie du montant
-		Label montantLbl = new Label("Montant : ");
-		root.add(montantLbl, 0, 1);
-		_montantTxt = new TextField();
-		root.add(_montantTxt, 1, 1);
+JPanel btnPanel = new JPanel(new FlowLayout());
+btnPanel.add(_okBtn);
+btnPanel.add(closeBtn);
 
-		// saisie de la date
-		Label dateLbl = new Label("Date : ");
-		root.add(dateLbl, 0, 2);
-		_datePck = new DatePicker();
-		root.add(_datePck, 1, 2);
+setLayout(new BorderLayout());
+add(content, BorderLayout.CENTER);
+add(btnPanel, BorderLayout.SOUTH);
 
-		// ajout de l'écoute sur la modif des entrées
-		hookListener();
+checkInput();
+pack();
+}
 
-		// vérif initiale
-		checkInput();
+private void checkInput() {
+boolean nomOk = !_nomTxt.getText().trim().isEmpty();
+_nomTxt.setBorder(nomOk ? UIManager.getBorder("TextField.border") : BorderFactory.createLineBorder(Color.RED));
 
-		setResultConverter(new Callback<ButtonType, ButtonData>() {
+boolean montOk = false;
+try { Double.parseDouble(_montantTxt.getText().trim()); montOk = true; } catch (NumberFormatException e) {}
+_montantTxt.setBorder(montOk ? UIManager.getBorder("TextField.border") : BorderFactory.createLineBorder(Color.RED));
 
-			@Override
-			public ButtonData call(ButtonType param) {
-
-				if (param == _buttonTypeOk) {
-
-					try {
-						BudgetManager.getInstance().addUtilisationForBudget(_budget, _nomTxt.getText().trim(), Double.parseDouble(_montantTxt.getText().trim()),
-								_datePck.getValue());
-					} catch (Exception e) {
-						ExceptionDisplayService.showException(e);
-					}
-				}
-
-				return param.getButtonData();
-			}
-		});
-
-	}
-
-	/**
-	 * Attache des listeners aux champs de saisies
-	 */
-	private void hookListener() {
-
-		_nomTxt.textProperty().addListener((observable, oldValue, newValue) -> checkInput());
-		_montantTxt.textProperty().addListener((observable, oldValue, newValue) -> checkInput());
-		_datePck.valueProperty().addListener((observable, oldValue, newValue) -> checkInput());
-
-	}
-
-	/**
-	 * Vérifie les entrées
-	 */
-	private void checkInput() {
-
-		// vérif du nom...ne doit pas être vide et doit contenir des caractere
-		// alphanum
-		boolean nomError = true;
-		if (!_nomTxt.getText().trim().isEmpty()) {
-
-			_nomTxt.setBorder(null);
-			nomError = false;
-
-		} else {
-			_nomTxt.setBorder(BORDER_ERROR);
-			nomError = true;
-		}
-
-		// Vérif du montant
-		boolean montantError = true;
-		if (!_montantTxt.getText().trim().isEmpty()) {
-
-			try {
-				Double.parseDouble(_montantTxt.getText().trim());
-				_montantTxt.setBorder(null);
-				montantError = false;
-			} catch (NumberFormatException e) {
-				_montantTxt.setBorder(BORDER_ERROR);
-				montantError = true;
-			}
-
-		}
-
-		// vérif de la date
-		boolean dateError = true;
-		if (_datePck.getValue() != null) {
-			dateError = false;
-			_datePck.setBorder(null);
-		} else {
-			dateError = true;
-			_datePck.setBorder(BORDER_ERROR);
-		}
-
-		if (_buttonTypeOk != null) {
-			getDialogPane().lookupButton(_buttonTypeOk).setDisable(nomError || montantError || dateError);
-		}
-
-	}
-
-	/**
-	 * Création des boutons
-	 */
-	protected void createButtonBar() {
-		super.createButtonBar();
-		// bouton close
-		ButtonType close = new ButtonType("Fermer", ButtonData.CANCEL_CLOSE);
-		getDialogPane().getButtonTypes().add(close);
-
-	}
+_okBtn.setEnabled(nomOk && montOk);
+}
 
 }

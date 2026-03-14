@@ -1,146 +1,104 @@
 package org.arthur.compta.lapin.presentation.trimestre.dialog;
 
-import javafx.beans.binding.Bindings;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.GridPane;
-import javafx.util.Callback;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
-import org.arthur.compta.lapin.presentation.trimestre.cellfactory.TrimestreListCellFactory;
+import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
+import javax.swing.*;
+import java.awt.*;
 import java.time.LocalDate;
-import java.util.HashMap;
+import java.util.*;
 
 /**
- * Fenêtre de sélection d'un trimestre : affiche la date de début/fin du
- * trimestre
- *
+ * Fenêtre de sélection d'un trimestre courant
  */
-public class ManageTrimestreCourantDialog extends ComptaDialog<Integer> {
+public class ManageTrimestreCourantDialog extends ComptaDialog {
 
-	/**
-	 * Les id des trimestre à afficher ainsi que leur date de début.
-	 */
-	private ObservableList<String> _trimDdList;
-	/**
-	 * Affichage de la liste des trimestres
-	 */
-	private ListView<String> _listV;
+private final DefaultListModel<String> _listModel;
+private final JList<String> _listV;
+private final HashMap<String, LocalDate> _resumeTrimestre;
+private Integer _result = null;
 
-	public ManageTrimestreCourantDialog() {
+public ManageTrimestreCourantDialog() {
+super(ManageTrimestreCourantDialog.class.getSimpleName(), "Sélection du trimestre courant");
 
-		super(ManageTrimestreCourantDialog.class.getSimpleName());
+_listModel = new DefaultListModel<>();
+_listV = new JList<>(_listModel);
+_listV.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+_listV.setCellRenderer(new TrimestreListCellRenderer());
 
-		setTitle("Sélection du trimestre courant");
+_resumeTrimestre = new HashMap<>();
+try {
+HashMap<String, LocalDate> map = TrimestreManager.getInstance().getAllTrimestreShortList();
+_resumeTrimestre.putAll(map);
+for (String id : map.keySet()) {
+_listModel.addElement(id);
+}
+} catch (ComptaException e) {
+ExceptionDisplayService.showException(e);
+}
 
-		// création de la zone de sélection
-		GridPane content = new GridPane();
-		getDialogPane().setContent(content);
+// menu contextuel
+JPopupMenu ctxMenu = new JPopupMenu();
+JMenuItem delItem = new JMenuItem("Supprimer", new ImageIcon(ImageLoader.getImageIcon(ImageLoader.DEL_IMG).getImage()));
+delItem.addActionListener(e -> {
+String sel = _listV.getSelectedValue();
+if (sel != null) {
+try {
+TrimestreManager.getInstance().removeTrimestre(Integer.parseInt(sel));
+_listModel.removeElement(sel);
+} catch (ComptaException ex) {
+ExceptionDisplayService.showException(ex);
+}
+}
+});
+ctxMenu.add(delItem);
+_listV.setComponentPopupMenu(ctxMenu);
 
-		try {
-			// récupération des trimestres de l'application ainsi que leur date
-			// de début
-			HashMap<String, LocalDate> _resumeTrimestre = TrimestreManager.getInstance().getAllTrimestreShortList();
+// boutons
+JButton okBtn = new JButton("Ok");
+okBtn.addActionListener(e -> {
+String sel = _listV.getSelectedValue();
+if (sel != null) {
+_result = Integer.parseInt(sel);
+_confirmed = true;
+}
+dispose();
+});
+JButton cancelBtn = new JButton("Annuler");
+cancelBtn.addActionListener(e -> dispose());
 
-			// Création de la liste des trimestres à afficher
-			_trimDdList = FXCollections.observableArrayList();
-			_trimDdList.addAll(_resumeTrimestre.keySet());
+setLayout(new BorderLayout());
+add(new JScrollPane(_listV), BorderLayout.CENTER);
+JPanel btnPanel = new JPanel(new FlowLayout());
+btnPanel.add(okBtn);
+btnPanel.add(cancelBtn);
+add(btnPanel, BorderLayout.SOUTH);
+pack();
+}
 
-			// affichage de la liste
-			_listV = new ListView<>();
-			_listV.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-			// callback permettant de customiser l'affichage
-			_listV.setCellFactory(new TrimestreListCellFactory(_resumeTrimestre));
+/** Retourne l'id du trimestre sélectionné, ou null */
+public Integer getResult() {
+return _result;
+}
 
-			_listV.setItems(_trimDdList);
-			content.add(_listV, 0, 0);
-
-		} catch (ComptaException e) {
-			ExceptionDisplayService.showException(e);
-		}
-
-		// Création du menu contextuel
-		createContextMenu();
-
-		// Retourne le Compte créé sur le OK
-		setResultConverter(new Callback<ButtonType, Integer>() {
-
-			@Override
-			public Integer call(ButtonType param) {
-
-				int zeReturn = -1;
-
-				// appuie sur Ok : on crée le trimestre
-				if (param.getButtonData().equals(ButtonData.OK_DONE)) {
-
-					// recup du trimestre
-					zeReturn = Integer.parseInt(_listV.getSelectionModel().getSelectedItem());
-
-				}
-
-				return zeReturn;
-			}
-		});
-
-		getDialogPane().lookupButton(_buttonTypeOk).disableProperty().bind(Bindings.isEmpty(_listV.getSelectionModel().getSelectedItems()));
-
-	}
-
-	/**
-	 * Ajoute un menu contextuel
-	 */
-	private void createContextMenu() {
-
-		ContextMenu menuCtx = new ContextMenu();
-		_listV.setContextMenu(menuCtx);
-
-		// action de suppression du trimestre
-		MenuItem delAction = new MenuItem("Supprimer");
-		delAction.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.DEL_IMG)));
-		delAction.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent event) {
-
-				String idToDel = _listV.getSelectionModel().getSelectedItem();
-				if (idToDel != null && !idToDel.isEmpty()) {
-
-					try {
-						TrimestreManager.getInstance().removeTrimestre(Integer.parseInt(idToDel));
-						_trimDdList.remove(idToDel);
-					} catch (ComptaException e) {
-						ExceptionDisplayService.showException(e);
-					}
-
-				}
-
-			}
-		});
-		menuCtx.getItems().add(delAction);
-
-	}
-
-	/**
-	 * Crée les boutons OK et Cancel
-	 */
-	@Override
-	protected void createButtonBar() {
-		// TODO Auto-generated method stub
-		super.createButtonBar();
-
-		// Création du bouton Cancel
-		ButtonType buttonTypeCancel = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
-		getDialogPane().getButtonTypes().add(buttonTypeCancel);
-
-	}
+/** Rendu de la liste avec dates */
+private class TrimestreListCellRenderer extends DefaultListCellRenderer {
+@Override
+public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+boolean isSelected, boolean cellHasFocus) {
+JLabel lbl = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+String id = (String) value;
+if (id != null && !id.isEmpty() && _resumeTrimestre.containsKey(id)) {
+LocalDate deb = _resumeTrimestre.get(id);
+lbl.setText("De " + ApplicationFormatter.moiAnneedateFormat.format(deb)
++ " à " + ApplicationFormatter.moiAnneedateFormat.format(deb.plusMonths(2)));
+}
+return lbl;
+}
+}
 
 }

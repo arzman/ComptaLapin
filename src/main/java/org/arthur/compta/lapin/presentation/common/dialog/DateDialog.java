@@ -1,59 +1,68 @@
 package org.arthur.compta.lapin.presentation.common.dialog;
 
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.DatePicker;
-import javafx.scene.layout.GridPane;
-import javafx.util.Callback;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
 
+import javax.swing.*;
+import java.awt.*;
 import java.time.LocalDate;
+import java.util.Date;
 
 /**
- * Fenetre permettant de choisr une date
+ * Fenêtre permettant de choisir une date
  */
-public class DateDialog extends ComptaDialog<LocalDate> {
+public class DateDialog extends ComptaDialog {
 
-	public DateDialog(LocalDate date) {
+private LocalDate _result;
+private final JSpinner _dateSpinner;
 
-		super(DateDialog.class.getSimpleName());
+public DateDialog(LocalDate date) {
+super(DateDialog.class.getSimpleName(), "Choisissez une date");
 
-		setTitle("Choisissez une date");
+LocalDate initial = date != null ? date : LocalDate.now();
 
-		DatePicker datPick = new DatePicker();
+JPanel content = new JPanel(new GridBagLayout());
+GridBagConstraints gbc = new GridBagConstraints();
+gbc.insets = new Insets(5, 5, 5, 5);
 
-		if (date != null) {
-			datPick.setValue(date);
-		} else {
+// Spinner de date
+java.util.Calendar cal = java.util.Calendar.getInstance();
+cal.set(initial.getYear(), initial.getMonthValue() - 1, initial.getDayOfMonth());
+javax.swing.SpinnerDateModel model = new javax.swing.SpinnerDateModel(cal.getTime(), null, null, java.util.Calendar.DAY_OF_MONTH);
+_dateSpinner = new JSpinner(model);
+_dateSpinner.setEditor(new JSpinner.DateEditor(_dateSpinner, "dd/MM/yyyy"));
 
-			datPick.setValue(LocalDate.now());
-		}
+gbc.gridx = 0; gbc.gridy = 0;
+content.add(new JLabel("Date : "), gbc);
+gbc.gridx = 1;
+content.add(_dateSpinner, gbc);
 
-		GridPane root = new GridPane();
-		getDialogPane().setContent(root);
-		root.add(datPick, 0, 0);
+// boutons
+JPanel btnPanel = new JPanel(new FlowLayout());
+JButton okBtn = new JButton("Ok");
+JButton cancelBtn = new JButton("Annuler");
+okBtn.addActionListener(e -> {
+Date d = (Date) _dateSpinner.getValue();
+java.util.Calendar c = java.util.Calendar.getInstance();
+c.setTime(d);
+_result = LocalDate.of(c.get(java.util.Calendar.YEAR),
+c.get(java.util.Calendar.MONTH) + 1,
+c.get(java.util.Calendar.DAY_OF_MONTH));
+_confirmed = true;
+dispose();
+});
+cancelBtn.addActionListener(e -> dispose());
+btnPanel.add(okBtn);
+btnPanel.add(cancelBtn);
 
-		// bouton annuler
-		ButtonType cancelButton = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
-		getDialogPane().getButtonTypes().add(cancelButton);
+setLayout(new BorderLayout());
+add(content, BorderLayout.CENTER);
+add(btnPanel, BorderLayout.SOUTH);
+pack();
+}
 
-		// crée ou édite l'élement de template après appuis sur Ok
-		setResultConverter(new Callback<ButtonType, LocalDate>() {
-
-			@Override
-			public LocalDate call(ButtonType param) {
-
-				LocalDate deb = null;
-
-				if (param.equals(_buttonTypeOk)) {
-					deb = datPick.getValue();
-
-				}
-
-				return deb;
-			}
-		});
-
-	}
+/** Retourne la date sélectionnée, ou null si annulé */
+public LocalDate getResult() {
+return _result;
+}
 
 }

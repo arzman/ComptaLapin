@@ -1,30 +1,19 @@
 package org.arthur.compta.lapin.presentation.utils;
 
-import javafx.scene.control.TreeItem;
 import org.arthur.compta.lapin.presentation.budget.model.PresBudget;
 
 import java.util.Comparator;
 
-public class PresBudgetSorter implements Comparator<TreeItem<PresBudget>> {
+public class PresBudgetSorter implements Comparator<PresBudget> {
 
-	@Override
-	public int compare(TreeItem<PresBudget> o1, TreeItem<PresBudget> o2) {
-
-		int res = 0;
-
-		PresBudget pb1 = o1.getValue();
-		PresBudget pb2 = o2.getValue();
-
-		if (pb1.getAppBudget() == null && pb2.getAppBudget() == null) {
-
-			res = pb1.getName().compareTo(pb2.getName());
-		} else {
-
-			res = -pb1.getAppBudget().getDateRecurrent().compareTo(pb2.getAppBudget().getDateRecurrent());
-
-		}
-
-		return res;
-	}
+@Override
+public int compare(PresBudget o1, PresBudget o2) {
+if (o1.getAppBudget() == null && o2.getAppBudget() == null) {
+return o1.getName().compareTo(o2.getName());
+}
+if (o1.getAppBudget() == null) return -1;
+if (o2.getAppBudget() == null) return 1;
+return -o1.getAppBudget().getDateRecurrent().compareTo(o2.getAppBudget().getDateRecurrent());
+}
 
 }

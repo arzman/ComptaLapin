@@ -1,8 +1,5 @@
 package org.arthur.compta.lapin.application.model;
 
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleStringProperty;
 import org.arthur.compta.lapin.model.Compte;
 
 /**
@@ -13,182 +10,112 @@ import org.arthur.compta.lapin.model.Compte;
 public class AppCompte extends AppObject<Compte> {
 
 	/** Le nom du compte */
-	private final SimpleStringProperty _nom;
+	private String _nom;
 	/** Le solde du compte */
-	private final SimpleDoubleProperty _solde;
+	private double _solde;
 	/** Indique si le compte est un livret */
-	private final SimpleBooleanProperty _isLivretProp;
+	private boolean _isLivret;
 	/** Indique si le compte est concerné par les budgets */
-	private final SimpleBooleanProperty _isBudgetProp;
-	/** Le solde du compte */
-	private final SimpleDoubleProperty _soldePrev1;
-	/** Le solde du compte */
-	private final SimpleDoubleProperty _soldePrev2;
-	/** Le solde du compte */
-	private final SimpleDoubleProperty _soldePrev3;
+	private boolean _isBudget;
+	/** Le solde prévisionnel fin du 1er mois */
+	private double _soldePrev1;
+	/** Le solde prévisionnel fin du 2eme mois */
+	private double _soldePrev2;
+	/** Le solde prévisionnel fin du 3eme mois */
+	private double _soldePrev3;
 
 	/**
 	 * Constructeur
 	 * 
-	 * @param compte_
+	 * @param compte
 	 *            le compte métier relié
 	 */
 	public AppCompte(Compte compte) {
 
 		setAppID(compte.getId());
 
-		// encapsulation des attributs du compte
-		_nom = new SimpleStringProperty(compte.getNom());
-		_solde = new SimpleDoubleProperty(compte.getSolde());
-		_isLivretProp = new SimpleBooleanProperty(compte.isLivret());
-		_isBudgetProp = new SimpleBooleanProperty(compte.isBudgetAllowed());
-
-		// solde prévisionnel
-		_soldePrev1 = new SimpleDoubleProperty(0);
-		_soldePrev2 = new SimpleDoubleProperty(0);
-		_soldePrev3 = new SimpleDoubleProperty(0);
-
+		_nom = compte.getNom();
+		_solde = compte.getSolde();
+		_isLivret = compte.isLivret();
+		_isBudget = compte.isBudgetAllowed();
+		_soldePrev1 = 0;
+		_soldePrev2 = 0;
+		_soldePrev3 = 0;
 	}
 
-	/**
-	 * Retourne le nom du compte
-	 * 
-	 * @return le nom du compte
-	 */
+	/** Retourne le nom du compte */
 	public String getNom() {
-		return _nom.get();
-	}
-
-	/**
-	 * Retourne la propriété observable du nom
-	 * 
-	 * @return
-	 */
-	public SimpleStringProperty nomProperty() {
 		return _nom;
 	}
 
-	/**
-	 * Positionne le nom du compte
-	 * 
-	 * @param nom
-	 */
+	/** Positionne le nom du compte */
 	public void setNom(String nom) {
-		_nom.set(nom);
-
+		_nom = nom;
 	}
 
-	/**
-	 * Retourne le solde du compte
-	 * 
-	 * @return le solde du compte
-	 */
+	/** Retourne le solde du compte */
 	public double getSolde() {
-		return _solde.get();
-	}
-
-	/**
-	 * Retourne la propriété observable du solde
-	 * 
-	 * @return
-	 */
-	public SimpleDoubleProperty soldeProperty() {
 		return _solde;
 	}
 
-	/**
-	 * Positionne le solde du compte
-	 * 
-	 * @param solde
-	 */
-	public void setSolde(double soldes) {
-		_solde.set(soldes);
-
+	/** Positionne le solde du compte */
+	public void setSolde(double solde) {
+		_solde = solde;
 	}
 
-	/**
-	 * Retourne vrai si le compte est livret
-	 * 
-	 * @return vrai si le compte est livret
-	 */
+	/** Retourne vrai si le compte est livret */
 	public boolean isLivret() {
-		return _isLivretProp.get();
+		return _isLivret;
 	}
 
-	/**
-	 * Retourne vrai si le compte est concerné par les budgets
-	 * 
-	 * @return vrai si le compte est concerné par les budgets
-	 */
+	/** Retourne vrai si le compte est concerné par les budgets */
 	public boolean isBudget() {
-
-		return _isBudgetProp.get();
+		return _isBudget;
 	}
 
-	/**
-	 * Positionne le flag isLivret
-	 * 
-	 * @param isLivret
-	 *            le flag isLivret
-	 */
+	/** Positionne le flag isLivret */
 	public void setIsLivret(boolean isLivret) {
-		_isLivretProp.set(isLivret);
-
+		_isLivret = isLivret;
 	}
 
-	/**
-	 * Posiotionne le flag isBudget
-	 * 
-	 * @param isBudget
-	 */
+	/** Positionne le flag isBudget */
 	public void setIsBudget(boolean isBudget) {
-		_isBudgetProp.set(isBudget);
+		_isBudget = isBudget;
+	}
 
+	/** Retourne le solde prévisionnel fin du 1er mois */
+	public double getSoldePrev1() {
+		return _soldePrev1;
+	}
+
+	/** Positionne le solde prévisionnel fin du 1er mois */
+	public void setSoldePrev1(double v) {
+		_soldePrev1 = v;
+	}
+
+	/** Retourne le solde prévisionnel fin du 2eme mois */
+	public double getSoldePrev2() {
+		return _soldePrev2;
+	}
+
+	/** Positionne le solde prévisionnel fin du 2eme mois */
+	public void setSoldePrev2(double v) {
+		_soldePrev2 = v;
+	}
+
+	/** Retourne le solde prévisionnel fin du 3eme mois */
+	public double getSoldePrev3() {
+		return _soldePrev3;
+	}
+
+	/** Positionne le solde prévisionnel fin du 3eme mois */
+	public void setSoldePrev3(double v) {
+		_soldePrev3 = v;
 	}
 
 	@Override
 	public String toString() {
-
-		return _nom.get();
-	}
-
-	/**
-	 * Retourne le montant prévu à la fin du premier mois du trimestre sous
-	 * forme de propriété
-	 * 
-	 * @return
-	 */
-	public SimpleDoubleProperty soldePrev1Property() {
-		return _soldePrev1;
-	}
-
-	/**
-	 * Retourne le montant prévu à la fin du deuxieme mois du trimestre sous
-	 * forme de propriété
-	 * 
-	 * @return
-	 */
-	public SimpleDoubleProperty soldePrev2Property() {
-		return _soldePrev2;
-	}
-
-	/**
-	 * Retourne le montant prévu à la fin du troisieme mois du trimestre sous
-	 * forme de propriété
-	 * 
-	 * @return
-	 */
-	public SimpleDoubleProperty soldePrev3Property() {
-		return _soldePrev3;
-	}
-
-	/**
-	 * Retourne le solde prévisionnel à la fin du 3eme mois du trimestre
-	 * 
-	 * @return
-	 */
-	public double getSoldePrev3() {
-		return _soldePrev3.get();
+		return _nom;
 	}
 
 	@Override

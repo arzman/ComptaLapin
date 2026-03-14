@@ -1,100 +1,71 @@
 package org.arthur.compta.lapin.presentation.trimestre.pane;
 
-import javafx.geometry.HPos;
-import javafx.scene.control.Label;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
+import javax.swing.*;
+import java.awt.*;
 import java.time.LocalDate;
 
 /**
- * Panneau permettant d'afficher le mois et le résultat ( gain ou perte) pour un
- * exercice mensuel
- *
+ * Panneau permettant d'afficher le mois et le résultat pour un exercice mensuel
  */
-public class ExerciceHeaderPane extends GridPane {
+public class ExerciceHeaderPane extends JPanel {
 
-	/** Label du mois */
-	private final Label _moisLbl;
-	/** Label du resultat */
-	private final Label _resultatLbl;
-	private double _prevRes;
-	/** Pas de date défini */
-	private static final String NO_CONTENT_DATE_STR = "######";
+/** Label du mois */
+private final JLabel _moisLbl;
+/** Label du résultat */
+private final JLabel _resultatLbl;
+/** Résultat prévisionnel */
+private double _prevRes;
+/** Pas de date défini */
+private static final String NO_CONTENT_DATE_STR = "######";
 
-	/**
-	 * Le constructeur
-	 */
-	public ExerciceHeaderPane(double prev) {
+public ExerciceHeaderPane(double prev) {
+super(new GridLayout(1, 2, 5, 0));
+_prevRes = prev;
 
-		_prevRes = prev;
+_moisLbl = new JLabel();
+_moisLbl.setFont(new Font("Verdana", Font.PLAIN, 14));
+add(_moisLbl);
 
-		_moisLbl = new Label();
-		_moisLbl.setFont(Font.font("Verdana", 18));
-		add(_moisLbl, 0, 0);
-		// le résultat
-		_resultatLbl = new Label();
-		add(_resultatLbl, 1, 0);
-		// centrage des libellés
-		ColumnConstraints colCons = new ColumnConstraints();
-		colCons.setFillWidth(true);
-		colCons.setHgrow(Priority.ALWAYS);
-		colCons.setHalignment(HPos.CENTER);
+_resultatLbl = new JLabel();
+_resultatLbl.setHorizontalAlignment(SwingConstants.CENTER);
+add(_resultatLbl);
 
-		getColumnConstraints().addAll(colCons, colCons);
-	}
+setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+}
 
-	/**
-	 * Affiche la date sous forme <mois année>
-	 * 
-	 * @param time la date
-	 */
-	public void setMois(LocalDate time) {
+/**
+ * Affiche la date sous forme mois année
+ */
+public void setMois(LocalDate time) {
+if (time != null) {
+_moisLbl.setText(ApplicationFormatter.moiAnneedateFormat.format(time));
+} else {
+_moisLbl.setText(NO_CONTENT_DATE_STR);
+}
+}
 
-		if (time != null) {
-			_moisLbl.setText(ApplicationFormatter.moiAnneedateFormat.format(time));
-		} else {
-			_moisLbl.setText(NO_CONTENT_DATE_STR);
-		}
+/**
+ * Affiche le résultat
+ */
+public void setResultat(double res) {
+if (res < 0) {
+_resultatLbl.setForeground(Color.RED);
+} else if (res > _prevRes) {
+_resultatLbl.setForeground(new Color(0, 150, 0));
+} else {
+_resultatLbl.setForeground(Color.ORANGE.darker());
+}
+_resultatLbl.setText(ApplicationFormatter.montantFormat.format(res) + " / "
++ ApplicationFormatter.montantFormat.format(_prevRes));
+}
 
-	}
-
-	/**
-	 * Affiche le résultat
-	 * 
-	 * @param res
-	 */
-	public void setResutlat(double res) {
-
-		if (res < 0) {
-			_resultatLbl.setTextFill(Color.RED);
-		} else {
-
-			if (res > _prevRes) {
-				_resultatLbl.setTextFill(Color.GREEN);
-			} else {
-				_resultatLbl.setTextFill(Color.ORANGE);
-			}
-
-		}
-
-		_resultatLbl.setText(ApplicationFormatter.montantFormat.format(res) + " / "
-				+ ApplicationFormatter.montantFormat.format(_prevRes));
-
-	}
-
-	/**
-	 * Positionne le résultat prévisionnel
-	 * 
-	 * @param resultatPrev
-	 */
-	public void setResultatPrev(double resultatPrev) {
-		_prevRes = resultatPrev;
-
-	}
+/**
+ * Positionne le résultat prévisionnel
+ */
+public void setResultatPrev(double resultatPrev) {
+_prevRes = resultatPrev;
+}
 
 }

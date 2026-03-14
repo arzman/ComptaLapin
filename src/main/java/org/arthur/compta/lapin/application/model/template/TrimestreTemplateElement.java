@@ -1,240 +1,100 @@
 package org.arthur.compta.lapin.application.model.template;
 
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import org.arthur.compta.lapin.application.model.AppCompte;
 
 /**
- * Element d'un template d'exercice mensuel Il s'agit d'une operation ayant une
- * fréquence donnée dans un mois
- * 
- * fréquence --> occurence hebdomadaire --> numéro du jour de la semaine
- * trimestriel --> numéro du mois dans le trimestre
- *
+ * Element d'un template d'exercice mensuel.
+ * Il s'agit d'une opération ayant une fréquence donnée dans un mois.
  */
 public class TrimestreTemplateElement {
 
-	/** nom */
-	private final SimpleStringProperty _nomProp;
-	/** montant de l'opération */
-	private final SimpleDoubleProperty _montantProp;
-	/** type de l'opération */
-	private final SimpleStringProperty _typeProp;
-	/** La fréquence de l'opération */
-	private final SimpleStringProperty _freqProp;
-	/** l'occurence */
-	private final SimpleIntegerProperty _occurenceProp;
-	/** compte source */
-	private final SimpleObjectProperty<AppCompte> _compteSource;
-	/** id compte cible */
-	private final SimpleObjectProperty<AppCompte> _compteCible;
+/** nom */
+private String _nom;
+/** montant de l'opération */
+private double _montant;
+/** type de l'opération */
+private String _type;
+/** La fréquence de l'opération */
+private String _freq;
+/** l'occurence */
+private int _occurence;
+/** compte source */
+private AppCompte _compteSource;
+/** compte cible */
+private AppCompte _compteCible;
 
-	/**
-	 * Constructeur
-	 */
-	public TrimestreTemplateElement() {
-		_nomProp = new SimpleStringProperty();
-		_montantProp = new SimpleDoubleProperty();
-		_typeProp = new SimpleStringProperty();
-		_freqProp = new SimpleStringProperty();
-		_occurenceProp = new SimpleIntegerProperty();
-		_compteSource = new SimpleObjectProperty<AppCompte>();
-		_compteCible = new SimpleObjectProperty<AppCompte>();
+/** Constructeur */
+public TrimestreTemplateElement() {
+}
 
-	}
+/** Retourne la fréquence de l'opération */
+public TrimestreTemplateElementFrequence getFreq() {
+return TrimestreTemplateElementFrequence.valueOf(_freq);
+}
 
-	/**
-	 * Retourne la fréquence de l'opération
-	 * 
-	 * @return
-	 */
-	public TrimestreTemplateElementFrequence getFreq() {
-		return TrimestreTemplateElementFrequence.valueOf(_freqProp.get());
-	}
+/** Retourne l'occurence */
+public int getOccurence() {
+return _occurence;
+}
 
-	/**
-	 * Retourne l'occurence
-	 * 
-	 * @return
-	 */
-	public int getOccurence() {
-		return _occurenceProp.get();
-	}
+/** Positionne la fréquence de l'opération */
+public void setFreq(TrimestreTemplateElementFrequence freq) {
+_freq = freq.toString();
+}
 
-	/**
-	 * Positionne la fréquence de l'opération
-	 * 
-	 * @param freq
-	 */
-	public void setFreq(TrimestreTemplateElementFrequence freq) {
-		_freqProp.set(freq.toString());
-	}
+/** Positionne l'occurence */
+public void setOccurence(int occurence) {
+_occurence = occurence;
+}
 
-	/**
-	 * Positionne l'occurence
-	 * 
-	 * @param occurence
-	 */
-	public void setOccurence(int occurence) {
-		_occurenceProp.set(occurence);
-	}
+/** Positionne le nom */
+public void setNom(String nom) {
+_nom = nom;
+}
 
-	/**
-	 * Positionne le nom
-	 * 
-	 * @param nom
-	 */
-	public void setNom(String nom) {
-		_nomProp.set(nom);
+/** Positionne le montant */
+public void setMontant(double montant) {
+_montant = montant;
+}
 
-	}
+/** Positionne le type */
+public void setType(String type) {
+_type = type;
+}
 
-	/**
-	 * Positionne le montant
-	 * 
-	 * @param parseDouble
-	 */
-	public void setMontant(double montant) {
-		_montantProp.set(montant);
-	}
+/** Positionne le compte source */
+public void setCompteSource(AppCompte compte) {
+_compteSource = compte;
+}
 
-	/**
-	 * Positionne le type
-	 * 
-	 * @param type
-	 */
-	public void setType(String type) {
-		_typeProp.set(type);
+/** Positionne le compte cible */
+public void setCompteCible(AppCompte compte) {
+_compteCible = compte;
+}
 
-	}
+/** Retourne le nom de l'élément */
+public String getNom() {
+return _nom;
+}
 
-	/**
-	 * Positionne le compte source
-	 * 
-	 * @param idCompte
-	 */
-	public void setCompteSource(AppCompte compte) {
-		_compteSource.set(compte);
-	}
+/** Retourne le montant associé à l'élément */
+public double getMontant() {
+return _montant;
+}
 
-	/**
-	 * Positionne l'id du compte cible Utilisé uniquement dans le cas d'un
-	 * transfert
-	 * 
-	 * @param compte
-	 */
-	public void setCompteCible(AppCompte compte) {
-		_compteCible.set(compte);
+/** Retourne le type */
+public String getType() {
+return _type;
+}
 
-	}
+/** Retourne le compte source */
+public AppCompte getCompteSource() {
+return _compteSource;
+}
 
-	/**
-	 * Retourne le nom sous forme de propriété
-	 * 
-	 * @return
-	 */
-	public SimpleStringProperty nomProperty() {
-
-		return _nomProp;
-	}
-
-	/**
-	 * Retourne le montant sous forme de propriété
-	 * 
-	 * @return
-	 */
-	public SimpleDoubleProperty montantProperty() {
-		return _montantProp;
-	}
-
-	/**
-	 * Retourne le type sous forme de propriété
-	 * 
-	 * @return
-	 */
-	public SimpleStringProperty typeProperty() {
-		return _typeProp;
-	}
-
-	/**
-	 * Retourne la fréquence sous forme de propriété
-	 * 
-	 * @return
-	 */
-	public SimpleStringProperty frequenceProperty() {
-
-		return _freqProp;
-	}
-
-	/**
-	 * Retourne le compte source sous forme de propriété
-	 * 
-	 * @return
-	 */
-	public SimpleObjectProperty<AppCompte> compteSourceProperty() {
-		return _compteSource;
-	}
-
-	/**
-	 * Retourne le compte cible sous forme de propriété
-	 * 
-	 * @return
-	 */
-	public SimpleObjectProperty<AppCompte> compteCibleProperty() {
-		return _compteCible;
-	}
-
-	public SimpleIntegerProperty occurenceProperty() {
-		return _occurenceProp;
-	}
-
-	/**
-	 * Retourne le nom de l'éléments
-	 * 
-	 * @return
-	 */
-	public String getNom() {
-		return _nomProp.get();
-	}
-
-	/**
-	 * Retourne le montant associé à l'élément
-	 * 
-	 * @return
-	 */
-	public double getMontant() {
-		return _montantProp.get();
-	}
-
-	/**
-	 * Retourne le type
-	 * 
-	 * @return
-	 */
-	public String getType() {
-
-		return _typeProp.get();
-	}
-
-	/**
-	 * Retourne le compte source
-	 * 
-	 * @return
-	 */
-	public AppCompte getCompteSource() {
-
-		return _compteSource.get();
-	}
-
-	/**
-	 * Retourne le compte cible
-	 * 
-	 * @return
-	 */
-	public AppCompte getCompteCible() {
-		return _compteCible.get();
-	}
+/** Retourne le compte cible */
+public AppCompte getCompteCible() {
+return _compteCible;
+}
 
 }

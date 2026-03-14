@@ -1,74 +1,60 @@
 package org.arthur.compta.lapin.presentation.common;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.stage.Stage;
+import org.arthur.compta.lapin.ComptaLapin;
 import org.arthur.compta.lapin.application.manager.ConfigurationManager;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 
+import javax.swing.*;
+import javax.swing.border.LineBorder;
+import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+
 /**
- * Fenetre qui enregistre sa taille
- *
+ * Fenêtre de base qui enregistre sa taille
  */
-public class ComptaDialog<T> extends Dialog<T> {
+public class ComptaDialog extends JDialog {
 
-	/** La bordure rouge en cas d'erreur de saisi */
-	protected final Border BORDER_ERROR = new Border(
-			new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1)));
+/** Bordure rouge pour les erreurs de saisie */
+public static final LineBorder BORDER_ERROR = new LineBorder(Color.RED, 1);
 
-	protected ButtonType _buttonTypeOk;
+/** L'identifiant de la fenêtre pour la configuration */
+private final String _id;
 
-	public ComptaDialog(String id) {
+/** Indique si l'utilisateur a validé (OK) */
+protected boolean _confirmed = false;
 
-		// on peut redimensionner la fenetre
-		setResizable(true);
+public ComptaDialog(String id, String title) {
+super(ComptaLapin.getMainFrame(), title, true);
+_id = id;
 
-		// ajout des icones de la fenetre = meme que l'appli
-		Stage stage = (Stage) getDialogPane().getScene().getWindow();
-		stage.getIcons().add(ImageLoader.getImage(ImageLoader.LAPIN_IMG));
-		stage.getIcons().add(ImageLoader.getImage(ImageLoader.LAPIN32_IMG));
+// taille initiale depuis la configuration
+int w = Integer.parseInt(ConfigurationManager.getInstance().getProp(_id + ".size.width", "400"));
+int h = Integer.parseInt(ConfigurationManager.getInstance().getProp(_id + ".size.heigth", "300"));
+setSize(w, h);
 
-		// valeur initial
-		getDialogPane().setPrefSize(
-				Double.parseDouble(ConfigurationManager.getInstance().getProp(id + ".size.width", "200")),
-				Double.parseDouble(ConfigurationManager.getInstance().getProp(id + ".size.heigth", "200")));
+setLocationRelativeTo(ComptaLapin.getMainFrame());
+setResizable(true);
 
-		// changement de largeur
-		widthProperty().addListener(new ChangeListener<Number>() {
+// icône
+ImageIcon icon = ImageLoader.getImageIcon(ImageLoader.LAPIN_IMG);
+if (icon != null && icon.getImageLoadStatus() == MediaTracker.COMPLETE) {
+setIconImage(icon.getImage());
+}
 
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				ConfigurationManager.getInstance().setProp(id + ".size.width",
-						String.valueOf(getDialogPane().getBoundsInLocal().getWidth()));
-			}
-		});
+// sauvegarde de la taille lors du redimensionnement
+addComponentListener(new ComponentAdapter() {
+@Override
+public void componentResized(ComponentEvent e) {
+ConfigurationManager.getInstance().setProp(_id + ".size.width", String.valueOf(getWidth()));
+ConfigurationManager.getInstance().setProp(_id + ".size.heigth", String.valueOf(getHeight()));
+}
+});
+}
 
-		// changement de hauteur
-		heightProperty().addListener(new ChangeListener<Number>() {
-
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				ConfigurationManager.getInstance().setProp(id + ".size.heigth",
-						String.valueOf(getDialogPane().getBoundsInLocal().getHeight()));
-
-			}
-		});
-
-		createButtonBar();
-
-	}
-
-	protected void createButtonBar() {
-
-		// bouton ok
-		_buttonTypeOk = new ButtonType("Ok", ButtonData.OK_DONE);
-		getDialogPane().getButtonTypes().add(_buttonTypeOk);
-
-	}
+/** Retourne true si l'utilisateur a cliqué OK */
+public boolean isConfirmed() {
+return _confirmed;
+}
 
 }

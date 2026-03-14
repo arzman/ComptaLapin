@@ -1,322 +1,158 @@
 package org.arthur.compta.lapin.presentation.template.dialog;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.*;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.RowConstraints;
-import javafx.scene.paint.Color;
-import javafx.util.Callback;
 import org.arthur.compta.lapin.application.exception.ComptaException;
-import org.arthur.compta.lapin.application.manager.ConfigurationManager;
-import org.arthur.compta.lapin.application.model.AppCompte;
+import org.arthur.compta.lapin.application.model.template.TrimestreTemplate;
 import org.arthur.compta.lapin.application.model.template.TrimestreTemplateElement;
 import org.arthur.compta.lapin.application.service.TemplateService;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
-import org.arthur.compta.lapin.presentation.common.cellfactory.MontantCellFactory;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
-import org.arthur.compta.lapin.presentation.template.cellfactory.CompteCellFactory;
-import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
-import java.util.Optional;
+import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Fenêtre de configuration du modèle de trimestre. Il s'agit un tableau présent
- * les différent élément du modèle et leur attribut. Lorsque la fenêtre est
- * fermée en appuyant sur "Ok", un ordre est donné au TrimestreManager pour
- * écraser le modèle sauvegardé.
- *
+ * Fenêtre de configuration du template de trimestre
  */
-public class ConfigureTemplateDialog extends ComptaDialog<ButtonType> {
-
-	/** La liste des éléments de template */
-	private final ObservableList<TrimestreTemplateElement> _elementList;
-	/** Le tableau des éléments */
-	private TableView<TrimestreTemplateElement> _table;
-	/** bouton d'ajout d'element */
-	private Button _addBut;
-	/** Gain moyen des templates */
-	private Label _gainMoyenMensuelLbl;
-
-	/**
-	 * Constructeur
-	 */
-	public ConfigureTemplateDialog() {
-
-		super(ConfigureTemplateDialog.class.getSimpleName());
-
-		_elementList = FXCollections.observableArrayList();
-		try {
-			_elementList.addAll(TemplateService.getTrimestreTemplate().getElements());
-		} catch (ComptaException e1) {
-			ExceptionDisplayService.showException(e1);
-		}
-
-		setTitle("Configuration du modèle");
-		setResizable(true);
-		// création du contenu de la fenetre
-		createContent();
-
-		createContextMenu();
-
-		setOnCloseRequest(new EventHandler<DialogEvent>() {
-
-			@Override
-			public void handle(DialogEvent event) {
-				// sauvegarde de la taille des colonnes
-				for (TableColumn<?, ?> col : _table.getColumns()) {
-
-					ConfigurationManager.getInstance().setProp("ConfigureTemplateDialog.col." + col.getId(), String.valueOf(col.getWidth()));
-				}
-
-			}
-		});
-
-		setResultConverter(new Callback<ButtonType, ButtonType>() {
-
-			@Override
-			public ButtonType call(ButtonType param) {
-
-				if (param.equals(_buttonTypeOk)) {
-
-					// on écrase le template en DB par le nouveau
-					try {
-						TemplateService.updateTrimestreTemplate(_elementList);
-					} catch (ComptaException e) {
-						ExceptionDisplayService.showException(e);
-					}
-
-				}
-
-				return param;
-			}
-		});
-
-	}
-
-	/**
-	 * Crée le menu contextuel
-	 */
-	private void createContextMenu() {
-
-		// le menu contextuel
-		final ContextMenu menu = new ContextMenu();
-		_table.setContextMenu(menu);
-		_table.setMaxHeight(Double.MAX_VALUE);
-
-		// action d'edition de l'elt
-		final MenuItem editItem = new MenuItem("Editer");
-		editItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.EDIT_IMG)));
-		editItem.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent event) {
-
-				// recupperation de la selection
-				TrimestreTemplateElement elt = _table.getSelectionModel().getSelectedItem();
-				EditTemplateEltDialog dia = new EditTemplateEltDialog(elt);
-
-				dia.showAndWait();
-
-			}
-		});
-		menu.getItems().add(editItem);
-
-		// action de suppresion de l'elt
-		final MenuItem suppItem = new MenuItem("Supprimer");
-		suppItem.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.DEL_IMG)));
-		suppItem.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent event) {
-
-				// recupperation de la selection
-				TrimestreTemplateElement elt = _table.getSelectionModel().getSelectedItem();
-				if (elt != null) {
-					_elementList.remove(elt);
-				}
-
-			}
-		});
-		menu.getItems().add(suppItem);
-
-	}
-
-	/**
-	 * Créée le contenu de la fenêtre
-	 */
-	private void createContent() {
-		// racine des noeuds graphiques
-		GridPane root = new GridPane();
-		root.setVgap(15);
-		root.setHgap(15);
-		ColumnConstraints colConst = new ColumnConstraints();
-		colConst.setFillWidth(true);
-		colConst.setHgrow(Priority.ALWAYS);
-		getDialogPane().setContent(root);
-		root.getColumnConstraints().add(colConst);
-
-		RowConstraints row1c = new RowConstraints();
-		root.getRowConstraints().add(row1c);
-
-		RowConstraints row2c = new RowConstraints();
-		row2c.setFillHeight(true);
-		row2c.setVgrow(Priority.ALWAYS);
-		root.getRowConstraints().add(row2c);
-
-		// création des actions sur la liste
-		createControlButton();
-		root.add(_addBut, 0, 0);
-
-		_gainMoyenMensuelLbl = new Label();
-		root.add(_gainMoyenMensuelLbl, 1, 0);
-		refreshGainMoyen();
-
-		// Tableau des élements de modèle
-		createTable();
-		root.add(_table, 0, 1, 2, 1);
-
-		// restaure les tailles sauvegardées
-		// sauvegarde de la taille des colonnes
-		for (TableColumn<?, ?> col : _table.getColumns()) {
-
-			col.setPrefWidth(Double.parseDouble(ConfigurationManager.getInstance().getProp("ConfigureTemplateDialog.col." + col.getId(), "50")));
-		}
-
-	}
-
-	/**
-	 * Raffraichit le gain moyen mensualisé
-	 */
-	private void refreshGainMoyen() {
-
-		double gain = TemplateService.getGainMoyen(_elementList);
-
-		if (gain > 0) {
-			_gainMoyenMensuelLbl.setTextFill(Color.GREEN);
-		} else {
-			_gainMoyenMensuelLbl.setTextFill(Color.RED);
-		}
-
-		_gainMoyenMensuelLbl.setText("Résultat moyen mensuel : " + ApplicationFormatter.montantFormat.format(gain));
-
-	}
-
-	/**
-	 * Création des boutons ajouter et supprimer des éléments de template
-	 */
-	private void createControlButton() {
-
-		_addBut = new Button("Ajouter");
-		_addBut.setGraphic(new ImageView(ImageLoader.getImage(ImageLoader.ADD_IMG)));
-		_addBut.setOnAction(new EventHandler<ActionEvent>() {
-
-			public void handle(ActionEvent event) {
-
-				// ouverture de la fenêtre de saisie
-				EditTemplateEltDialog diag = new EditTemplateEltDialog(null);
-				Optional<TrimestreTemplateElement> res = diag.showAndWait();
-
-				if (res.isPresent()) {
-
-					_elementList.add(res.get());
-
-				}
-				refreshGainMoyen();
-			}
-        });
-
-	}
-
-	/**
-	 * Création du tableau
-	 * 
-	 * @param root
-	 *            Le noeud ou doit se placer le tableau
-	 */
-	private void createTable() {
-
-		_table = new TableView<>();
-		_table.setItems(_elementList);
-
-		// colonne Nom
-		TableColumn<TrimestreTemplateElement, String> colNom = new TableColumn<>("Nom");
-		colNom.setResizable(true);
-		colNom.setEditable(false);
-		colNom.setId("nom");
-		colNom.setCellValueFactory(cellData -> cellData.getValue().nomProperty());
-		_table.getColumns().add(colNom);
-
-		// colonne Montant
-		TableColumn<TrimestreTemplateElement, Number> colMontant = new TableColumn<>("Montant");
-		colMontant.setResizable(true);
-		colMontant.setEditable(false);
-		colMontant.setId("montant");
-		colMontant.setCellValueFactory(cellData -> cellData.getValue().montantProperty());
-		colMontant.setCellFactory(new MontantCellFactory<TrimestreTemplateElement>());
-		_table.getColumns().add(colMontant);
-
-		// colonne Type
-		TableColumn<TrimestreTemplateElement, String> colType = new TableColumn<>("Type");
-		colType.setResizable(true);
-		colType.setEditable(false);
-		colType.setId("type");
-		colType.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
-		_table.getColumns().add(colType);
-
-		// colonne Fréquence
-		TableColumn<TrimestreTemplateElement, String> colFreq = new TableColumn<>("Fréquence");
-		colFreq.setResizable(true);
-		colFreq.setEditable(false);
-		colFreq.setId("freq");
-		colFreq.setCellValueFactory(cellData -> cellData.getValue().frequenceProperty());
-		_table.getColumns().add(colFreq);
-
-		// colonne occurence
-		TableColumn<TrimestreTemplateElement, Number> colOcc = new TableColumn<>("Occurence");
-		colOcc.setResizable(true);
-		colOcc.setEditable(false);
-		colOcc.setId("occ");
-		colOcc.setCellValueFactory(cellData -> cellData.getValue().occurenceProperty());
-		_table.getColumns().add(colOcc);
-
-		// colonne Compte Source
-		TableColumn<TrimestreTemplateElement, AppCompte> colsource = new TableColumn<>("Source");
-		colsource.setResizable(true);
-		colsource.setEditable(false);
-		colsource.setId("source");
-		colsource.setCellValueFactory(cellData -> cellData.getValue().compteSourceProperty());
-		colsource.setCellFactory(new CompteCellFactory<TrimestreTemplateElement>());
-		_table.getColumns().add(colsource);
-
-		// colonne Compte Cible
-		TableColumn<TrimestreTemplateElement, AppCompte> colcible = new TableColumn<>("Cible");
-		colcible.setResizable(true);
-		colcible.setEditable(false);
-		colcible.setId("cible");
-		colcible.setCellValueFactory(cellData -> cellData.getValue().compteCibleProperty());
-		colcible.setCellFactory(new CompteCellFactory<TrimestreTemplateElement>());
-		_table.getColumns().add(colcible);
-
-	}
-
-	/**
-	 * Création des boutons
-	 */
-	protected void createButtonBar() {
-
-		super.createButtonBar();
-		// bouton annuler
-		ButtonType cancelButton = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
-		getDialogPane().getButtonTypes().add(cancelButton);
-
-	}
+public class ConfigureTemplateDialog extends ComptaDialog {
+
+private final TemplateTableModel _model;
+private final JTable _table;
+private final JLabel _gainLabel;
+
+public ConfigureTemplateDialog() {
+super(ConfigureTemplateDialog.class.getSimpleName(), "Configuration du modèle de trimestre");
+
+_model = new TemplateTableModel();
+_table = new JTable(_model);
+_table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+// chargement du template
+try {
+TrimestreTemplate tmp = TemplateService.getTrimestreTemplate();
+_model.setData(tmp.getElements());
+} catch (ComptaException e) {
+ExceptionDisplayService.showException(e);
+}
+
+_gainLabel = new JLabel("Gain moyen : " + _model.computeGain());
+
+// menu contextuel
+JPopupMenu menu = new JPopupMenu();
+
+JMenuItem addItem = new JMenuItem("Ajouter", new ImageIcon(ImageLoader.getImageIcon(ImageLoader.ADD_IMG).getImage()));
+addItem.addActionListener(e -> {
+EditTemplateEltDialog dia = new EditTemplateEltDialog(null);
+dia.setVisible(true);
+TrimestreTemplateElement res = dia.getResult();
+if (res != null) {
+_model.addElement(res);
+_gainLabel.setText("Gain moyen : " + _model.computeGain());
+}
+});
+menu.add(addItem);
+
+JMenuItem editItem = new JMenuItem("Editer", new ImageIcon(ImageLoader.getImageIcon(ImageLoader.EDIT_IMG).getImage()));
+editItem.addActionListener(e -> {
+int row = _table.getSelectedRow();
+if (row >= 0) {
+TrimestreTemplateElement elt = _model.getRow(row);
+EditTemplateEltDialog dia = new EditTemplateEltDialog(elt);
+dia.setVisible(true);
+_model.fireTableRowsUpdated(row, row);
+_gainLabel.setText("Gain moyen : " + _model.computeGain());
+}
+});
+menu.add(editItem);
+
+JMenuItem delItem = new JMenuItem("Supprimer", new ImageIcon(ImageLoader.getImageIcon(ImageLoader.DEL_IMG).getImage()));
+delItem.addActionListener(e -> {
+int row = _table.getSelectedRow();
+if (row >= 0) {
+_model.removeElement(row);
+_gainLabel.setText("Gain moyen : " + _model.computeGain());
+}
+});
+menu.add(delItem);
+
+_table.addMouseListener(new MouseAdapter() {
+@Override
+public void mousePressed(MouseEvent e) {
+if (SwingUtilities.isRightMouseButton(e)) {
+int row = _table.rowAtPoint(e.getPoint());
+if (row >= 0) _table.setRowSelectionInterval(row, row);
+boolean sel = _table.getSelectedRow() >= 0;
+editItem.setEnabled(sel);
+delItem.setEnabled(sel);
+menu.show(_table, e.getX(), e.getY());
+}
+}
+});
+
+JButton okBtn = new JButton("Ok");
+okBtn.addActionListener(e -> {
+try {
+TemplateService.updateTrimestreTemplate(_model._data);
+_confirmed = true;
+dispose();
+} catch (ComptaException ex) {
+ExceptionDisplayService.showException(ex);
+}
+});
+JButton cancelBtn = new JButton("Annuler");
+cancelBtn.addActionListener(e -> dispose());
+
+JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+btnPanel.add(okBtn);
+btnPanel.add(cancelBtn);
+
+JPanel bottomPanel = new JPanel(new BorderLayout());
+bottomPanel.add(_gainLabel, BorderLayout.WEST);
+bottomPanel.add(btnPanel, BorderLayout.EAST);
+
+setLayout(new BorderLayout(5, 5));
+add(new JScrollPane(_table), BorderLayout.CENTER);
+add(bottomPanel, BorderLayout.SOUTH);
+setSize(600, 400);
+}
+
+/** Modèle du tableau de template */
+private static class TemplateTableModel extends AbstractTableModel {
+private static final String[] COLS = {"Nom", "Montant", "Type", "Fréquence", "Occurence", "Source", "Cible"};
+final List<TrimestreTemplateElement> _data = new ArrayList<>();
+
+public void setData(List<TrimestreTemplateElement> data) { _data.clear(); _data.addAll(data); fireTableDataChanged(); }
+public void addElement(TrimestreTemplateElement elt) { _data.add(elt); fireTableDataChanged(); }
+public void removeElement(int row) { _data.remove(row); fireTableDataChanged(); }
+public TrimestreTemplateElement getRow(int row) { return (row >= 0 && row < _data.size()) ? _data.get(row) : null; }
+
+public String computeGain() {
+return String.valueOf(Math.round(TemplateService.getGainMoyen(_data) * 100) / 100.0);
+}
+
+@Override public int getRowCount() { return _data.size(); }
+@Override public int getColumnCount() { return COLS.length; }
+@Override public String getColumnName(int col) { return COLS[col]; }
+
+@Override
+public Object getValueAt(int row, int col) {
+TrimestreTemplateElement e = _data.get(row);
+switch (col) {
+case 0: return e.getNom();
+case 1: return e.getMontant();
+case 2: return e.getType();
+case 3: return e.getFreq().toString();
+case 4: return e.getOccurence();
+case 5: return e.getCompteSource() != null ? e.getCompteSource().getNom() : "";
+case 6: return e.getCompteCible() != null ? e.getCompteCible().getNom() : "";
+default: return null;
+}
+}
+}
 
 }

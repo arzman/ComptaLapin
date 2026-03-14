@@ -1,277 +1,105 @@
 package org.arthur.compta.lapin.presentation.operation.dialog;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.Node;
-import javafx.scene.control.*;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
 import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.model.OperationSearchResult;
 import org.arthur.compta.lapin.application.service.OperationService;
 import org.arthur.compta.lapin.presentation.common.ComptaDialog;
-import org.arthur.compta.lapin.presentation.common.cellfactory.MoisCellFactory;
-import org.arthur.compta.lapin.presentation.common.cellfactory.MontantCellFactory;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
+import org.arthur.compta.lapin.presentation.utils.ApplicationFormatter;
 
-import java.time.LocalDate;
+import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
+import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
- * Fenetre de recherche d'opération
- *
+ * Fenêtre de recherche d'opération
  */
-public class SearchOperationDialog extends ComptaDialog<String> {
+public class SearchOperationDialog extends ComptaDialog {
 
-	/** champ de saisie du nom */
-	private TextField _libTxt;
-	/** champ de saisie du montant */
-	private TextField _montantTxt;
-	/** champ de saisie du montant */
-	private TextField _toleranceTxt;
-	/** tout les champs sont vide */
-	private boolean _allEmpty;
+private final JTextField _libTxt = new JTextField(15);
+private final JTextField _montantTxt = new JTextField(15);
+private final JTextField _toleranceTxt = new JTextField(15);
+private final SearchResultModel _model;
 
-	/** la liste des résultats de la recherche private */
-	ObservableList<OperationSearchResult> _resultatList;
-	/** Le bouton de recherche */
-	private Button searchBut;
+public SearchOperationDialog() {
+super(SearchOperationDialog.class.getSimpleName(), "Recherche une opération");
 
+_model = new SearchResultModel();
+JTable table = new JTable(_model);
+table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-	public SearchOperationDialog() {
+JPanel criteriaPanel = new JPanel(new GridBagLayout());
+GridBagConstraints gbc = new GridBagConstraints();
+gbc.insets = new Insets(4, 4, 4, 4);
+gbc.anchor = GridBagConstraints.WEST;
 
-		super(SearchOperationDialog.class.getSimpleName());
-		setTitle("Recherche une opération");
-		_allEmpty = true;
+int row = 0;
+gbc.gridx = 0; gbc.gridy = row; criteriaPanel.add(new JLabel("Libellé contient : "), gbc);
+gbc.gridx = 1; criteriaPanel.add(_libTxt, gbc); row++;
+gbc.gridx = 0; gbc.gridy = row; criteriaPanel.add(new JLabel("Montant égale : "), gbc);
+gbc.gridx = 1; criteriaPanel.add(_montantTxt, gbc); row++;
+gbc.gridx = 0; gbc.gridy = row; criteriaPanel.add(new JLabel(" + / - : "), gbc);
+gbc.gridx = 1; criteriaPanel.add(_toleranceTxt, gbc); row++;
 
-		_resultatList = FXCollections.observableArrayList();
+JButton searchBtn = new JButton("Rechercher");
+searchBtn.addActionListener(e -> doSearch());
+gbc.gridx = 0; gbc.gridy = row; gbc.gridwidth = 2; criteriaPanel.add(searchBtn, gbc);
 
-		GridPane root = new GridPane();
-		root.setVgap(15);
-		ColumnConstraints colCons = new ColumnConstraints();
-		colCons.setFillWidth(true);
-		colCons.setHgrow(Priority.ALWAYS);
-		root.getColumnConstraints().add(colCons);
+JButton closeBtn = new JButton("Fermer");
+closeBtn.addActionListener(e -> dispose());
+JPanel btnPanel = new JPanel(new FlowLayout());
+btnPanel.add(closeBtn);
 
-		getDialogPane().setContent(root);
+setLayout(new BorderLayout(5, 5));
+add(criteriaPanel, BorderLayout.NORTH);
+add(new JScrollPane(table), BorderLayout.CENTER);
+add(btnPanel, BorderLayout.SOUTH);
+setSize(600, 400);
+}
 
-		// création des zones de saisie des critères de recherche
-		root.add(createCriteriaFields(), 0, 0);
-		// créations de la zone de résultat
-		root.add(createSearchRes(), 0, 1);
+private void doSearch() {
+boolean allEmpty = _libTxt.getText().trim().isEmpty()
+&& _montantTxt.getText().trim().isEmpty()
+&& _toleranceTxt.getText().trim().isEmpty();
 
-		// ajout des écouteur
-		hookListener();
-		searchBut.setDefaultButton(true);
+if (allEmpty) {
+int res = JOptionPane.showConfirmDialog(this,
+"Attention, les champs de recherche sont vides, l'intégralité des opérations sera remontée.\nVoulez-vous continuer ?",
+"Confirmer la recherche", JOptionPane.YES_NO_OPTION);
+if (res != JOptionPane.YES_OPTION) return;
+}
 
-	}
+try {
+List<OperationSearchResult> results = OperationService.doSearch(
+_libTxt.getText(), _montantTxt.getText(), _toleranceTxt.getText());
+_model.setData(results);
+} catch (ComptaException e) {
+ExceptionDisplayService.showException(e);
+}
+}
 
-	/**
-	 * Ajout de la vérification de la saisie
-	 */
-	private void hookListener() {
+private static class SearchResultModel extends AbstractTableModel {
+private static final String[] COLS = {"Libellé", "Montant", "Mois"};
+private List<OperationSearchResult> _data = new ArrayList<>();
 
-		_libTxt.textProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
-		});
+public void setData(List<OperationSearchResult> data) { _data = data; fireTableDataChanged(); }
 
-		_montantTxt.textProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
-		});
+@Override public int getRowCount() { return _data.size(); }
+@Override public int getColumnCount() { return COLS.length; }
+@Override public String getColumnName(int col) { return COLS[col]; }
 
-		_toleranceTxt.textProperty().addListener((observable, oldValue, newValue) -> {
-			checkInput();
-		});
-
-	}
-
-	/**
-	 * Vérification de la saisie
-	 */
-	private void checkInput() {
-
-		// Vérif du nom
-		boolean nomOk = true;
-		if (!_libTxt.getText().trim().isEmpty()) {
-
-			_libTxt.setBorder(null);
-			nomOk = true;
-
-		}
-
-		boolean montOk = true;
-		if (!_montantTxt.getText().trim().isEmpty()) {
-			try {
-				Double.parseDouble(_montantTxt.getText().trim());
-				_montantTxt.setBorder(null);
-			} catch (Exception e) {
-				montOk = false;
-				_montantTxt.setBorder(BORDER_ERROR);
-			}
-		}
-
-		boolean tolOk = true;
-		if (!_toleranceTxt.getText().trim().isEmpty()) {
-			try {
-				Double.parseDouble(_toleranceTxt.getText().trim());
-				_toleranceTxt.setBorder(null);
-			} catch (Exception e) {
-				tolOk = false;
-				_toleranceTxt.setBorder(BORDER_ERROR);
-			}
-		}
-
-		_allEmpty = _montantTxt.getText().trim().isEmpty() && _libTxt.getText().trim().isEmpty()
-				&& _toleranceTxt.getText().trim().isEmpty();
-
-		searchBut.setDisable(!montOk && !tolOk && !nomOk);
-
-	}
-
-	/**
-	 * Création des champs de recherche
-	 */
-	private Node createCriteriaFields() {
-
-		GridPane subRoot = new GridPane();
-
-		// saisie du nom
-		Label nomLdl = new Label("Libellé contient : ");
-		nomLdl.setTooltip(new Tooltip("Vide = pas de critère sur le libellé"));
-		subRoot.add(nomLdl, 0, 0);
-		_libTxt = new TextField();
-		subRoot.add(_libTxt, 1, 0);
-
-		// saisie du montant
-		Label montantLdl = new Label("Montant égale : ");
-		subRoot.add(montantLdl, 0, 1);
-		_montantTxt = new TextField();
-		subRoot.add(_montantTxt, 1, 1);
-
-		// saisie de la tolérance du montant
-		Label tolLbl = new Label(" + / - : ");
-		subRoot.add(tolLbl, 0, 2);
-		_toleranceTxt = new TextField();
-		subRoot.add(_toleranceTxt, 1, 2);
-
-		return subRoot;
-
-	}
-
-	/**
-	 * Crée la zone d'affichage des résultats d'un recherche d'opération s
-	 */
-	private Node createSearchRes() {
-
-		GridPane subRoot = new GridPane();
-		subRoot.setVgap(5);
-
-		ColumnConstraints colCons = new ColumnConstraints();
-		colCons.setFillWidth(true);
-		colCons.setHgrow(Priority.ALWAYS);
-
-		subRoot.getColumnConstraints().add(colCons);
-
-		// le bouton de recherche
-		searchBut = new Button("Rechercher");
-		searchBut.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent event) {
-
-				boolean doSearch = true;
-
-				if (_allEmpty) {
-
-					Alert alert = new Alert(AlertType.CONFIRMATION);
-					alert.setTitle("Confirmer la recherche");
-					alert.setHeaderText(
-							"Attention, les champs de recherche sont vides, l'intégralité des opérations sera remontée");
-					alert.setContentText("Voulez-vous continuer ?");
-
-					Optional<ButtonType> res = alert.showAndWait();
-
-					if (res.isPresent()) {
-
-						if (res.get() == ButtonType.CANCEL) {
-							doSearch = false;
-						}
-
-					} else {
-						doSearch = false;
-					}
-
-				}
-
-				if (doSearch) {
-
-					_resultatList.clear();
-					try {
-						List<OperationSearchResult> list = OperationService.doSearch(_libTxt.getText(),
-								_montantTxt.getText(), _toleranceTxt.getText());
-						_resultatList.addAll(list);
-					} catch (ComptaException e) {
-						ExceptionDisplayService.showException(e);
-					}
-
-				}
-
-			}
-		});
-		subRoot.add(searchBut, 0, 0);
-
-		// le tableau de résultat
-		TableView<OperationSearchResult> _resTable = new TableView<>();
-		_resTable.setItems(_resultatList);
-
-		// libellé
-		TableColumn<OperationSearchResult, String> colLib = new TableColumn<OperationSearchResult, String>();
-		colLib.setText("Libellé");
-		colLib.setResizable(true);
-		colLib.setSortable(true);
-		colLib.setCellValueFactory(cellData -> cellData.getValue().libelleProperty());
-
-		// montant
-		TableColumn<OperationSearchResult, Number> colMontant = new TableColumn<OperationSearchResult, Number>();
-		colMontant.setText("Montant");
-		colMontant.setResizable(true);
-		colMontant.setSortable(true);
-		colMontant.setCellValueFactory(cellData -> cellData.getValue().montantProperty());
-		colMontant.setCellFactory(new MontantCellFactory<OperationSearchResult>());
-
-		// date
-		TableColumn<OperationSearchResult, LocalDate> colDate = new TableColumn<OperationSearchResult, LocalDate>();
-		colDate.setText("Mois");
-		colDate.setResizable(true);
-		colDate.setSortable(true);
-		colDate.setCellValueFactory(cellData -> cellData.getValue().getMoisProperty());
-		colDate.setCellFactory(new MoisCellFactory<OperationSearchResult>());
-
-		// ajout des colonnes
-		_resTable.getColumns().add(colLib);
-		_resTable.getColumns().add(colMontant);
-		_resTable.getColumns().add(colDate);
-
-		subRoot.add(_resTable, 0, 1);
-
-		return subRoot;
-
-	}
-
-	/**
-	 * Création des boutons
-	 */
-	protected void createButtonBar() {
-		// bouton ok
-		ButtonType okButton = new ButtonType("Fermer", ButtonData.CANCEL_CLOSE);
-		getDialogPane().getButtonTypes().add(okButton);
-
-	}
+@Override
+public Object getValueAt(int row, int col) {
+OperationSearchResult r = _data.get(row);
+switch (col) {
+case 0: return r.getLibelle();
+case 1: return ApplicationFormatter.montantFormat.format(r.getMontant());
+case 2: return r.getMois() != null ? ApplicationFormatter.moiAnneedateFormat.format(r.getMois()) : "";
+default: return null;
+}
+}
+}
 
 }

@@ -8,7 +8,6 @@ import org.arthur.compta.lapin.model.operation.OperationType;
 
 import java.sql.*;
 import java.time.LocalDate;
-import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.List;
 

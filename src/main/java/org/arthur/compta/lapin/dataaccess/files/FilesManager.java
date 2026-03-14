@@ -2,7 +2,6 @@ package org.arthur.compta.lapin.dataaccess.files;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -22,7 +21,7 @@ public class FilesManager {
 	 */
 	private Path _dbFolderPath;
 	/**
-	 * Répertoire de la confiuration
+	 * Répertoire de la configuration
 	 */
 	private Path _confFolderPath;
 

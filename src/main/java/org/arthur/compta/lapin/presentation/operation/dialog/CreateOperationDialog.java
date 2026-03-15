@@ -1,6 +1,5 @@
 package org.arthur.compta.lapin.presentation.operation.dialog;
 
-import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.CompteManager;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.application.model.AppCompte;
@@ -42,14 +41,17 @@ public class CreateOperationDialog extends ComptaDialog {
 
         // compte combos
         List<AppCompte> comptes = CompteManager.getInstance().getCompteList();
-        DefaultComboBoxModel<AppCompte> cptModel = new DefaultComboBoxModel<>(comptes.toArray(new AppCompte[0]));
+        DefaultComboBoxModel<AppCompte> cptModel =
+                new DefaultComboBoxModel<>(comptes.toArray(new AppCompte[0]));
         _srcCombo = new JComboBox<>(cptModel);
-        _cibleCombo = new JComboBox<>(new DefaultComboBoxModel<>(comptes.toArray(new AppCompte[0])));
+        _cibleCombo =
+                new JComboBox<>(new DefaultComboBoxModel<>(comptes.toArray(new AppCompte[0])));
 
         // renderer pour les comptes
         ListCellRenderer<Object> cptRenderer = new DefaultListCellRenderer() {
             @Override
-            public Component getListCellRendererComponent(JList<?> l, Object v, int idx, boolean sel, boolean focus) {
+            public Component getListCellRendererComponent(JList<?> l, Object v, int idx,
+                    boolean sel, boolean focus) {
                 JLabel lbl = (JLabel) super.getListCellRendererComponent(l, v, idx, sel, focus);
                 lbl.setText(v instanceof AppCompte ? ((AppCompte) v).getNom() : "");
                 return lbl;
@@ -100,9 +102,11 @@ public class CreateOperationDialog extends ComptaDialog {
             public void insertUpdate(DocumentEvent e) {
                 checkInput();
             }
+
             public void removeUpdate(DocumentEvent e) {
                 checkInput();
             }
+
             public void changedUpdate(DocumentEvent e) {
                 checkInput();
             }
@@ -157,8 +161,8 @@ public class CreateOperationDialog extends ComptaDialog {
             double montant = Double.parseDouble(_montantTxt.getText().trim());
 
             if (_operation == null) {
-                _operation = TrimestreManager.getInstance().addOperation(_libTxt.getText(), montant, type, src, cible,
-                        _numMois);
+                _operation = TrimestreManager.getInstance().addOperation(_libTxt.getText(), montant,
+                        type, src, cible, _numMois);
             } else {
                 OperationService.editOperation(_operation, _libTxt.getText(), montant, src, cible);
             }
@@ -171,7 +175,8 @@ public class CreateOperationDialog extends ComptaDialog {
 
     private void checkInput() {
         boolean libOk = !_libTxt.getText().trim().isEmpty();
-        _libTxt.setBorder(libOk ? UIManager.getBorder("TextField.border") : BorderFactory.createLineBorder(Color.RED));
+        _libTxt.setBorder(libOk ? UIManager.getBorder("TextField.border")
+                : BorderFactory.createLineBorder(Color.RED));
 
         boolean montOk = false;
         try {
@@ -179,8 +184,8 @@ public class CreateOperationDialog extends ComptaDialog {
             montOk = true;
         } catch (NumberFormatException e) {
         }
-        _montantTxt.setBorder(
-                montOk ? UIManager.getBorder("TextField.border") : BorderFactory.createLineBorder(Color.RED));
+        _montantTxt.setBorder(montOk ? UIManager.getBorder("TextField.border")
+                : BorderFactory.createLineBorder(Color.RED));
 
         String type = (String) _typeCombo.getSelectedItem();
         boolean isTrans = TrimestreManager.getInstance().isTransfertType(type);

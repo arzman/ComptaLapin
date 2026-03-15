@@ -78,10 +78,8 @@ public class ConfigurationManager {
     /**
      * Restaure et sauve les largeurs des colonnes d'un tableau Swing
      *
-     * @param table
-     *            le tableau
-     * @param prefix
-     *            prefix pour sauvegarder les paramètres
+     * @param table le tableau
+     * @param prefix prefix pour sauvegarder les paramètres
      */
     public void setPrefColumnWidth(JTable table, String prefix) {
         for (int i = 0; i < table.getColumnModel().getColumnCount(); i++) {
@@ -95,21 +93,22 @@ public class ConfigurationManager {
                 public void columnMarginChanged(javax.swing.event.ChangeEvent e) {
                     // sauvegarde des largeurs
                     for (int j = 0; j < table.getColumnModel().getColumnCount(); j++) {
-                        setProp(prefix + ".col" + j, String.valueOf(table.getColumnModel().getColumn(j).getWidth()));
+                        setProp(prefix + ".col" + j,
+                                String.valueOf(table.getColumnModel().getColumn(j).getWidth()));
                     }
                 }
+
                 @Override
-                public void columnMoved(TableColumnModelEvent e) {
-                }
+                public void columnMoved(TableColumnModelEvent e) {}
+
                 @Override
-                public void columnAdded(TableColumnModelEvent e) {
-                }
+                public void columnAdded(TableColumnModelEvent e) {}
+
                 @Override
-                public void columnRemoved(TableColumnModelEvent e) {
-                }
+                public void columnRemoved(TableColumnModelEvent e) {}
+
                 @Override
-                public void columnSelectionChanged(javax.swing.event.ListSelectionEvent e) {
-                }
+                public void columnSelectionChanged(javax.swing.event.ListSelectionEvent e) {}
             });
             break; // listener suffisant, ajouter 1 fois
         }

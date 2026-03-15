@@ -4,7 +4,7 @@ import org.arthur.compta.lapin.application.exception.ComptaException;
 import org.arthur.compta.lapin.application.manager.TrimestreManager;
 import org.arthur.compta.lapin.application.model.AppExerciceMensuelLightId;
 import org.arthur.compta.lapin.application.model.AppOperation;
-import org.arthur.compta.lapin.application.model.AppTransfert;
+import org.arthur.compta.lapin.application.service.OperationService;
 import org.arthur.compta.lapin.model.operation.EtatOperation;
 import org.arthur.compta.lapin.presentation.exception.ExceptionDisplayService;
 import org.arthur.compta.lapin.presentation.operation.dialog.CreateOperationDialog;
@@ -20,8 +20,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 /**
- * Panneau de présentation d'un exercice mensuel : tableau des dépenses, tableau
- * des ressources et tableau des transferts.
+ * Panneau de présentation d'un exercice mensuel : tableau des dépenses, tableau des ressources et
+ * tableau des transferts.
  */
 public class ExerciceMensuelPane extends JPanel {
 
@@ -91,7 +91,7 @@ public class ExerciceMensuelPane extends JPanel {
                         T op = model.getRow(row);
                         if (op != null) {
                             try {
-                                org.arthur.compta.lapin.application.service.OperationService.switchEtatOperation(op);
+                                OperationService.switchEtatOperation(op);
                                 model.fireTableRowsUpdated(row, row);
                             } catch (ComptaException ex) {
                                 ExceptionDisplayService.showException(ex);
@@ -104,8 +104,8 @@ public class ExerciceMensuelPane extends JPanel {
         return table;
     }
 
-    private <T extends AppOperation> void createContextMenu(JTable table, OperationTableModel<T> model,
-            String defaultType) {
+    private <T extends AppOperation> void createContextMenu(JTable table,
+            OperationTableModel<T> model, String defaultType) {
         JPopupMenu menu = new JPopupMenu();
 
         // Ajouter
@@ -126,7 +126,8 @@ public class ExerciceMensuelPane extends JPanel {
             if (row >= 0) {
                 T appOp = model.getRow(row);
                 if (appOp != null) {
-                    CreateOperationDialog cod = new CreateOperationDialog(appOp, _numMois, appOp.getType().toString());
+                    CreateOperationDialog cod =
+                            new CreateOperationDialog(appOp, _numMois, appOp.getType().toString());
                     cod.setVisible(true);
                     refreshAfterChange();
                 }
@@ -166,7 +167,8 @@ public class ExerciceMensuelPane extends JPanel {
                     AppExerciceMensuelLightId lightId = semd.getResult();
                     if (lightId != null) {
                         try {
-                            TrimestreManager.getInstance().moveOperationFromTrimCourant(appOp, _numMois, lightId);
+                            TrimestreManager.getInstance().moveOperationFromTrimCourant(appOp,
+                                    _numMois, lightId);
                             refreshAfterChange();
                         } catch (ComptaException ex) {
                             ExceptionDisplayService.showException(ex);
@@ -190,8 +192,8 @@ public class ExerciceMensuelPane extends JPanel {
                     T op = hasSelection ? model.getRow(table.getSelectedRow()) : null;
                     editOp.setEnabled(hasSelection);
                     removeOp.setEnabled(hasSelection);
-                    transOp.setEnabled(
-                            hasSelection && op != null && !op.getEtat().equals(EtatOperation.PRISE_EN_COMPTE));
+                    transOp.setEnabled(hasSelection && op != null
+                            && !op.getEtat().equals(EtatOperation.PRISE_EN_COMPTE));
                     menu.show(table, e.getX(), e.getY());
                 }
             }

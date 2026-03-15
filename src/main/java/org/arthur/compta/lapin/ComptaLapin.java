@@ -11,6 +11,7 @@ import org.arthur.compta.lapin.presentation.resource.img.ImageLoader;
 import org.arthur.compta.lapin.presentation.scene.MainPane;
 
 import javax.swing.*;
+import com.formdev.flatlaf.FlatLightLaf;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -39,6 +40,12 @@ public class ComptaLapin {
             TrimestreManager.getInstance().recoverTrimestre();
         } catch (ComptaException e) {
             e.printStackTrace();
+        }
+
+        try {
+            UIManager.setLookAndFeel(new FlatLightLaf());
+        } catch (Exception ex) {
+            System.err.println("Failed to initialize LaF");
         }
 
         SwingUtilities.invokeLater(() -> {
